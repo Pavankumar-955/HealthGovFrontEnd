@@ -1,12 +1,45 @@
-import { useState } from "react";
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import API from '../../api/axios';
+import { useAuth } from '../../context/AuthContext';
+import toast from 'react-hot-toast';
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Logging in with:", { email, password });
+    setLoading(true);
+
+    try {
+      const response = await API.post('/healthGov/login', {
+        email,
+        password,
+      });
+
+      const token = response.data.token;
+      login(token);
+
+      // Redirect based on user role
+      const decodedToken = JSON.parse(atob(token.split('.')[1]));
+      const userRole = decodedToken.role;
+
+      if (userRole === 'ADMIN') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/citizen/dashboard');
+      }
+
+      toast.success('Login Successful');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Invalid Credentials');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -63,17 +96,18 @@ export default function Login() {
                 />
                 <span className="text-gray-400">Remember me</span>
               </label>
-              <a href="#" className="font-semibold text-indigo-500 hover:text-indigo-400">
+              <Link to="/forgot-password" className="font-semibold text-indigo-500 hover:text-indigo-400">
                 Forgot password?
-              </a>
+              </Link>
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full rounded-lg bg-indigo-600 py-3 font-semibold text-white transition-colors hover:bg-indigo-700 active:bg-indigo-800"
+              disabled={loading}
+              className="w-full rounded-lg bg-indigo-600 py-3 font-semibold text-white transition-colors hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Sign in
+              {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
 
@@ -98,6 +132,14 @@ export default function Login() {
               <span className="text-sm font-medium">GitHub</span>
             </button>
           </div>
+
+          {/* Footer */}
+          <p className="mt-6 text-center text-sm text-gray-400">
+            Don't have an account?{' '}
+            <Link to="/signup" className="font-semibold text-indigo-500 hover:text-indigo-400">
+              Sign up
+            </Link>
+          </p>
         </div>
       </div>
     </div>
