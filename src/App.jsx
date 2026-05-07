@@ -1,11 +1,13 @@
 
+import ErrorBoundary from './components/feedbacks/ErrorBoundary'
+
 function App() {
-
-
   return (
-    <>
-      <h1>hi</h1>
-    </>
+    <ErrorBoundary>
+      <main>
+        <h1>hi</h1>
+      </main>
+    </ErrorBoundary>
   )
 }
 
