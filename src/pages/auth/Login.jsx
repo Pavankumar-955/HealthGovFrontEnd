@@ -27,7 +27,7 @@ export default function Login() {
             {/* Email Field */}
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-300">
-                Email address
+                Email  address
               </label>
               <input
                 type="email"
