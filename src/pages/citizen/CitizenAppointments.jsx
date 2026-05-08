@@ -23,7 +23,7 @@ const CitizenAppointments = () => {
         {
           id: 2,
           type: 'Dental Cleaning',
-          doctor: 'Dr. Michael Chen',
+          doctor: 'Dr. Michael  Chen',
           date: '2024-01-20',
           time: '2:30 PM',
           location: 'Smile Dental Clinic',
