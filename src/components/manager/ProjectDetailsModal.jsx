@@ -15,19 +15,21 @@ export default function ProjectDetailsModal({ project, onClose }) {
             <p><strong>ID:</strong> {project.projectId}</p>
             <p><strong>Title:</strong> {project.title}</p>
             <p><strong>Description:</strong> {project.description}</p>
-            <p><strong>Researcher:</strong> {project.researcherName}</p>
+            <p><strong>Start Date:</strong> {project.startDate}</p>
+            <p><strong>End Date:</strong> {project.endDate}</p>
             <p><strong>Status:</strong> {project.status}</p>
 
-            {/* ✅ Conditional data */}
+            {/* ✅ SHOW EXTRA DATA ONLY HERE */}
+
             {project.status === "APPROVED" && (
               <p className="text-success">
-                <strong>Grant Amount:</strong> ₹ {project.amount}
+                <strong>Grant Amount:</strong> ₹ {project.amount || "Not available"}
               </p>
             )}
 
             {project.status === "REJECTED" && (
               <p className="text-danger">
-                <strong>Reason:</strong> {project.reason}
+                <strong>Rejection Reason:</strong> {project.reason || "Not provided"}
               </p>
             )}
 

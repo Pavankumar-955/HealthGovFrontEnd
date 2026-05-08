@@ -15,10 +15,13 @@ export default function ProjectTable({ projects, onEdit, onDelete, onRowClick })
         <tr>
           <th>ID</th>
           <th>Title</th>
+
+          {/* ✅ NEW COLUMN */}
+          <th>Description</th>
+
           <th>Dates</th>
           <th>Status</th>
-          <th>Reason</th>
-          <th>Action</th> {/* ✅ Always present */}
+          <th>Action</th>
         </tr>
       </thead>
 
@@ -31,7 +34,15 @@ export default function ProjectTable({ projects, onEdit, onDelete, onRowClick })
           >
 
             <td>{p.projectId}</td>
+
             <td>{p.title}</td>
+
+            {/* ✅ DESCRIPTION CELL */}
+            <td style={{ maxWidth: "250px" }}>
+              <small className="text-muted">
+                {p.description || "-"}
+              </small>
+            </td>
 
             <td>
               {p.startDate} → {p.endDate}
@@ -43,12 +54,10 @@ export default function ProjectTable({ projects, onEdit, onDelete, onRowClick })
               </span>
             </td>
 
-            <td>{p.reason || "-"}</td>
-
             {/* ✅ ACTION COLUMN */}
             <td>
 
-              {/* ✅ Pending → Edit + Delete */}
+              {/* Pending → Edit + Delete */}
               {p.status === "PENDING" && (
                 <>
                   <button
@@ -73,7 +82,7 @@ export default function ProjectTable({ projects, onEdit, onDelete, onRowClick })
                 </>
               )}
 
-              {/* ✅ Approved / Rejected → Completed */}
+              {/* Approved / Rejected */}
               {p.status !== "PENDING" && (
                 <span className="text-muted">Completed</span>
               )}
