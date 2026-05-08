@@ -1,15 +1,19 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import API from "../../api/axios";
+import toast from "react-hot-toast";
 
 export default function Register() {
   const [form, setForm] = useState({
-    name: "",
+    fullName: "",
     email: "",
+    phoneNumber: "",
     password: "",
     confirmPassword: "",
   });
 
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -19,11 +23,15 @@ export default function Register() {
   const validate = () => {
     let newErrors = {};
 
-    if (!form.name) newErrors.name = "Full name is required";
+    if (!form.fullName) newErrors.fullName = "Full name is required";
 
     if (!form.email) newErrors.email = "Email address is required";
     else if (!/\S+@\S+\.\S+/.test(form.email))
       newErrors.email = "Please enter a valid email";
+
+    if (!form.phoneNumber) newErrors.phoneNumber = "Phone number is required";
+    else if (!/^\d{10}$/.test(form.phoneNumber))
+      newErrors.phoneNumber = "Phone number must be 10 digits";
 
     if (!form.password) newErrors.password = "Password is required";
     else if (form.password.length < 6)
@@ -37,15 +45,31 @@ export default function Register() {
     return newErrors;
   };
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
-    } else {
-      alert("✅ Registration successful!");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await API.post('/healthGov/citizenRegister', {
+        fullName: form.fullName,
+        email: form.email,
+        phoneNumber: form.phoneNumber,
+        password: form.password,
+      });
+
+      toast.success('Registration Successful! Please Login');
       navigate("/login");
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Registration Failed');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -102,15 +126,15 @@ export default function Register() {
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1">Full Name</label>
               <input
-                name="name"
+                name="fullName"
                 type="text"
                 placeholder="John Doe"
                 onChange={handleChange}
                 className={`w-full rounded-2xl border bg-slate-50 px-5 py-3.5 transition-all focus:bg-white focus:outline-none focus:ring-4 ${
-                  errors.name ? "border-red-400 focus:ring-red-100" : "border-slate-200 focus:border-emerald-500 focus:ring-emerald-50"
+                  errors.fullName ? "border-red-400 focus:ring-red-100" : "border-slate-200 focus:border-emerald-500 focus:ring-emerald-50"
                 }`}
               />
-              {errors.name && <p className="ml-1 text-xs font-medium text-red-500">{errors.name}</p>}
+              {errors.fullName && <p className="ml-1 text-xs font-medium text-red-500">{errors.fullName}</p>}
             </div>
 
             {/* Email */}
@@ -126,6 +150,21 @@ export default function Register() {
                 }`}
               />
               {errors.email && <p className="ml-1 text-xs font-medium text-red-500">{errors.email}</p>}
+            </div>
+
+            {/* Phone Number */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1">Phone Number</label>
+              <input
+                name="phoneNumber"
+                type="tel"
+                placeholder="9876543210"
+                onChange={handleChange}
+                className={`w-full rounded-2xl border bg-slate-50 px-5 py-3.5 transition-all focus:bg-white focus:outline-none focus:ring-4 ${
+                  errors.phoneNumber ? "border-red-400 focus:ring-red-100" : "border-slate-200 focus:border-emerald-500 focus:ring-emerald-50"
+                }`}
+              />
+              {errors.phoneNumber && <p className="ml-1 text-xs font-medium text-red-500">{errors.phoneNumber}</p>}
             </div>
 
             {/* Password */}
@@ -158,8 +197,12 @@ export default function Register() {
               {errors.confirmPassword && <p className="ml-1 text-xs font-medium text-red-500">{errors.confirmPassword}</p>}
             </div>
 
-            <button className="group relative w-full overflow-hidden rounded-2xl bg-slate-900 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-600 active:scale-[0.98] mt-2">
-              <span className="relative z-10">Register Now</span>
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="group relative w-full overflow-hidden rounded-2xl bg-slate-900 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-600 active:scale-[0.98] mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className="relative z-10">{loading ? 'Registering...' : 'Register Now'}</span>
             </button>
           </form>
 
