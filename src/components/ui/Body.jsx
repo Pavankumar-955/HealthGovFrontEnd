@@ -1,4 +1,5 @@
 ﻿import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 const slides = [
   {
@@ -65,6 +66,12 @@ export default function Body() {
               <button className="inline-flex justify-center rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100">
                 Learn More
               </button>
+              <Link
+                to="/forgot-password"
+                className="inline-flex justify-center rounded-full border border-slate-300 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-200"
+              >
+                Forgot Password?
+              </Link>
             </div>
           </aside>
 

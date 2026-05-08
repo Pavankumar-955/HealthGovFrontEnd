@@ -13,7 +13,7 @@ const AddUser = () => {
     phoneNumber: '',
     password: '',
     confirmPassword: '',
-    role: 'CITIZEN',
+    role: '',
   });
 
   const handleChange = (e) => {
@@ -130,10 +130,12 @@ const AddUser = () => {
               onChange={handleChange}
               className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-600"
             >
-              <option value="CITIZEN">Citizen</option>
-              <option value="ADMIN">Admin</option>
-              <option value="DOCTOR">Doctor</option>
-              <option value="NURSE">Nurse</option>
+              <option value="">Select the role</option>
+              <option value="PROVIDER">Provider</option>
+              <option value="RESEARCHER">Researcher</option>
+              <option value="MANAGER">Manager</option>
+              <option value="COMPLIANCE">Compliance</option>
+              <option value="AUDITOR">Auditor</option>
             </select>
           </div>
 

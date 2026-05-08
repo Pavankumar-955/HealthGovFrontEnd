@@ -13,60 +13,56 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
-      await API.post('/healthGov/forgotPassword/otp', { email });
-      toast.success('OTP Sent Successfully to your email');
-      navigate('/login');
+      await API.post(`/healthGov/forgotPassword/otp?email=${encodeURIComponent(email)}`);
+      toast.success('OTP sent successfully to your email');
+      navigate('/reset-password', { state: { email } });
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed To Send OTP');
+      toast.error(err.response?.data?.message || 'Failed to send OTP');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0B0F1A] px-4 font-sans text-white">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-lime-100 via-emerald-100 to-white px-4 font-sans text-slate-900">
       <div className="w-full max-w-md">
-        {/* Header Section */}
         <div className="mb-10 text-center">
           <div className="mb-4 flex justify-center">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-red-500 to-orange-500 blur-[2px]" />
+            <div className="flex h-11 items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-white shadow-lg">
+              <span className="font-bold">HealthGov</span>
+              <span className="text-xs uppercase tracking-[0.3em]">Portal</span>
+            </div>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">Reset your password</h1>
-          <p className="mt-2 text-gray-400">Enter your email to receive OTP</p>
+          <h1 className="text-3xl font-bold tracking-tight">Forgot Password</h1>
+          <p className="mt-2 text-sm text-slate-600">Enter your email and we'll send you an OTP to reset your password.</p>
         </div>
 
-        {/* Main Card */}
-        <div className="rounded-xl border border-gray-800 bg-[#151B28] p-8 shadow-2xl">
+        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email Field */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-300">
-                Email Address
-              </label>
+              <label className="mb-2 block text-sm font-medium text-slate-700">Email Address</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-gray-700 bg-[#0B0F1A] px-4 py-3 text-white outline-none transition-all focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition-all focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                 placeholder="you@example.com"
                 required
               />
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-lg bg-red-600 py-3 font-semibold text-white transition-colors hover:bg-red-700 active:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-xl bg-emerald-600 py-3 font-semibold text-white transition-colors hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Sending OTP...' : 'Send OTP'}
             </button>
           </form>
 
-          {/* Footer */}
-          <p className="mt-6 text-center text-sm text-gray-400">
+          <p className="mt-6 text-center text-sm text-slate-500">
             Remember your password?{' '}
-            <Link to="/login" className="font-semibold text-red-500 hover:text-red-400">
+            <Link to="/login" className="font-semibold text-emerald-600 hover:text-emerald-500">
               Back to login
             </Link>
           </p>

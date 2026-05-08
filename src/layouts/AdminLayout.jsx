@@ -112,16 +112,30 @@ const AdminLayout = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Bar */}
-        <header className="bg-white shadow-sm border-b border-gray-200 lg:hidden">
-          <div className="flex items-center justify-between h-16 px-4">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <MdMenu size={24} />
-            </button>
-            <h1 className="text-lg font-semibold text-gray-900">HealthGov Admin Portal</h1>
-            <div className="w-8" /> {/* Spacer */}
+        <header className="bg-white shadow-sm border-b border-gray-200">
+          <div className="flex items-center justify-between h-16 px-4 lg:px-6">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="text-gray-500 hover:text-gray-700 lg:hidden"
+              >
+                <MdMenu size={24} />
+              </button>
+              <div>
+                <h1 className="text-lg font-semibold text-gray-900">HealthGov Admin Portal</h1>
+                <p className="text-sm text-gray-500">Manage users, analytics and system settings</p>
+              </div>
+            </div>
+
+            <div className="hidden sm:flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-500 text-white text-lg font-semibold">
+                {user?.name ? user.name.charAt(0).toUpperCase() : user?.email?.charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-[180px]">
+                <p className="text-sm font-semibold text-slate-900">{user?.name || user?.email || 'Administrator'}</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-red-600">{user?.role || 'ADMIN'}</p>
+              </div>
+            </div>
           </div>
         </header>
 

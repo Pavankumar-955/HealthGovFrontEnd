@@ -6,6 +6,7 @@ import { useAuth } from "./context/AuthContext"
 import Login from "./pages/auth/Login"
 import Register from "./pages/auth/Register"
 import ForgotPassword from "./pages/auth/ForgotPassword"
+import ResetPassword from "./pages/auth/ResetPassword"
 
 // Citizen Pages
 import CitizenDashboard from "./pages/dashboard/CitizenDashboard"
@@ -47,6 +48,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Citizen Routes */}
         <Route
