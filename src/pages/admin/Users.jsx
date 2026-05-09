@@ -2,13 +2,16 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import API from '../../api/axios';
 import toast from 'react-hot-toast';
-import { MdDelete, MdEdit, MdRefresh } from 'react-icons/md';
+import { MdEdit, MdRefresh, MdSave, MdClose, MdToggleOn } from 'react-icons/md';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('ALL');
+  const [editingUser, setEditingUser] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
 
   useEffect(() => {
     fetchUsers();
@@ -18,7 +21,8 @@ const Users = () => {
     setLoading(true);
     try {
       if (filterRole === 'ALL') {
-        const response = await API.get('/healthGov/getAllCitizens');
+        // Fetch all users including inactive ones
+        const response = await API.get('/healthGov/getAllUsers');
         setUsers(response.data);
       } else {
         const response = await API.get(`/healthGov/getUserByRole/${filterRole}`);
@@ -33,15 +37,61 @@ const Users = () => {
     }
   };
 
-  const deleteUser = async (userId) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
+  const openEditModal = (user) => {
+    setEditingUser(user);
+    setEditName(user.name || user.fullName || '');
+    setEditPhone(user.phone || '');
+  };
 
+  const closeEditModal = () => {
+    setEditingUser(null);
+    setEditName('');
+    setEditPhone('');
+  };
+
+  const updateUserDetails = async () => {
+    if (!editingUser) return;
     try {
-      await API.delete(`/healthGov/deleteUserByAdmin/${userId}`);
-      setUsers(users.filter(u => u.userId !== userId));
-      toast.success('User deleted successfully');
+      setLoading(true);
+      const payload = {
+        userId: editingUser.userId,
+        name: editName,
+        phone: editPhone,
+      };
+      const response = await API.put('/healthGov/updateUserByAdmin', payload);
+      const updatedUser = response.data;
+      setUsers((prev) => prev.map((user) =>
+        user.userId === updatedUser.userId
+          ? { ...user, name: updatedUser.name, fullName: updatedUser.name, phone: updatedUser.phone }
+          : user
+      ));
+      toast.success('User updated successfully');
+      closeEditModal();
     } catch (err) {
-      toast.error('Failed to delete user');
+      toast.error('Failed to update user');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleUserStatus = async (user) => {
+    const newStatus = user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+    try {
+      setLoading(true);
+      const response = await API.put(`/healthGov/admin/update-status/${user.userId}?status=${newStatus}`);
+      const updatedUser = response.data;
+      setUsers((prev) => prev.map((u) =>
+        u.userId === updatedUser.userId
+          ? { ...u, status: updatedUser.status || newStatus }
+          : u
+      ));
+      toast.success(`User status updated to ${newStatus}`);
+    } catch (err) {
+      toast.error('Failed to update user status');
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -77,7 +127,11 @@ const Users = () => {
               <option value="ALL">All Roles</option>
               <option value="ADMIN">Admin</option>
               <option value="CITIZEN">Citizen</option>
-              <option value="DOCTOR">Doctor</option>
+              <option value="PROVIDER">Provider</option>
+              <option value="RESEARCHER">Researcher</option>
+              <option value="MANAGER">Manager</option>
+              <option value="COMPLIANCE">Compliance</option>
+              <option value="AUDITOR">Auditor</option>
             </select>
           </div>
 
@@ -100,6 +154,58 @@ const Users = () => {
           </div>
         </div>
       </div>
+
+      {editingUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
+          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Edit User</h2>
+                <p className="text-sm text-gray-500">Update name and phone for {editingUser.email}</p>
+              </div>
+              <button onClick={closeEditModal} className="text-gray-500 hover:text-gray-800">
+                <MdClose size={24} />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Name</label>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-2 focus:border-green-600 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Phone</label>
+                <input
+                  type="text"
+                  value={editPhone}
+                  onChange={(e) => setEditPhone(e.target.value)}
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-2 focus:border-green-600 focus:outline-none"
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  onClick={closeEditModal}
+                  className="rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={updateUserDetails}
+                  disabled={loading}
+                  className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-50"
+                >
+                  <MdSave size={18} />
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Users Table */}
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
@@ -125,7 +231,7 @@ const Users = () => {
                 {filteredUsers.map((user) => (
                   <tr key={user.userId} className="border-b border-gray-200 hover:bg-gray-50 transition">
                     <td className="px-6 py-4 text-sm text-gray-900">{user.userId}</td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{user.fullName || 'N/A'}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{user.name || user.fullName || 'N/A'}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{user.email}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{user.phone || 'N/A'}</td>
                     <td className="px-6 py-4 text-sm">
@@ -136,22 +242,34 @@ const Users = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        user.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {user.status}
-                      </span>
+                      {user.status === 'ACTIVE' ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                          <span className="text-green-800 font-semibold">Active</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                          <span className="text-gray-800 font-semibold">Inactive</span>
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <div className="flex gap-2">
-                        <button className="text-blue-600 hover:text-blue-900 transition">
+                        <button
+                          onClick={() => openEditModal(user)}
+                          className="text-blue-600 hover:text-blue-900 transition"
+                          title="Edit Name/Phone"
+                        >
                           <MdEdit size={20} />
                         </button>
                         <button
-                          onClick={() => deleteUser(user.userId)}
-                          className="text-red-600 hover:text-red-900 transition"
+                          onClick={() => toggleUserStatus(user)}
+                          disabled={user.role === 'ADMIN'}
+                          className={`transition ${user.role === 'ADMIN' ? 'text-gray-300 cursor-not-allowed' : user.status === 'ACTIVE' ? 'text-orange-600 hover:text-orange-900' : 'text-green-600 hover:text-green-900'}`}
+                          title={user.role === 'ADMIN' ? 'Cannot change admin status' : `Set to ${user.status === 'ACTIVE' ? 'Inactive' : 'Active'}`}
                         >
-                          <MdDelete size={20} />
+                          <MdToggleOn size={20} />
                         </button>
                       </div>
                     </td>

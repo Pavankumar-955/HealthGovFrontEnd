@@ -5,9 +5,9 @@ import toast from "react-hot-toast";
 
 export default function Register() {
   const [form, setForm] = useState({
-    fullName: "",
+    name: "",
     email: "",
-    phoneNumber: "",
+    phone: "",
     password: "",
     confirmPassword: "",
   });
@@ -23,15 +23,15 @@ export default function Register() {
   const validate = () => {
     let newErrors = {};
 
-    if (!form.fullName) newErrors.fullName = "Full name is required";
+    if (!form.name) newErrors.name = "Name is required";
 
     if (!form.email) newErrors.email = "Email address is required";
     else if (!/\S+@\S+\.\S+/.test(form.email))
       newErrors.email = "Please enter a valid email";
 
-    if (!form.phoneNumber) newErrors.phoneNumber = "Phone number is required";
-    else if (!/^\d{10}$/.test(form.phoneNumber))
-      newErrors.phoneNumber = "Phone number must be 10 digits";
+    if (!form.phone) newErrors.phone = "Phone number is required";
+    else if (!/^\d{10}$/.test(form.phone))
+      newErrors.phone = "Phone number must be 10 digits";
 
     if (!form.password) newErrors.password = "Password is required";
     else if (form.password.length < 6)
@@ -58,9 +58,9 @@ export default function Register() {
 
     try {
       await API.post('/healthGov/citizenRegister', {
-        fullName: form.fullName,
+        name: form.name,
         email: form.email,
-        phoneNumber: form.phoneNumber,
+        phone: form.phone,
         password: form.password,
       });
 
@@ -126,15 +126,15 @@ export default function Register() {
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1">Full Name</label>
               <input
-                name="fullName"
+                name="name"
                 type="text"
                 placeholder="John Doe"
                 onChange={handleChange}
                 className={`w-full rounded-2xl border bg-slate-50 px-5 py-3.5 transition-all focus:bg-white focus:outline-none focus:ring-4 ${
-                  errors.fullName ? "border-red-400 focus:ring-red-100" : "border-slate-200 focus:border-emerald-500 focus:ring-emerald-50"
+                  errors.name ? "border-red-400 focus:ring-red-100" : "border-slate-200 focus:border-emerald-500 focus:ring-emerald-50"
                 }`}
               />
-              {errors.fullName && <p className="ml-1 text-xs font-medium text-red-500">{errors.fullName}</p>}
+              {errors.name && <p className="ml-1 text-xs font-medium text-red-500">{errors.name}</p>}
             </div>
 
             {/* Email */}
@@ -156,15 +156,15 @@ export default function Register() {
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1">Phone Number</label>
               <input
-                name="phoneNumber"
+                name="phone"
                 type="tel"
                 placeholder="9876543210"
                 onChange={handleChange}
                 className={`w-full rounded-2xl border bg-slate-50 px-5 py-3.5 transition-all focus:bg-white focus:outline-none focus:ring-4 ${
-                  errors.phoneNumber ? "border-red-400 focus:ring-red-100" : "border-slate-200 focus:border-emerald-500 focus:ring-emerald-50"
+                  errors.phone ? "border-red-400 focus:ring-red-100" : "border-slate-200 focus:border-emerald-500 focus:ring-emerald-50"
                 }`}
               />
-              {errors.phoneNumber && <p className="ml-1 text-xs font-medium text-red-500">{errors.phoneNumber}</p>}
+              {errors.phone && <p className="ml-1 text-xs font-medium text-red-500">{errors.phone}</p>}
             </div>
 
             {/* Password */}
