@@ -27,11 +27,19 @@ export default function Login() {
       const decodedToken = JSON.parse(atob(token.split('.')[1]));
       const userRole = decodedToken.role;
 
+
       if (userRole === 'ADMIN') {
         navigate('/admin/dashboard');
-      } else {
+      } else if (userRole === 'RESEARCHER') {
+        navigate('/researcher/dashboard');
+      } else if (userRole === 'MANAGER') {
+        navigate('/manager/dashboard'); // future ready
+      } else if (userRole === 'CITIZEN') {
         navigate('/citizen/dashboard');
+      } else {
+        navigate('/login');
       }
+
 
       toast.success('Login Successful');
     } catch (err) {
@@ -128,7 +136,7 @@ export default function Login() {
 
           <p className="mt-6 text-center text-sm text-slate-500">
             Don't have an account?{' '}
-              <Link to="/signup" className="font-semibold text-emerald-600 hover:text-emerald-500">
+            <Link to="/signup" className="font-semibold text-emerald-600 hover:text-emerald-500">
               Sign up
             </Link>
           </p>

@@ -1,56 +1,63 @@
-import "./App.css"
-import { Routes, Route, Navigate } from "react-router-dom"
-import { useAuth } from "./context/AuthContext"
+import "./App.css";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
+import { Toaster } from "react-hot-toast"; // ✅ ADDED
 
 // Pages
-import Login from "./pages/auth/Login"
-import Register from "./pages/auth/Register"
-import ForgotPassword from "./pages/auth/ForgotPassword"
-import ResetPassword from "./pages/auth/ResetPassword"
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 
 // Citizen Pages
-import CitizenDashboard from "./pages/dashboard/CitizenDashboard"
-import CitizenProfile from "./pages/citizen/CitizenProfile"
-import CitizenHealthRecords from "./pages/citizen/CitizenHealthRecords"
-import CitizenAppointments from "./pages/citizen/CitizenAppointments"
-import CitizenNotifications from "./pages/citizen/CitizenNotifications"
+import CitizenDashboard from "./pages/dashboard/CitizenDashboard";
+import CitizenProfile from "./pages/citizen/CitizenProfile";
+import CitizenHealthRecords from "./pages/citizen/CitizenHealthRecords";
+import CitizenAppointments from "./pages/citizen/CitizenAppointments";
+import CitizenNotifications from "./pages/citizen/CitizenNotifications";
 
 // Admin Pages
-import AdminDashboard from "./pages/dashboard/AdminDashboard"
-import Users from "./pages/admin/Users"
-import AddUser from "./pages/admin/AddUser"
-import Analytics from "./pages/admin/Analytics"
+import AdminDashboard from "./pages/dashboard/AdminDashboard";
+import Users from "./pages/admin/Users";
+import AddUser from "./pages/admin/AddUser";
+import Analytics from "./pages/admin/Analytics";
+
+// Researcher Pages
+import ResearcherDashboard from "./pages/researcher/ResearcherDashboard";
 
 // Layouts
-import CitizenLayout from "./layouts/CitizenLayout"
-import AdminLayout from "./layouts/AdminLayout"
-import DashboardLayout from "./layouts/DashboardLayout"
+import CitizenLayout from "./layouts/CitizenLayout";
+import AdminLayout from "./layouts/AdminLayout";
+import DashboardLayout from "./layouts/DashboardLayout";
 
 // Components
-import ProtectedRoute from "./components/ProtectedRoute"
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Public Pages
-import Navbar from "./components/ui/Navbar"
-import Footer from "./components/ui/Footer"
-import About from "./components/layout/About"
-import Program from "./components/layout/Program"
-import Research from "./components/layout/Research"
-import Contact from "./components/layout/Contact"
-import Body from "./components/ui/Body"
+import Navbar from "./components/ui/Navbar";
+import Footer from "./components/ui/Footer";
+import About from "./components/layout/About";
+import Program from "./components/layout/Program";
+import Research from "./components/layout/Research";
+import Contact from "./components/layout/Contact";
+import Body from "./components/ui/Body";
 
 function App() {
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated, user } = useAuth();
 
   return (
     <>
+      {/* ✅ ✅ GLOBAL TOAST */}
+      <Toaster position="top-right" reverseOrder={false} />
+
       <Routes>
-        {/* Authentication Routes */}
+        {/* ✅ Authentication Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* Citizen Routes */}
+        {/* ✅ Citizen Routes */}
         <Route
           path="/citizen"
           element={
@@ -66,7 +73,7 @@ function App() {
           <Route path="notifications" element={<CitizenNotifications />} />
         </Route>
 
-        {/* Admin Routes */}
+        {/* ✅ Admin Routes */}
         <Route
           path="/admin"
           element={
@@ -81,21 +88,35 @@ function App() {
           <Route path="analytics" element={<Analytics />} />
         </Route>
 
-        {/* Legacy Dashboard Route - Redirect based on role */}
+        {/* ✅ Researcher Route (NO SIDEBAR) */}
+        <Route
+          path="/researcher/dashboard"
+          element={
+            <ProtectedRoute requiredRole="RESEARCHER">
+              <ResearcherDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ✅ Role-Based Redirect */}
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
-              {user?.role === 'ADMIN' ? (
+              {user?.role === "ADMIN" ? (
                 <Navigate to="/admin/dashboard" replace />
-              ) : (
+              ) : user?.role === "CITIZEN" ? (
                 <Navigate to="/citizen/dashboard" replace />
+              ) : user?.role === "RESEARCHER" ? (
+                <Navigate to="/researcher/dashboard" replace />
+              ) : (
+                <Navigate to="/login" replace />
               )}
             </ProtectedRoute>
           }
         />
 
-        {/* Public Pages with Navbar */}
+        {/* ✅ Public Pages with Navbar + Footer */}
         <Route
           path="/"
           element={
@@ -112,60 +133,52 @@ function App() {
         <Route
           path="/about"
           element={
-            <>
-              <div className="pt-16">
-                <Navbar />
-                <About />
-                <Footer />
-              </div>
-            </>
+            <div className="pt-16">
+              <Navbar />
+              <About />
+              <Footer />
+            </div>
           }
         />
 
         <Route
           path="/programs"
           element={
-            <>
-              <div className="pt-16">
-                <Navbar />
-                <Program />
-                <Footer />
-              </div>
-            </>
+            <div className="pt-16">
+              <Navbar />
+              <Program />
+              <Footer />
+            </div>
           }
         />
 
         <Route
           path="/research"
           element={
-            <>
-              <div className="pt-16">
-                <Navbar />
-                <Research />
-                <Footer />
-              </div>
-            </>
+            <div className="pt-16">
+              <Navbar />
+              <Research />
+              <Footer />
+            </div>
           }
         />
 
         <Route
           path="/contact"
           element={
-            <>
-              <div className="pt-16">
-                <Navbar />
-                <Contact />
-                <Footer />
-              </div>
-            </>
+            <div className="pt-16">
+              <Navbar />
+              <Contact />
+              <Footer />
+            </div>
           }
         />
 
-        {/* Catch all - redirect to home */}
+        {/* ✅ Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
