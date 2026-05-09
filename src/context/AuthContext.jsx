@@ -10,6 +10,13 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const navigate = useNavigate();
 
+  const logout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+    setToken(null);
+    navigate('/login');
+  };
+
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
 
@@ -27,6 +34,34 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  // Check token expiration every minute
+  useEffect(() => {
+    const checkTokenExpiration = () => {
+      const storedToken = localStorage.getItem('token');
+      if (storedToken) {
+        try {
+          const decoded = jwtDecode(storedToken);
+          const currentTime = Date.now() / 1000;
+          if (decoded.exp < currentTime) {
+            // Token expired
+            logout();
+          }
+        } catch (err) {
+          console.log('Error checking token expiration:', err);
+          logout();
+        }
+      }
+    };
+
+    // Check immediately
+    checkTokenExpiration();
+
+    // Check every minute
+    const interval = setInterval(checkTokenExpiration, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const login = (tokenData) => {
     localStorage.setItem('token', tokenData);
     setToken(tokenData);
@@ -36,13 +71,6 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       console.log('Error decoding token:', err);
     }
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-    setToken(null);
-    navigate('/login');
   };
 
   const isAuthenticated = !!user && !!token;

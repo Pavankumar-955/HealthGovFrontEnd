@@ -40,7 +40,7 @@ export default function ResetPassword() {
     setLoading(true);
 
     try {
-      await API.post('/healthGov/forgotPassword/reset', {
+      await API.put('/healthGov/forgotPassword', {
         email,
         otp,
         password,
