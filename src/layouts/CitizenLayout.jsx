@@ -21,7 +21,6 @@ const CitizenLayout = () => {
     { path: '/citizen/dashboard', icon: MdDashboard, label: 'Dashboard' },
     { path: '/citizen/profile', icon: MdPerson, label: 'My Profile' },
     { path: '/citizen/health-records', icon: MdHealthAndSafety, label: 'Health Records' },
-    { path: '/citizen/appointments', icon: MdCalendarToday, label: 'Appointments' },
     { path: '/citizen/notifications', icon: MdNotifications, label: 'Notifications' },
   ];
 

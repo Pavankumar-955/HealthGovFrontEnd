@@ -116,23 +116,7 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="relative my-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200"></div>
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-slate-400">Or continue with</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <button className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-100 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-200">
-              Google
-            </button>
-            <button className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-100 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-200">
-              GitHub
-            </button>
-          </div>
+          
 
           <p className="mt-6 text-center text-sm text-slate-500">
             Don't have an account?{' '}

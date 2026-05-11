@@ -5,9 +5,9 @@ import toast from "react-hot-toast";
 
 export default function Register() {
   const [form, setForm] = useState({
-    fullName: "",
+    name: "", // Renamed from fullName
     email: "",
-    phoneNumber: "",
+    phone: "", // Renamed from phoneNumber
     password: "",
     confirmPassword: "",
   });
@@ -23,15 +23,15 @@ export default function Register() {
   const validate = () => {
     let newErrors = {};
 
-    if (!form.fullName) newErrors.fullName = "Full name is required";
+    if (!form.name) newErrors.name = "Full name is required";
 
     if (!form.email) newErrors.email = "Email address is required";
     else if (!/\S+@\S+\.\S+/.test(form.email))
       newErrors.email = "Please enter a valid email";
 
-    if (!form.phoneNumber) newErrors.phoneNumber = "Phone number is required";
-    else if (!/^\d{10}$/.test(form.phoneNumber))
-      newErrors.phoneNumber = "Phone number must be 10 digits";
+    if (!form.phone) newErrors.phone = "Phone number is required";
+    else if (!/^\d{10}$/.test(form.phone))
+      newErrors.phone = "Phone number must be 10 digits";
 
     if (!form.password) newErrors.password = "Password is required";
     else if (form.password.length < 6)
@@ -57,17 +57,21 @@ export default function Register() {
     setLoading(true);
 
     try {
+      // Now the keys match exactly what your backend User model expects
       await API.post('/healthGov/citizenRegister', {
-        fullName: form.fullName,
+        name: form.name,
         email: form.email,
-        phoneNumber: form.phoneNumber,
+        phone: form.phone,
         password: form.password,
       });
 
       toast.success('Registration Successful! Please Login');
       navigate("/login");
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Registration Failed');
+      // Logic to display the specific validation error message from backend
+      const errorMessage = err.response?.data?.message || 'Registration Failed';
+      toast.error(errorMessage);
+      console.error("Registration Error:", err.response?.data);
     } finally {
       setLoading(false);
     }
@@ -76,7 +80,7 @@ export default function Register() {
   return (
     <div className="flex min-h-screen w-full bg-slate-50 overflow-hidden">
       
-      {/* --- LEFT SIDE: INTERACTIVE MEDIA SECTION (60% Width) --- */}
+      {/* --- LEFT SIDE: MEDIA SECTION --- */}
       <div className="hidden lg:relative lg:flex lg:w-[60%] items-center justify-center bg-slate-900">
         <video
           autoPlay
@@ -107,10 +111,9 @@ export default function Register() {
         </div>
       </div>
 
-      {/* --- RIGHT SIDE: REGISTER FORM SECTION (40% Width) --- */}
+      {/* --- RIGHT SIDE: REGISTER FORM --- */}
       <div className="flex w-full flex-col justify-center bg-white px-8 md:px-16 lg:w-[40%] shadow-[-20px_0_50px_rgba(0,0,0,0.05)] overflow-y-auto py-10">
         <div className="mx-auto w-full max-w-md">
-          {/* Header */}
           <div className="mb-8 text-center lg:text-left">
             <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-600 text-white mb-4 shadow-lg shadow-emerald-200">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -126,15 +129,16 @@ export default function Register() {
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1">Full Name</label>
               <input
-                name="fullName"
+                name="name" // Matches backend "name"
                 type="text"
                 placeholder="John Doe"
+                value={form.name}
                 onChange={handleChange}
                 className={`w-full rounded-2xl border bg-slate-50 px-5 py-3.5 transition-all focus:bg-white focus:outline-none focus:ring-4 ${
-                  errors.fullName ? "border-red-400 focus:ring-red-100" : "border-slate-200 focus:border-emerald-500 focus:ring-emerald-50"
+                  errors.name ? "border-red-400 focus:ring-red-100" : "border-slate-200 focus:border-emerald-500 focus:ring-emerald-50"
                 }`}
               />
-              {errors.fullName && <p className="ml-1 text-xs font-medium text-red-500">{errors.fullName}</p>}
+              {errors.name && <p className="ml-1 text-xs font-medium text-red-500">{errors.name}</p>}
             </div>
 
             {/* Email */}
@@ -144,6 +148,7 @@ export default function Register() {
                 name="email"
                 type="email"
                 placeholder="name@healthgov.in"
+                value={form.email}
                 onChange={handleChange}
                 className={`w-full rounded-2xl border bg-slate-50 px-5 py-3.5 transition-all focus:bg-white focus:outline-none focus:ring-4 ${
                   errors.email ? "border-red-400 focus:ring-red-100" : "border-slate-200 focus:border-emerald-500 focus:ring-emerald-50"
@@ -156,15 +161,16 @@ export default function Register() {
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-700 uppercase tracking-wider ml-1">Phone Number</label>
               <input
-                name="phoneNumber"
+                name="phone" // Matches backend "phone"
                 type="tel"
                 placeholder="9876543210"
+                value={form.phone}
                 onChange={handleChange}
                 className={`w-full rounded-2xl border bg-slate-50 px-5 py-3.5 transition-all focus:bg-white focus:outline-none focus:ring-4 ${
-                  errors.phoneNumber ? "border-red-400 focus:ring-red-100" : "border-slate-200 focus:border-emerald-500 focus:ring-emerald-50"
+                  errors.phone ? "border-red-400 focus:ring-red-100" : "border-slate-200 focus:border-emerald-500 focus:ring-emerald-50"
                 }`}
               />
-              {errors.phoneNumber && <p className="ml-1 text-xs font-medium text-red-500">{errors.phoneNumber}</p>}
+              {errors.phone && <p className="ml-1 text-xs font-medium text-red-500">{errors.phone}</p>}
             </div>
 
             {/* Password */}
@@ -174,6 +180,7 @@ export default function Register() {
                 name="password"
                 type="password"
                 placeholder="••••••••"
+                value={form.password}
                 onChange={handleChange}
                 className={`w-full rounded-2xl border bg-slate-50 px-5 py-3.5 transition-all focus:bg-white focus:outline-none focus:ring-4 ${
                   errors.password ? "border-red-400 focus:ring-red-100" : "border-slate-200 focus:border-emerald-500 focus:ring-emerald-50"
@@ -189,6 +196,7 @@ export default function Register() {
                 name="confirmPassword"
                 type="password"
                 placeholder="••••••••"
+                value={form.confirmPassword}
                 onChange={handleChange}
                 className={`w-full rounded-2xl border bg-slate-50 px-5 py-3.5 transition-all focus:bg-white focus:outline-none focus:ring-4 ${
                   errors.confirmPassword ? "border-red-400 focus:ring-red-100" : "border-slate-200 focus:border-emerald-500 focus:ring-emerald-50"
@@ -213,10 +221,6 @@ export default function Register() {
                 Sign in here
               </Link>
             </p>
-          </div>
-          
-          <div className="mt-10 flex items-center justify-center gap-4 border-t border-slate-100 pt-8 opacity-50">
-            <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">Digital India Initiative</p>
           </div>
         </div>
       </div>
