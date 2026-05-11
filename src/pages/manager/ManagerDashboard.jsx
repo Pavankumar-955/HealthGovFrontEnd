@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import ManagerSidebar from "./ManagerSidebar";
+import ManagerSidebar from "./ManagerSidebar.jsx";
 import Footer from "../../components/ui/Footer";
 import { getManagerProjects } from "../../api/managerApi";
 
