@@ -1,74 +1,129 @@
-import React from 'react'
-
-const auditLinks = ["Dashboard", "Audits", "Reports", "Analytics"]
-const auditModules = ["Program Review", "Compliance Review", "KPI Dashboard"]
-const auditHighlights = [
-  { name: "Audit cycles", value: 12 },
-  { name: "Open findings", value: 5 },
-  { name: "Reports ready", value: 3 },
-]
+import { useState } from 'react';
+import { Outlet, useLocation, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import {
+  MdDashboard,
+  MdAssignmentCheck,
+  MdLogout,
+  MdMenu,
+  MdClose
+} from 'react-icons/md';
 
 const AuditLayout = () => {
+  const { user, logout } = useAuth();
+  const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const menuItems = [
+    { path: '/audit/dashboard', icon: MdDashboard, label: 'Dashboard' },
+    { path: '/audit/logs', icon: MdAssignmentCheck, label: 'Audit Logs' },
+  ];
+
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
-    <main className="min-h-screen bg-slate-950 text-white px-6 py-12">
-      <section className="mx-auto max-w-6xl rounded-3xl bg-slate-900/90 p-8 shadow-2xl shadow-slate-950/40">
-        <header className="mb-10 space-y-4">
-          <p className="text-sm uppercase tracking-[0.3em] text-amber-400/80">Audit Portal</p>
-          <h1 className="text-4xl font-semibold text-white">Government Auditor Workspace</h1>
-          <p className="max-w-3xl text-slate-300">
-            Access audit summaries, review programs, and generate analytics for governance and compliance oversight.
-          </p>
-          <div className="flex flex-wrap gap-3 text-sm text-slate-300">
-            {auditLinks.map((item) => (
-              <span key={item} className="rounded-full border border-slate-700 px-3 py-2 bg-slate-800/70">
-                {item}
-              </span>
-            ))}
+    <div className="flex h-screen bg-gray-50">
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
+        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
+          <h1 className="text-xl font-bold text-purple-600">HealthGov</h1>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden text-gray-500 hover:text-gray-700"
+          >
+            <MdClose size={24} />
+          </button>
+        </div>
+
+        <div className="flex flex-col h-full">
+          {/* User Info */}
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">
+                <span className="text-white font-semibold">
+                  {user?.email?.charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">{user?.email}</p>
+                <p className="text-sm text-gray-500">Audit</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <nav className="flex-1 px-4 py-6 space-y-2">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 ${
+                    isActive
+                      ? 'bg-purple-50 text-purple-700 border-r-2 border-purple-700'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <Icon size={20} />
+                  <span className="font-medium">{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Logout */}
+          <div className="p-4 border-t border-gray-200">
+            <button
+              onClick={handleLogout}
+              className="flex items-center space-x-3 w-full px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+            >
+              <MdLogout size={20} />
+              <span className="font-medium">Logout</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top Bar */}
+        <header className="bg-white shadow-sm border-b border-gray-200 lg:hidden">
+          <div className="flex items-center justify-between h-16 px-4">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <MdMenu size={24} />
+            </button>
+            <h1 className="text-lg font-semibold text-gray-900">HealthGov Audit Portal</h1>
+            <div className="w-8" /> {/* Spacer */}
           </div>
         </header>
 
-        <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr]">
-          <div className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-3">
-              {auditHighlights.map((item) => (
-                <div key={item.name} className="rounded-3xl bg-slate-800/80 p-6 shadow-lg shadow-slate-950/20">
-                  <p className="text-sm uppercase tracking-[0.25em] text-slate-400">{item.name}</p>
-                  <p className="mt-3 text-3xl font-semibold text-white">{item.value}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="rounded-3xl bg-slate-800/80 p-8 shadow-lg shadow-slate-950/20">
-              <h2 className="text-2xl font-semibold text-white">Audit focus</h2>
-              <p className="mt-3 text-slate-300 leading-7">
-                Review program performance, confirm compliance controls, and use analytics to identify risks and improvement areas.
-              </p>
-              <ul className="mt-5 space-y-3 text-slate-200">
-                <li>• Validate audit evidence and risk scoring metrics.</li>
-                <li>• Review program outcomes and performance benchmarks.</li>
-                <li>• Share findings with stakeholders and regulators.</li>
-              </ul>
-            </div>
+        {/* Page Content */}
+        <main className="flex-1 overflow-auto">
+          <div className="p-6">
+            <Outlet />
           </div>
+        </main>
+      </div>
+    </div>
+  );
+};
 
-          <aside className="space-y-6 rounded-3xl bg-slate-800/80 p-8 shadow-lg shadow-slate-950/20">
-            <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-amber-400/80">Audit Modules</p>
-              <h2 className="mt-3 text-2xl font-semibold text-white">Current review tools</h2>
-            </div>
-            <div className="space-y-4">
-              {auditModules.map((module) => (
-                <div key={module} className="rounded-3xl bg-slate-900/90 p-4 border border-slate-700">
-                  <p className="text-base font-semibold text-white">{module}</p>
-                  <p className="mt-2 text-slate-400 text-sm">Track the latest insights for each audit and review area.</p>
-                </div>
-              ))}
-            </div>
-          </aside>
-        </div>
-      </section>
-    </main>
-  )
-}
-
-export default AuditLayout
+export default AuditLayout;

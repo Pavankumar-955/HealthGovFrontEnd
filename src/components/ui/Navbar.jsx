@@ -98,7 +98,7 @@ export default function Navbar() {
   const metadata = userRole ? roleMeta[userRole] : null;
   const profile = userRole ? roleUsers[userRole] : null;
   const notifications = userRole ? notificationsByRole[userRole] : [];
-  const hasNotifications = notifications.length > 0;
+  const hasNotifications = notifications.length > 0? true : false;
   const navItems = userRole && roleNavigation[userRole] ? roleNavigation[userRole] : mainNavigation;
 
   const handleLogout = () => {
