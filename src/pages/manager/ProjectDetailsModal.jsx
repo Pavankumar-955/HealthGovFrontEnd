@@ -21,7 +21,6 @@ export default function ProjectDetailsModal({ project, onClose }) {
           {/* HEADER */}
           <div className="flex justify-between items-center mb-4 border-b pb-2">
             <h3 className="text-xl font-semibold">Project Details</h3>
-            <button onClick={onClose} className="text-xl">×</button>
           </div>
 
           {/* BODY */}

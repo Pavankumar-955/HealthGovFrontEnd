@@ -119,10 +119,12 @@ const ResearcherProjects = () => {
 
                 toast.success("Project updated ✅");
             } else {
-                await createProject(data);
+                const res = await createProject(data);
 
-                // ✅ TRIGGER REFRESH FOR NEW PROJECT
-                fetchProjects();
+                const newProject = res.data;
+
+                // ✅ IMPORTANT: treat create same as update
+                setLastUpdatedId(newProject.projectId);
 
                 toast.success("Project created ✅");
             }

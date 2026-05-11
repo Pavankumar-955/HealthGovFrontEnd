@@ -24,12 +24,6 @@ const ProjectDetailsModal = ({ project, onClose }) => {
             <h3 className="text-xl font-bold text-gray-800">
               Project Details
             </h3>
-            <button
-              onClick={onClose}
-              className="text-gray-500 hover:text-black text-3xl leading-none"
-            >
-              &times;
-            </button>
           </div>
 
           {/* ✅ BODY */}

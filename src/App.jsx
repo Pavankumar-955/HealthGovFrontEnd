@@ -26,7 +26,7 @@ import ResearcherProjects from "./pages/researcher/ResearcherProjects"
 
 // Manager
 import ManagerDashboard from "./pages/manager/ManagerDashboard"
-import ManagerApplications from "./pages/manager/ManagerApplications" // ✅ ADD THIS
+import ManagerApplications from "./pages/manager/ManagerApplications"
 
 // Layouts
 import CitizenLayout from "./layouts/CitizenLayout"
@@ -47,13 +47,10 @@ import ComplianceLayout from "./layouts/ComplianceLayout"
 import ComplianceList from "./pages/compliance/ComplianceList"
 import Dashboard from "./pages/compliance/Dasboard"
 
-
-
-
 import ErrorBoundary from './components/feedbacks/ErrorBoundary'
 
 function App() {
-  const { user } = useAuth()
+  const { isAuthenticated, user } = useAuth()
 
   return (
     <>
@@ -119,19 +116,32 @@ function App() {
         />
 
         {/* REDIRECT */}
-        <Route path="/dashboard" element={
-          <ProtectedRoute>
-            {user?.role === "ADMIN" ? (
-              <Navigate to="/admin/dashboard" replace />
-            ) : user?.role === "RESEARCHER" ? (
-              <Navigate to="/researcher/dashboard" replace />
-            ) : user?.role === "MANAGER" ? (
-              <Navigate to="/manager/dashboard" replace />
+        <Route
+          path="/"
+          element={
+            isAuthenticated ? (
+              user?.role === 'ADMIN' ? (
+                <Navigate to="/admin/dashboard" replace />
+              ) : user?.role === 'COMPLIANCE' ? (
+                <Navigate to="/compliance/dashboard" replace />
+              ) : user?.role === 'AUDITOR' ? (
+                <Navigate to="/audit/dashboard" replace />
+              ) : user?.role === 'RESEARCHER' ? (
+                <Navigate to="/researcher/dashboard" replace />
+              ) : user?.role === 'MANAGER' ? (
+                <Navigate to="/manager/dashboard" replace />
+              ) : (
+                <Navigate to="/citizen/dashboard" replace />
+              )
             ) : (
-              <Navigate to="/citizen/dashboard" replace />
-            )}
-          </ProtectedRoute>
-        }/>
+              <div className="pt-16">
+                <Navbar />
+                <Body />
+                <Footer />
+              </div>
+            )
+          }
+        />
 
         {/* PUBLIC */}
         <Route path="/" element={<div className="pt-16"><Navbar /><Body /><Footer /></div>} />

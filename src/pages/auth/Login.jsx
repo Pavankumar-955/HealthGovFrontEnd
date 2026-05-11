@@ -3,10 +3,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import API from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
+import { jwtDecode } from 'jwt-decode';
 
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,7 +19,7 @@ export default function Login() {
 
     try {
       // ✅ ✅ ✅ REMOVE OLD TOKEN BEFORE LOGIN
-      localStorage.removeItem("token");
+      //localStorage.removeItem("token");
 
       const response = await API.post('/healthGov/login', {
         email,
@@ -26,31 +28,24 @@ export default function Login() {
 
       const token = response.data.token;
 
-      // ✅ store token again
+      // ✅ Save token in context
       login(token);
 
-      const decodedToken = JSON.parse(atob(token.split('.')[1]));
+      // ✅ Decode token safely
+      const decodedToken = jwtDecode(token);
       const userRole = decodedToken.role;
 
-      // ✅ store userId (for project APIs)
-      localStorage.setItem('userId', decodedToken.userId);
-
+      // ✅ Role-based redirect
       if (userRole === 'ADMIN') {
         navigate('/admin/dashboard');
-      } else if (userRole === 'RESEARCHER') {   // ✅ your route
-        navigate('/researcher/dashboard');
-      } else if (userRole === "MANAGER") {
-        navigate("/manager/dashboard");
-      } 
-      else if(userRole === 'COMPLIANCE') 
-        {
-          navigate('/compliance/dashboard');
-        }
-       else if(userRole === 'AUDITOR') {
-          navigate('/audit/dashboard');
-        }
-      else {
+      } else if (userRole === 'RESEARCHER') {
+        navigate('/researcher/projects'); // ✅ FIXED HERE
+      } else if (userRole === 'MANAGER') {
+        navigate('/manager/dashboard');
+      } else if (userRole === 'CITIZEN') {
         navigate('/citizen/dashboard');
+      } else {
+        navigate('/');
       }
 
       toast.success('Login Successful');
@@ -72,89 +67,78 @@ export default function Login() {
             </div>
           </div>
 
-          <h1 className="text-3xl font-bold tracking-tight">
-            Sign in to your account
-          </h1>
+          <h1 className="text-3xl font-bold">Sign in to your account</h1>
 
           <p className="mt-2 text-sm text-slate-600">
-            Welcome back to HealthGov. Access your dashboard and manage your account.
+            Welcome back to HealthGov. Access your dashboard.
           </p>
 
           <p className="mt-3 text-sm text-slate-500">
-            <Link
-              to="/"
-              className="font-semibold text-emerald-600 hover:text-emerald-500"
-            >
+            <Link to="/" className="font-semibold text-emerald-600">
               Back to home
             </Link>
           </p>
         </div>
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-xl">
+        <div className="rounded-3xl border bg-white p-8 shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-6">
 
+            {/* Email */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
-                Email address
-              </label>
+              <label className="mb-2 block text-sm">Email address</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3"
+                className="w-full rounded-xl border px-4 py-3"
                 placeholder="you@example.com"
                 required
               />
             </div>
 
+            {/* Password */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
-                Password
-              </label>
+              <label className="mb-2 block text-sm">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3"
+                className="w-full rounded-xl border px-4 py-3"
                 placeholder="••••••••"
                 required
               />
             </div>
 
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input type="checkbox" className="h-4 w-4" />
-                <span className="text-slate-500">Remember me</span>
+            {/* Remember + Forgot */}
+            <div className="flex justify-between text-sm">
+              <label className="flex items-center space-x-2">
+                <input type="checkbox" />
+                <span>Remember me</span>
               </label>
 
-              <Link
-                to="/forgot-password"
-                className="font-semibold text-emerald-600 hover:text-emerald-500"
-              >
+              <Link to="/forgot-password" className="text-emerald-600">
                 Forgot password?
               </Link>
             </div>
 
+            {/* Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-emerald-600 py-3 font-semibold text-white"
+              className="w-full rounded-xl bg-emerald-600 py-3 text-white"
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
+
           </form>
 
-          
-
-          <p className="mt-6 text-center text-sm text-slate-500">
+          <p className="mt-6 text-center text-sm">
             Don't have an account?{' '}
-            <Link
-              to="/signup"
-              className="font-semibold text-emerald-600 hover:text-emerald-500"
-            >
+            <Link to="/signup" className="text-emerald-600">
               Sign up
             </Link>
           </p>
+
         </div>
       </div>
     </div>
