@@ -1,0 +1,297 @@
+import React, { useEffect, useState, useRef } from "react";
+import {
+    getNotificationsByUser,
+    markNotificationAsRead,
+} from "../../api/notificationApi";
+
+import {
+    getProjects,
+    createProject,
+    updateProject,
+    deleteProject,
+} from "../../api/researchApi";
+
+import ResearcherSidebar from "./ResearcherSidebar";
+import Footer from "../../components/ui/Footer";
+
+import ProjectTable from "./ProjectTable";
+import ProjectFormModal from "./ProjectFormModal";
+import ProjectDetailsModal from "./ProjectDetailsModal";
+
+import toast from "react-hot-toast";
+
+const ResearcherProjects = () => {
+    const [projects, setProjects] = useState([]);
+    const [status, setStatus] = useState("");
+    const [searchId, setSearchId] = useState("");
+
+    const [show, setShow] = useState(false);
+    const [editData, setEditData] = useState(null);
+    const [selectedProject, setSelectedProject] = useState(null);
+
+    const [notifications, setNotifications] = useState([]);
+    const [showNotifications, setShowNotifications] = useState(false);
+    const dropdownRef = useRef(null);
+
+    // ✅ NEW STATE (IMPORTANT)
+    const [lastUpdatedId, setLastUpdatedId] = useState(null);
+
+    const token = localStorage.getItem("token");
+    let userId = null;
+
+    if (token) {
+        try {
+            const decoded = JSON.parse(atob(token.split(".")[1]));
+            userId = decoded.userId;
+        } catch { }
+    }
+
+    // ✅ FIXED useEffect
+    useEffect(() => {
+        fetchProjects();
+        if (userId) fetchNotifications();
+    }, [status, lastUpdatedId]);
+
+    // ✅ ✅ ✅ FIXED SORTING (MAIN LOGIC)
+    const fetchProjects = async () => {
+        const res = await getProjects(status);
+        const data = res.data;
+
+        const sortedData = [...data].sort((a, b) => {
+
+            // ✅ 1. PENDING always first
+            if (a.status === "PENDING" && b.status !== "PENDING") return -1;
+            if (b.status === "PENDING" && a.status !== "PENDING") return 1;
+
+            // ✅ 2. updated project goes to top
+            if (a.projectId === lastUpdatedId) return -1;
+            if (b.projectId === lastUpdatedId) return 1;
+
+            // ✅ 3. newest ID first
+            return b.projectId - a.projectId;
+        });
+
+        setProjects(sortedData);
+    };
+
+    const fetchNotifications = async () => {
+        try {
+            const res = await getNotificationsByUser(userId);
+            const list = res.data.data;
+
+            const filtered = list.filter(
+                (n) => n.status !== "READ" && n.category === "PROJECT"
+            );
+
+            setNotifications(filtered);
+
+        } catch (err) {
+            console.error("Notification fetch error", err);
+        }
+    };
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target)
+            ) {
+                setShowNotifications(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () =>
+            document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const handleSubmit = async (data) => {
+        try {
+            if (editData) {
+                await updateProject({
+                    ...data,
+                    projectId: editData.projectId,
+                    status: "PENDING",
+                });
+
+                // ✅ CRITICAL LINE (move updated project)
+                setLastUpdatedId(editData.projectId);
+
+                toast.success("Project updated ✅");
+            } else {
+                await createProject(data);
+
+                // ✅ TRIGGER REFRESH FOR NEW PROJECT
+                fetchProjects();
+
+                toast.success("Project created ✅");
+            }
+
+            setShow(false);
+            setEditData(null);
+
+        } catch {
+            toast.error("Operation failed ❌");
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm("Delete project?")) return;
+
+        try {
+            await deleteProject(id);
+            toast.success("Project deleted ✅");
+            fetchProjects();
+        } catch {
+            toast.error("Delete failed ❌");
+        }
+    };
+
+    const filteredProjects = projects.filter((p) => {
+        if (!searchId) return true;
+        return p.projectId.toString().includes(searchId);
+    });
+
+    return (
+        <>
+            <ResearcherSidebar />
+
+            <div className="ml-64 flex flex-col min-h-screen">
+                <div className="pt-10 bg-[#eef3f8] px-6 flex-grow">
+
+                    <div className="max-w-7xl mx-auto flex justify-between items-center mb-6">
+
+                        <h2 className="text-2xl font-semibold">
+                            📁 My Projects
+                        </h2>
+
+                        <div className="flex items-center gap-4">
+
+                            {/* NOTIFICATIONS */}
+                            <div className="relative" ref={dropdownRef}>
+
+                                <button
+                                    onClick={() =>
+                                        setShowNotifications(!showNotifications)
+                                    }
+                                    className="text-xl"
+                                >
+                                    🔔
+                                </button>
+
+                                {notifications.length > 0 && (
+                                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 rounded-full">
+                                        {notifications.length}
+                                    </span>
+                                )}
+
+                                {showNotifications && (
+                                    <div className="absolute right-0 mt-2 w-72 bg-white shadow-lg rounded-lg p-3 z-50">
+
+                                        {notifications.length === 0 ? (
+                                            <p>No notifications</p>
+                                        ) : (
+                                            notifications.map((n) => (
+                                                <div
+                                                    key={n.notificationId}
+                                                    className="flex justify-between items-center border-b py-2 text-sm"
+                                                >
+                                                    <span>{n.message}</span>
+
+                                                    <button
+                                                        onClick={async () => {
+                                                            try {
+                                                                await markNotificationAsRead(n.notificationId);
+
+                                                                setNotifications((prev) =>
+                                                                    prev.filter(item =>
+                                                                        item.notificationId !== n.notificationId
+                                                                    )
+                                                                );
+                                                            } catch (err) {
+                                                                console.error("Mark read failed", err);
+                                                            }
+                                                        }}
+                                                        className="text-green-600 text-xs"
+                                                    >
+                                                        Mark read
+                                                    </button>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            <button
+                                onClick={() => setShow(true)}
+                                className="bg-green-600 text-white px-5 py-2 rounded-lg shadow hover:bg-green-700 transition"
+                            >
+                                + New Project
+                            </button>
+
+                        </div>
+                    </div>
+
+                    {/* FILTER */}
+                    <div className="max-w-7xl mx-auto bg-white p-3 rounded shadow flex gap-3 mb-4">
+                        <input
+                            type="number"
+                            placeholder="Search by ID"
+                            value={searchId}
+                            onChange={(e) => setSearchId(e.target.value)}
+                            className="border px-3 py-2 rounded"
+                        />
+
+                        <select
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value)}
+                            className="ml-auto border px-3 py-2 rounded"
+                        >
+                            <option value="">All</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="APPROVED">Approved</option>
+                            <option value="REJECTED">Rejected</option>
+                        </select>
+                    </div>
+
+                    <div className="max-w-7xl mx-auto bg-white rounded-xl shadow max-h-[420px] overflow-y-auto">
+
+                        <ProjectTable
+                            projects={filteredProjects}
+                            onEdit={(p) => {
+                                setEditData(p);
+                                setShow(true);
+                            }}
+                            onDelete={handleDelete}
+                            onRowClick={(p) => setSelectedProject(p)}
+                        />
+
+                    </div>
+
+                    <ProjectFormModal
+                        show={show}
+                        handleClose={() => {
+                            setShow(false);
+                            setEditData(null);
+                        }}
+                        handleSubmit={handleSubmit}
+                        editData={editData}
+                    />
+
+                    {selectedProject && (
+                        <ProjectDetailsModal
+                            project={selectedProject}
+                            onClose={() => setSelectedProject(null)}
+                        />
+                    )}
+
+                </div>
+
+                <Footer className="mt-auto" />
+            </div>
+        </>
+    );
+};
+
+export default ResearcherProjects;

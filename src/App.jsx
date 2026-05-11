@@ -1,71 +1,69 @@
-import "./App.css";
-import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./context/AuthContext";
-import { Toaster } from "react-hot-toast"; // ✅ ADDED
+import "./App.css"
+import { Routes, Route, Navigate } from "react-router-dom"
+import { useAuth } from "./context/AuthContext"
 
-// Pages
-import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register";
-import ForgotPassword from "./pages/auth/ForgotPassword";
-import ResetPassword from "./pages/auth/ResetPassword";
+// Auth
+import Login from "./pages/auth/Login"
+import Register from "./pages/auth/Register"
+import ForgotPassword from "./pages/auth/ForgotPassword"
+import ResetPassword from "./pages/auth/ResetPassword"
 
-// Citizen Pages
-import CitizenDashboard from "./pages/dashboard/CitizenDashboard";
-import CitizenProfile from "./pages/citizen/CitizenProfile";
-import CitizenHealthRecords from "./pages/citizen/CitizenHealthRecords";
-import CitizenAppointments from "./pages/citizen/CitizenAppointments";
-import CitizenNotifications from "./pages/citizen/CitizenNotifications";
+// Citizen
+import CitizenDashboard from "./pages/dashboard/CitizenDashboard"
+import CitizenProfile from "./pages/citizen/CitizenProfile"
+import CitizenHealthRecords from "./pages/citizen/CitizenHealthRecords"
+import CitizenAppointments from "./pages/citizen/CitizenAppointments"
+import CitizenNotifications from "./pages/citizen/CitizenNotifications"
 
-// Admin Pages
-import AdminDashboard from "./pages/dashboard/AdminDashboard";
-import Users from "./pages/admin/Users";
-import AddUser from "./pages/admin/AddUser";
-import Analytics from "./pages/admin/Analytics";
+// Admin
+import AdminDashboard from "./pages/dashboard/AdminDashboard"
+import Users from "./pages/admin/Users"
+import AddUser from "./pages/admin/AddUser"
+import Analytics from "./pages/admin/Analytics"
 
-// Researcher Pages
-import ResearcherDashboard from "./pages/researcher/ResearcherDashboard";
+// Researcher
+import ResearcherDashboard from "./pages/researcher/ResearcherDashboard"
+import ResearcherProjects from "./pages/researcher/ResearcherProjects"
+
+// Manager
+import ManagerDashboard from "./pages/manager/ManagerDashboard"
+import ManagerApplications from "./pages/manager/ManagerApplications" // ✅ ADD THIS
 
 // Layouts
-import CitizenLayout from "./layouts/CitizenLayout";
-import AdminLayout from "./layouts/AdminLayout";
-import DashboardLayout from "./layouts/DashboardLayout";
+import CitizenLayout from "./layouts/CitizenLayout"
+import AdminLayout from "./layouts/AdminLayout"
 
 // Components
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute from "./components/ProtectedRoute"
 
-// Public Pages
-import Navbar from "./components/ui/Navbar";
-import Footer from "./components/ui/Footer";
-import About from "./components/layout/About";
-import Program from "./components/layout/Program";
-import Research from "./components/layout/Research";
-import Contact from "./components/layout/Contact";
-import Body from "./components/ui/Body";
+// Public
+import Navbar from "./components/ui/Navbar"
+import Footer from "./components/ui/Footer"
+import About from "./components/layout/About"
+import Program from "./components/layout/Program"
+import Research from "./components/layout/Research"
+import Contact from "./components/layout/Contact"
+import Body from "./components/ui/Body"
 
 function App() {
-  const { isAuthenticated, user } = useAuth();
+  const { user } = useAuth()
 
   return (
     <>
-      {/* ✅ ✅ GLOBAL TOAST */}
-      <Toaster position="top-right" reverseOrder={false} />
-
       <Routes>
-        {/* ✅ Authentication Routes */}
+
+        {/* AUTH */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* ✅ Citizen Routes */}
-        <Route
-          path="/citizen"
-          element={
-            <ProtectedRoute requiredRole="CITIZEN">
-              <CitizenLayout />
-            </ProtectedRoute>
-          }
-        >
+        {/* CITIZEN */}
+        <Route path="/citizen" element={
+          <ProtectedRoute requiredRole="CITIZEN">
+            <CitizenLayout />
+          </ProtectedRoute>
+        }>
           <Route path="dashboard" element={<CitizenDashboard />} />
           <Route path="profile" element={<CitizenProfile />} />
           <Route path="health-records" element={<CitizenHealthRecords />} />
@@ -73,112 +71,72 @@ function App() {
           <Route path="notifications" element={<CitizenNotifications />} />
         </Route>
 
-        {/* ✅ Admin Routes */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute requiredRole="ADMIN">
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
+        {/* ADMIN */}
+        <Route path="/admin" element={
+          <ProtectedRoute requiredRole="ADMIN">
+            <AdminLayout />
+          </ProtectedRoute>
+        }>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="users" element={<Users />} />
           <Route path="add-user" element={<AddUser />} />
           <Route path="analytics" element={<Analytics />} />
         </Route>
 
-        {/* ✅ Researcher Route (NO SIDEBAR) */}
-        <Route
-          path="/researcher/dashboard"
-          element={
-            <ProtectedRoute requiredRole="RESEARCHER">
-              <ResearcherDashboard />
-            </ProtectedRoute>
-          }
+        {/* RESEARCHER */}
+        <Route path="/researcher/dashboard"
+          element={<ProtectedRoute requiredRole="RESEARCHER">
+            <ResearcherDashboard />
+          </ProtectedRoute>}
         />
 
-        {/* ✅ Role-Based Redirect */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              {user?.role === "ADMIN" ? (
-                <Navigate to="/admin/dashboard" replace />
-              ) : user?.role === "CITIZEN" ? (
-                <Navigate to="/citizen/dashboard" replace />
-              ) : user?.role === "RESEARCHER" ? (
-                <Navigate to="/researcher/dashboard" replace />
-              ) : (
-                <Navigate to="/login" replace />
-              )}
-            </ProtectedRoute>
-          }
+        <Route path="/researcher/projects"
+          element={<ProtectedRoute requiredRole="RESEARCHER">
+            <ResearcherProjects />
+          </ProtectedRoute>}
         />
 
-        {/* ✅ Public Pages with Navbar + Footer */}
-        <Route
-          path="/"
-          element={
-            <>
-              <div className="pt-16">
-                <Navbar />
-                <Body />
-                <Footer />
-              </div>
-            </>
-          }
+        {/* MANAGER */}
+        <Route path="/manager/dashboard"
+          element={<ProtectedRoute requiredRole="MANAGER">
+            <ManagerDashboard />
+          </ProtectedRoute>}
         />
 
-        <Route
-          path="/about"
-          element={
-            <div className="pt-16">
-              <Navbar />
-              <About />
-              <Footer />
-            </div>
-          }
+        <Route path="/manager/applications"
+          element={<ProtectedRoute requiredRole="MANAGER">
+            <ManagerApplications />
+          </ProtectedRoute>}
         />
 
-        <Route
-          path="/programs"
-          element={
-            <div className="pt-16">
-              <Navbar />
-              <Program />
-              <Footer />
-            </div>
-          }
-        />
+        {/* REDIRECT */}
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            {user?.role === "ADMIN" ? (
+              <Navigate to="/admin/dashboard" replace />
+            ) : user?.role === "RESEARCHER" ? (
+              <Navigate to="/researcher/dashboard" replace />
+            ) : user?.role === "MANAGER" ? (
+              <Navigate to="/manager/dashboard" replace />
+            ) : (
+              <Navigate to="/citizen/dashboard" replace />
+            )}
+          </ProtectedRoute>
+        }/>
 
-        <Route
-          path="/research"
-          element={
-            <div className="pt-16">
-              <Navbar />
-              <Research />
-              <Footer />
-            </div>
-          }
-        />
+        {/* PUBLIC */}
+        <Route path="/" element={<div className="pt-16"><Navbar /><Body /><Footer /></div>} />
+        <Route path="/about" element={<div className="pt-16"><Navbar /><About /><Footer /></div>} />
+        <Route path="/programs" element={<div className="pt-16"><Navbar /><Program /><Footer /></div>} />
+        <Route path="/research" element={<div className="pt-16"><Navbar /><Research /><Footer /></div>} />
+        <Route path="/contact" element={<div className="pt-16"><Navbar /><Contact /><Footer /></div>} />
 
-        <Route
-          path="/contact"
-          element={
-            <div className="pt-16">
-              <Navbar />
-              <Contact />
-              <Footer />
-            </div>
-          }
-        />
-
-        {/* ✅ Fallback */}
+        {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/" replace />} />
+
       </Routes>
     </>
-  );
+  )
 }
 
 export default App;

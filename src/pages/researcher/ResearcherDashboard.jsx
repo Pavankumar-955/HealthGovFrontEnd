@@ -1,153 +1,152 @@
 import React, { useEffect, useState } from "react";
+import ResearcherSidebar from "./ResearcherSidebar";
+import { getProjects } from "../../api/researchApi";
+
 import {
-    getProjects,
-    createProject,
-    updateProject,
-    deleteProject,
-    getProjectById,
-} from "../../api/researchApi";
-
-import Navbar from "../../components/ui/Navbar";
-import Footer from "../../components/ui/Footer";
-
-import ProjectTable from "./ProjectTable";
-import ProjectFormModal from "./ProjectFormModal";
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+} from "recharts";
 
 const ResearcherDashboard = () => {
-    const [projects, setProjects] = useState([]);
-    const [status, setStatus] = useState("");
-    const [searchId, setSearchId] = useState("");
-    const [show, setShow] = useState(false);
-    const [editData, setEditData] = useState(null);
 
-    const fetchProjects = async () => {
-        const res = await getProjects(status);
-        setProjects(res.data);
-    };
+  const [stats, setStats] = useState({
+    total: 0,
+    approved: 0,
+    rejected: 0,
+    pending: 0,
+    grants: 0,
+  });
 
-    useEffect(() => {
-        fetchProjects();
-    }, [status]);
+  // Fetch data
+  const fetchStats = async () => {
+    try {
+      const res = await getProjects();
+      const data = res.data;
 
-    const handleSubmit = async (data) => {
-        if (editData) {
-            await updateProject({ ...data, projectId: editData.projectId });
-        } else {
-            await createProject(data);
+      let approved = 0;
+      let rejected = 0;
+      let pending = 0;
+      let totalGrant = 0;
+
+      data.forEach((p) => {
+        if (p.status === "APPROVED") {
+          approved++;
+          totalGrant += p.amount || 0;
+        } else if (p.status === "REJECTED") {
+          rejected++;
+        } else if (p.status === "PENDING") {
+          pending++;
         }
+      });
 
-        setShow(false);
-        setEditData(null);
-        fetchProjects();
-    };
+      setStats({
+        total: data.length,
+        approved,
+        rejected,
+        pending,
+        grants: totalGrant,
+      });
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("Delete project?")) return;
-        await deleteProject(id);
-        fetchProjects();
-    };
+    } catch (err) {
+      console.error("Error fetching stats:", err);
+    }
+  };
 
-    const handleSearch = async () => {
-        if (!searchId) return fetchProjects();
-        const res = await getProjectById(searchId);
-        setProjects([res.data]);
-    };
+  useEffect(() => {
+    fetchStats();
+  }, []);
 
-    return (
-        <>
-            <Navbar />
+  const total = stats.total || 1;
+  const pieData = [
+    { name: "Approved", value: stats.approved },
+    { name: "Rejected", value: stats.rejected },
+    { name: "Pending", value: stats.pending },
+  ];
 
-            {/* MAIN */}
-            <div className="pt-24 min-h-screen bg-[#eef3f8] px-6">
+  const COLORS = ["#16a34a", "#dc2626", "#facc15"];
 
-                {/* HEADER */}
-                <div className="max-w-7xl mx-auto flex justify-between items-center mb-10">
+  return (
+    <>
+      <ResearcherSidebar />
 
-                    {/* LEFT TITLE */}
-                    <h2 className="text-4xl font-semibold text-gray-800">
-                        Researcher Dashboard
-                    </h2>
+      <div className="ml-64 p-6 bg-[#eef3f8] min-h-screen">
 
-                    {/* ✅ CREATE BUTTON */}
-                    <button
-                        onClick={() => setShow(true)}
-                        className="bg-[#0a8f2f] text-white px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition"
-                    >
-                        + Create Project
-                    </button>
+        {/* HEADER */}
+        <div className="flex justify-between items-center mb-6">
 
-                </div>
+          <h2 className="text-3xl font-semibold">
+            Dashboard Overview
+          </h2>
 
+        </div>
 
-                {/* SEARCH CARD */}
-                <div className="max-w-7xl mx-auto bg-white p-4 rounded-xl shadow mb-6 flex items-center gap-3">
-                    <input
-                        type="text"
-                        placeholder="Enter Project ID"
-                        className="border px-3 py-2 rounded-lg w-64"
-                        onChange={(e) => setSearchId(e.target.value)}
-                    />
+        {/* CARDS */}
+        <div className="grid grid-cols-5 gap-6">
 
-                    <button
-                        onClick={handleSearch}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg"
-                    >
-                        Search 🔍
-                    </button>
+          <Card title="Total Projects" value={stats.total} />
+          <Card title="✅ Approved" value={stats.approved} type="green" />
+          <Card title="⏳ Pending" value={stats.pending} type="yellow" />
+          <Card title="❌ Rejected" value={stats.rejected} type="red" />
+          <Card title="💰 Total Grants" value={`₹ ${stats.grants}`} type="blue" />
 
-                    <button
-                        onClick={fetchProjects}
-                        className="bg-gray-500 text-white px-4 py-2 rounded-lg"
-                    >
-                        Reset
-                    </button>
+        </div>
 
-                    <select
-                        onChange={(e) => setStatus(e.target.value)}
-                        className="ml-auto border px-3 py-2 rounded-lg"
-                    >
-                        <option value="">All</option>
-                        <option value="PENDING">PENDING</option>
-                        <option value="APPROVED">APPROVED</option>
-                        <option value="REJECTED">REJECTED</option>
-                    </select>
-                </div>
+        {/* CHART */}
+        <div className="mt-8 max-w-md">
 
-                {/* TABLE */}
-                <div className="max-w-7xl mx-auto">
-                    <ProjectTable
-                        projects={projects}
-                        onEdit={(p) => {
-                            setEditData(p);
-                            setShow(true);
-                        }}
-                        onDelete={handleDelete}
-                    />
-                </div>
+          <div className="bg-white p-5 rounded-xl shadow border">
 
-                {/* EMPTY STATE */}
-                {projects.length === 0 && (
-                    <div className="text-center mt-10 text-gray-500">
-                        <h4 className="text-xl">No projects found</h4>
-                        <p>Create your first project to get started</p>
-                    </div>
-                )}
+            <h3 className="text-lg font-semibold mb-3">
+              📊 Project Status Distribution
+            </h3>
 
-                {/* MODAL */}
-                <ProjectFormModal
-                    show={show}
-                    handleClose={() => {
-                        setShow(false);
-                        setEditData(null);
-                    }}
-                    handleSubmit={handleSubmit}
-                    editData={editData}
-                />
-            </div>
+            <PieChart width={260} height={240}>
+              <Pie
+                data={pieData}
+                cx="50%"
+                cy="50%"
+                outerRadius={80}
+                dataKey="value"
+                label={({ value }) => `${((value / total) * 100).toFixed(0)}%`}
+              >
+                {pieData.map((_, index) => (
+                  <Cell key={index} fill={COLORS[index]} />
+                ))}
+              </Pie>
 
-            <Footer />
-        </>
-    );
+              <Tooltip />
+              <Legend />
+            </PieChart>
+
+          </div>
+
+        </div>
+
+      </div>
+    </>
+  );
 };
 
 export default ResearcherDashboard;
+
+
+// ✅ CARD COMPONENT
+const Card = ({ title, value, type }) => {
+
+  let bg = "bg-white text-gray-800";
+
+  if (type === "green") bg = "bg-green-100 text-green-800";
+  if (type === "yellow") bg = "bg-yellow-100 text-yellow-800";
+  if (type === "red") bg = "bg-red-100 text-red-800";
+  if (type === "blue") bg = "bg-blue-100 text-blue-800";
+
+  return (
+    <div className={`${bg} p-6 rounded-xl shadow border hover:-translate-y-2 hover:shadow-lg transition`}>
+      <h4 className="text-sm">{title}</h4>
+      <p className="text-2xl font-semibold">{value}</p>
+    </div>
+  );
+};

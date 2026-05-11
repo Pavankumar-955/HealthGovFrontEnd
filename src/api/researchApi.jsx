@@ -2,11 +2,20 @@ import API from "./axios";
 
 const BASE = "/research";
 
-// ✅ get userId dynamically
+// get userId dynamically
 const getUserId = () => localStorage.getItem("userId");
 
+// Ftech projects
 export const getProjects = (status) => {
-  return API.get(`${BASE}/projects`, { params: { status } });
+  // if status is empty OR "All" OR null → fetch all
+  if (!status || status.trim() === "") {
+    return API.get(`${BASE}/projects`);
+  }
+
+  // otherwise filter
+  return API.get(`${BASE}/projects`, {
+    params: { status },
+  });
 };
 
 export const getProjectById = (id) => {
@@ -16,7 +25,7 @@ export const getProjectById = (id) => {
 export const createProject = (data) => {
   return API.post(`${BASE}/createProject`, data, {
     headers: {
-      "X-User-Id": getUserId(), // ✅ dynamic userId
+      "X-User-Id": getUserId(),
     },
   });
 };

@@ -16,30 +16,34 @@ export default function Login() {
     setLoading(true);
 
     try {
+      // ✅ ✅ ✅ REMOVE OLD TOKEN BEFORE LOGIN
+      localStorage.removeItem("token");
+
       const response = await API.post('/healthGov/login', {
         email,
         password,
       });
 
       const token = response.data.token;
+
+      // ✅ store token again
       login(token);
 
       const decodedToken = JSON.parse(atob(token.split('.')[1]));
       const userRole = decodedToken.role;
 
+      // ✅ store userId (for project APIs)
+      localStorage.setItem('userId', decodedToken.userId);
 
       if (userRole === 'ADMIN') {
         navigate('/admin/dashboard');
-      } else if (userRole === 'RESEARCHER') {
+      } else if (userRole === 'RESEARCHER') {   // ✅ your route
         navigate('/researcher/dashboard');
-      } else if (userRole === 'MANAGER') {
-        navigate('/manager/dashboard'); // future ready
-      } else if (userRole === 'CITIZEN') {
-        navigate('/citizen/dashboard');
+      } else if (userRole === "MANAGER") {
+        navigate("/manager/dashboard");
       } else {
-        navigate('/login');
+        navigate('/citizen/dashboard');
       }
-
 
       toast.success('Login Successful');
     } catch (err) {
@@ -59,10 +63,20 @@ export default function Login() {
               <span className="text-xs uppercase tracking-[0.3em]">Portal</span>
             </div>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">Sign in to your account</h1>
-          <p className="mt-2 text-sm text-slate-600">Welcome back to HealthGov. Access your dashboard and manage your account.</p>
+
+          <h1 className="text-3xl font-bold tracking-tight">
+            Sign in to your account
+          </h1>
+
+          <p className="mt-2 text-sm text-slate-600">
+            Welcome back to HealthGov. Access your dashboard and manage your account.
+          </p>
+
           <p className="mt-3 text-sm text-slate-500">
-            <Link to="/" className="font-semibold text-emerald-600 hover:text-emerald-500">
+            <Link
+              to="/"
+              className="font-semibold text-emerald-600 hover:text-emerald-500"
+            >
               Back to home
             </Link>
           </p>
@@ -70,25 +84,30 @@ export default function Login() {
 
         <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-6">
+
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">Email address</label>
+              <label className="mb-2 block text-sm font-medium text-slate-700">
+                Email address
+              </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition-all focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3"
                 placeholder="you@example.com"
                 required
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">Password</label>
+              <label className="mb-2 block text-sm font-medium text-slate-700">
+                Password
+              </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition-all focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3"
                 placeholder="••••••••"
                 required
               />
@@ -96,13 +115,14 @@ export default function Login() {
 
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-slate-300 bg-white text-emerald-600 focus:ring-emerald-500"
-                />
+                <input type="checkbox" className="h-4 w-4" />
                 <span className="text-slate-500">Remember me</span>
               </label>
-              <Link to="/forgot-password" className="font-semibold text-emerald-600 hover:text-emerald-500">
+
+              <Link
+                to="/forgot-password"
+                className="font-semibold text-emerald-600 hover:text-emerald-500"
+              >
                 Forgot password?
               </Link>
             </div>
@@ -110,33 +130,18 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-emerald-600 py-3 font-semibold text-white transition-colors hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-xl bg-emerald-600 py-3 font-semibold text-white"
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
 
-          <div className="relative my-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200"></div>
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-slate-400">Or continue with</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <button className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-100 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-200">
-              Google
-            </button>
-            <button className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-100 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-200">
-              GitHub
-            </button>
-          </div>
-
           <p className="mt-6 text-center text-sm text-slate-500">
             Don't have an account?{' '}
-            <Link to="/signup" className="font-semibold text-emerald-600 hover:text-emerald-500">
+            <Link
+              to="/signup"
+              className="font-semibold text-emerald-600 hover:text-emerald-500"
+            >
               Sign up
             </Link>
           </p>

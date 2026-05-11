@@ -18,7 +18,7 @@ const Users = () => {
     setLoading(true);
     try {
       if (filterRole === 'ALL') {
-        const response = await API.get('/healthGov/getAllCitizens');
+        const response = await API.get('/healthGov/getAllUsers');
         setUsers(response.data);
       } else {
         const response = await API.get(`/healthGov/getUserByRole/${filterRole}`);

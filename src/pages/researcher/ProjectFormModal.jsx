@@ -10,8 +10,14 @@ const ProjectFormModal = ({ show, handleClose, handleSubmit, editData }) => {
   });
 
   useEffect(() => {
+    // Pre-fill form with existing data
     if (editData) {
-      setForm(editData);
+      setForm({
+        title: editData.title || "",
+        description: editData.description || "",
+        startDate: editData.startDate?.split("T")[0] || "",
+        endDate: editData.endDate?.split("T")[0] || "",
+      });
     } else {
       setForm({
         title: "",
@@ -22,11 +28,11 @@ const ProjectFormModal = ({ show, handleClose, handleSubmit, editData }) => {
     }
   }, [editData, show]);
 
+  // Updates specific field
   const onChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // ✅ ✅ Validation with TOAST
   const validateForm = () => {
     const today = new Date().toISOString().split("T")[0];
 
@@ -57,7 +63,7 @@ const ProjectFormModal = ({ show, handleClose, handleSubmit, editData }) => {
 
     return true;
   };
-
+  // Hide modal
   if (!show) return null;
 
   return (
@@ -108,9 +114,7 @@ const ProjectFormModal = ({ show, handleClose, handleSubmit, editData }) => {
             <input
               type="date"
               name="endDate"
-              min={
-                form.startDate || new Date().toISOString().split("T")[0]
-              }
+              min={form.startDate || new Date().toISOString().split("T")[0]}
               value={form.endDate}
               onChange={onChange}
               className="w-full border rounded-lg px-3 py-3 bg-gray-50"
