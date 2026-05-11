@@ -2,209 +2,213 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import API from '../../api/axios';
 import toast from 'react-hot-toast';
-import { MdEdit, MdSave, MdCancel } from 'react-icons/md';
+import { MdSave, MdCloudUpload, MdVerified, MdPending } from 'react-icons/md';
 
 const CitizenProfile = () => {
   const { user } = useAuth();
   const [profile, setProfile] = useState(null);
+  const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(false);
+  
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: ''
+    Name: '',
+    DOB: '',
+    Gender: '',
+    Address: '',
+    ContactInfo: ''
   });
 
   useEffect(() => {
-    fetchProfile();
-  }, []);
+    if (user?.userId) {
+      fetchProfileData();
+      console.log("User data ", user)
+    }
+  }, [user]);
 
-  const fetchProfile = async () => {
+  const fetchProfileData = async () => {
     try {
-      // Since we don't have a specific endpoint for current user profile,
-      // we'll use the user info from context for now
-      setProfile({
-        userId: user?.userId,
-        name: user?.name || 'John Doe',
-        email: user?.email,
-        phone: user?.phone || '+1-234-567-8900',
-        role: user?.role,
-        status: 'ACTIVE'
-      });
+      setLoading(true);
+      
+      // UPDATED: Changed the document fetch URL to match your DocumentController (/document/{citizenId})
+      const [citizenRes, docsRes] = await Promise.all([
+        API.get(`/citizen/${user?.userId}`).catch(() => ({ data: null })),
+        API.get(`/document/${user?.userId}`).catch(() => ({ data: [] }))
+      ]);
+
+      const dbData = citizenRes.data || {
+        CitizenID: 'PENDING', // If 404, we mark as PENDING to know we need to POST later
+        Name: user?.name || '',
+        DOB: '',
+        Gender: '',
+        Address: '',
+        ContactInfo: user?.email || '',
+        Status: 'ACTIVE' 
+      };
+
+      setProfile(dbData);
+      setDocuments(docsRes.data || []);
+      
       setFormData({
-        name: user?.name || 'John Doe',
-        email: user?.email,
-        phone: user?.phone || '+1-234-567-8900'
+        Name: dbData.Name || '',
+        DOB: dbData.DOB || '',
+        Gender: dbData.Gender || '',
+        Address: dbData.Address || '',
+        ContactInfo: dbData.ContactInfo || ''
       });
     } catch (error) {
-      toast.error('Failed to load profile');
+      toast.error('Sync error');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEdit = () => {
-    setEditing(true);
-  };
-
-  const handleCancel = () => {
-    setFormData({
-      name: profile.name,
-      email: profile.email,
-      phone: profile.phone
-    });
-    setEditing(false);
-  };
-
   const handleSave = async () => {
     try {
-      // Note: Backend doesn't have update profile endpoint yet
-      // This would need to be implemented in the backend
-      toast.success('Profile updated successfully');
-      setProfile({ ...profile, ...formData });
-      setEditing(false);
+      if (!user?.userId) {
+        toast.error("User session not found. Please log in again.");
+        return;
+      }
+
+      // UPDATED: Construct payload with uppercase gender to match backend Enum
+      const payload = { 
+        userId: user.userId, 
+        name: formData.Name,
+        dob: formData.DOB,
+        gender: formData.Gender ? formData.Gender.toUpperCase() : "", 
+        address: formData.Address,
+        contactInfo: formData.ContactInfo
+      };
+
+      console.log("Sending payload to backend:", payload);
+
+      // UPDATED: Route to POST or PUT depending on if the user exists yet
+      if (profile?.CitizenID === 'PENDING') {
+        // User does not exist in Citizen DB yet -> POST to register
+        await API.post(`/citizen/register`, payload);
+        toast.success('Citizen Profile registered successfully!');
+      } else {
+        // User already exists -> PUT to update
+        await API.put(`/citizen/${user.userId}`, payload);
+        toast.success('Information updated successfully!');
+      }
+      
+      // Update local state so it stops saying PENDING
+      setProfile(prev => ({ ...prev, ...payload, CitizenID: user.userId, Status: 'ACTIVE' }));
     } catch (error) {
-      toast.error('Failed to update profile');
+      console.error("Save error details:", error.response?.data || error.message);
+      toast.error('Save failed - Check backend connection');
     }
   };
 
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
+  if (loading) return <div className="p-10 text-center animate-pulse text-blue-600 font-bold">Loading Profile...</div>;
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-lg shadow-md">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
-            {!editing ? (
-              <button
-                onClick={handleEdit}
-                className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <MdEdit size={18} />
-                <span>Edit Profile</span>
-              </button>
-            ) : (
-              <div className="flex space-x-2">
-                <button
-                  onClick={handleSave}
-                  className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-                >
-                  <MdSave size={18} />
-                  <span>Save</span>
-                </button>
-                <button
-                  onClick={handleCancel}
-                  className="flex items-center space-x-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-                >
-                  <MdCancel size={18} />
-                  <span>Cancel</span>
-                </button>
-              </div>
-            )}
-          </div>
+    <div className="max-w-4xl mx-auto space-y-6 pb-10">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+        <div className="p-6 border-b flex justify-between items-center bg-gray-50 rounded-t-2xl">
+          <h2 className="text-xl font-bold text-gray-800">Citizen Profile</h2>
+          <button 
+            onClick={handleSave} 
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-blue-700 transition-all shadow-md active:scale-95"
+          >
+            <MdSave size={20} /> Save Changes
+          </button>
         </div>
 
-        <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Profile Picture */}
-            <div className="md:col-span-2 flex justify-center">
-              <div className="w-32 h-32 bg-blue-500 rounded-full flex items-center justify-center">
-                <span className="text-4xl text-white font-bold">
-                  {profile?.name?.charAt(0).toUpperCase()}
+        <div className="p-6 space-y-6">
+          <div className="flex items-center justify-between p-4 rounded-xl border bg-green-50 border-green-200">
+             <div className="flex flex-col">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Account Status</span>
+                <span className="font-black text-2xl text-green-600 uppercase">
+                  {profile?.Status || 'ACTIVE'}
                 </span>
-              </div>
+             </div>
+             <div className="bg-green-600 text-white p-2 rounded-full shadow-lg shadow-green-100">
+               <MdVerified size={28} />
+             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase ml-1 tracking-wider">Full Name</label>
+              <input 
+                className="w-full border-gray-200 border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" 
+                value={formData.Name} 
+                onChange={e => setFormData({...formData, Name: e.target.value})} 
+                placeholder="e.g. John Doe"
+              />
             </div>
 
-            {/* Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name
-              </label>
-              {editing ? (
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              ) : (
-                <p className="text-lg text-gray-900">{profile?.name}</p>
-              )}
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase ml-1 tracking-wider">Date of Birth</label>
+              <input 
+                type="date" 
+                className="w-full border-gray-200 border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" 
+                value={formData.DOB} 
+                onChange={e => setFormData({...formData, DOB: e.target.value})} 
+              />
             </div>
 
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
-              </label>
-              {editing ? (
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              ) : (
-                <p className="text-lg text-gray-900">{profile?.email}</p>
-              )}
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase ml-1 tracking-wider">Gender Identification</label>
+              <select 
+                className="w-full border-gray-200 border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white" 
+                value={formData.Gender} 
+                onChange={e => setFormData({...formData, Gender: e.target.value})}
+              >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
 
-            {/* Phone */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Phone Number
-              </label>
-              {editing ? (
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              ) : (
-                <p className="text-lg text-gray-900">{profile?.phone}</p>
-              )}
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase ml-1 tracking-wider">Contact Information</label>
+              <input 
+                className="w-full border-gray-200 border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" 
+                value={formData.ContactInfo} 
+                onChange={e => setFormData({...formData, ContactInfo: e.target.value})} 
+                placeholder="email@example.com"
+              />
             </div>
 
-            {/* Role */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Role
-              </label>
-              <p className="text-lg text-gray-900 capitalize">{profile?.role}</p>
-            </div>
-
-            {/* Status */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Status
-              </label>
-              <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${
-                profile?.status === 'ACTIVE'
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-red-100 text-red-800'
-              }`}>
-                {profile?.status}
-              </span>
+            <div className="md:col-span-2 space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase ml-1 tracking-wider">Current Residential Address</label>
+              <textarea 
+                className="w-full border-gray-200 border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" 
+                rows="3"
+                value={formData.Address} 
+                onChange={e => setFormData({...formData, Address: e.target.value})} 
+                placeholder="House No, Street, City, ZIP"
+              />
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-lg font-bold text-gray-800">Verified Documents</h2>
+          <button className="bg-gray-100 text-gray-500 px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-bold hover:bg-gray-200 transition-colors">
+            <MdCloudUpload /> Upload New
+          </button>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {documents.length > 0 ? documents.map(doc => (
+            <div key={doc.DocumentID || Math.random()} className="flex justify-between items-center p-4 bg-gray-50 rounded-2xl border border-gray-100">
+              <div>
+                <p className="font-bold text-gray-800 text-sm">{doc.DocType || 'Document'}</p>
+                <p className="text-[10px] text-gray-400 font-mono uppercase">{doc.VerificationStatus || 'PENDING'}</p>
+              </div>
+              {doc.VerificationStatus === 'VERIFIED' ? <MdVerified className="text-green-500" /> : <MdPending className="text-amber-500" />}
+            </div>
+          )) : (
+            <div className="md:col-span-2 text-center py-6 text-gray-400 italic text-sm bg-gray-50 rounded-xl border-2 border-dashed border-gray-100">
+              No documents uploaded yet.
+            </div>
+          )}
         </div>
       </div>
     </div>

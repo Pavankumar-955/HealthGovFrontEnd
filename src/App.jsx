@@ -12,7 +12,6 @@ import ResetPassword from "./pages/auth/ResetPassword"
 import CitizenDashboard from "./pages/dashboard/CitizenDashboard"
 import CitizenProfile from "./pages/citizen/CitizenProfile"
 import CitizenHealthRecords from "./pages/citizen/CitizenHealthRecords"
-import CitizenAppointments from "./pages/citizen/CitizenAppointments"
 import CitizenNotifications from "./pages/citizen/CitizenNotifications"
 
 // Admin Pages
@@ -62,7 +61,6 @@ function App() {
           <Route path="dashboard" element={<CitizenDashboard />} />
           <Route path="profile" element={<CitizenProfile />} />
           <Route path="health-records" element={<CitizenHealthRecords />} />
-          <Route path="appointments" element={<CitizenAppointments />} />
           <Route path="notifications" element={<CitizenNotifications />} />
         </Route>
 
