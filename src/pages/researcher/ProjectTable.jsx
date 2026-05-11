@@ -17,7 +17,9 @@ const getStatusStyle = (status) => {
 const ProjectTable = ({ projects, onEdit, onDelete, onRowClick }) => {
   return (
     <table className="w-full bg-white rounded-xl shadow">
-      <thead className="bg-gray-100 text-left">
+
+      {/* ✅ ONLY CHANGE: added sticky classes */}
+      <thead className="bg-gray-100 text-left sticky top-0 z-10">
         <tr>
           <th className="p-3">ID</th>
           <th className="p-3">Title</th>
@@ -32,7 +34,7 @@ const ProjectTable = ({ projects, onEdit, onDelete, onRowClick }) => {
         {projects.map((p) => (
           <tr
             key={p.projectId}
-            onClick={() => onRowClick(p)} //Each row clickable
+            onClick={() => onRowClick(p)}
             className="border-t cursor-pointer hover:bg-gray-50"
           >
             <td className="p-3">{p.projectId}</td>
@@ -74,7 +76,7 @@ const ProjectTable = ({ projects, onEdit, onDelete, onRowClick }) => {
               {(p.status === "PENDING" || p.status === "REJECTED") ? (
                 <div className="flex items-center justify-center gap-4">
 
-                  {/* EDIT ICON → always for pending + rejected */}
+                  {/* EDIT ICON */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -86,7 +88,7 @@ const ProjectTable = ({ projects, onEdit, onDelete, onRowClick }) => {
                     <FaEdit />
                   </button>
 
-                  {/* DELETE ICON → ONLY for pending */}
+                  {/* DELETE ICON */}
                   {p.status === "PENDING" && (
                     <button
                       onClick={(e) => {
