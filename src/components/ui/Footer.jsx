@@ -1,11 +1,11 @@
 export default function Footer() {
 	return (
 		<footer className="bg-slate-900 text-slate-200">
-			<div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-				<div className="grid gap-10 md:grid-cols-3">
+			<div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+				<div className="grid gap-6 md:grid-cols-3">
 					<div className="space-y-4">
-						<p className="text-sm uppercase tracking-[0.3em] text-cyan-300">HealthGov</p>
-						<h2 className="text-2xl font-semibold text-white">National health access for every citizen</h2>
+						<p className="text-xs uppercase tracking-[0.3em] text-cyan-300">HealthGov</p>
+						<h2 className="text-xl font-semibold text-white">National health access for every citizen</h2>
 						<p className="max-w-md text-sm leading-6 text-slate-300">
 							HealthGov is India’s digital health gateway to schemes, health IDs, wellness campaigns, and eligibility services designed for citizens and communities.
 						</p>
@@ -37,7 +37,7 @@ export default function Footer() {
 						</div>
 					</div>
 				</div>
-				<div className="mt-10 border-t border-slate-700 pt-6 text-sm text-slate-500 sm:flex sm:items-center sm:justify-between">
+				<div className="mt-8 border-t border-slate-700 pt-4 text-sm text-slate-500 sm:flex sm:items-center sm:justify-between">
 					<p>© 2026 HealthGov. All rights reserved.</p>
 					<p>Built for digital health inclusion and citizen welfare.</p>
 				</div>
