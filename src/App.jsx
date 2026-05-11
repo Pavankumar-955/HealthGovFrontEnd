@@ -22,7 +22,13 @@ import Analytics from "./pages/admin/Analytics";
 
 // ✅ Program Manager Page
 import ProgramManagerDashboard from "./pages/programsdash/ProgramManagerDashboard";
+import ProgramDetailsPage from "./pages/infra/ProgramDetailsPage";
 
+// ✅ Infrastructure Pages
+// import InfrastructureLayout from "./layouts/InfrastructureLayout";
+import ManagerLayout from "./layouts/ManagerLayout";
+import InfraTab from "./pages/infra/InfraTab";
+import ResourceTab from "./pages/resoucre/ResourceTab";
 // Layouts
 import CitizenLayout from "./layouts/CitizenLayout"
 import AdminLayout from "./layouts/AdminLayout"
@@ -58,9 +64,9 @@ function App() {
         <Route path="/signup" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-         <Route path="/compliance" element={<ComplianceLayout />} />
-          <Route path="/compliance/list" element={<ComplianceList />} />
-          <Route path="/compliance/dashboard" element={<Dashboard />} />
+        <Route path="/compliance" element={<ComplianceLayout />} />
+        <Route path="/compliance/list" element={<ComplianceList />} />
+        <Route path="/compliance/dashboard" element={<Dashboard />} />
 
         {/* ================= CITIZEN ROUTES ================= */}
         <Route
@@ -94,16 +100,45 @@ function App() {
 
         {/* ================= PROGRAM MANAGER ROUTES ================= */}
         <Route
-          path="/manager"
+          path="/manager/dashboard"
           element={
             <ProtectedRoute requiredRole="MANAGER">
-              <ProgramManagerDashboard  />
+              <ProgramManagerDashboard />
             </ProtectedRoute>
           }
-        >
-          <Route path="dashboard" element={<ProgramManagerDashboard />} />
-        </Route>
+        />
+        <Route
+          path="/manager/programs/:id"
+          element={
+            <ProtectedRoute requiredRole="MANAGER">
+              <ProgramDetailsPage />
+            </ProtectedRoute>
+          }
+        />
 
+        {/* ✅ INFRA */}
+<Route
+  path="/manager/programs/:id/infrastructure"
+  element={
+    <ProtectedRoute requiredRole="MANAGER">
+      <ManagerLayout />
+    </ProtectedRoute>
+  }
+>
+  <Route index element={<InfraTab />} />
+</Route>
+
+{/* ✅ RESOURCE */}
+<Route
+  path="/manager/programs/:id/resources"
+  element={
+    <ProtectedRoute requiredRole="MANAGER">
+      <ManagerLayout />
+    </ProtectedRoute>
+  }
+>
+  <Route index element={<ResourceTab />} />
+</Route>
         {/* ================= ROLE-BASED REDIRECTION ================= */}
         <Route
           path="/dashboard"

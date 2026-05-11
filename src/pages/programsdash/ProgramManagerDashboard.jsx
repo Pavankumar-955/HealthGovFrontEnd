@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Outlet } from "react-router-dom";
 import {
   getPrograms,
   createProgram,
@@ -12,6 +13,7 @@ import ProgramFormModal from "./ProgramFormModal";
 import ProgramDetailsModal from "./ProgramDetailsModal";
 
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const ProgramManagerDashboard = () => {
   const [programs, setPrograms] = useState([]);
@@ -19,6 +21,7 @@ const ProgramManagerDashboard = () => {
   const [editData, setEditData] = useState(null);
   const [selectedProgram, setSelectedProgram] = useState(null);
   const [searchId, setSearchId] = useState("");
+  const nav=useNavigate();
 
   // ✅ Fetch
   const fetchPrograms = async () => {
@@ -126,7 +129,10 @@ const ProgramManagerDashboard = () => {
               setShow(true);
             }}
             onDelete={handleDelete}
-            onView={(p) => setSelectedProgram(p)}
+            onView={(p) => nav(`/manager/programs/${p.programId}`, {
+  state: { program: p }
+})}
+            //onView={(p) => setSelectedProgram(p)}
           />
 
           {/* FORM */}
@@ -148,6 +154,8 @@ const ProgramManagerDashboard = () => {
             />
           )}
         </div>
+
+        <Outlet />
 
       </div>
     </>
