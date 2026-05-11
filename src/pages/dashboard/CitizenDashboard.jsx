@@ -8,7 +8,6 @@ const CitizenDashboard = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState({
     healthRecords: 0,
-    appointments: 0,
     notifications: 0,
     profileCompleteness: 0
   });
@@ -27,7 +26,6 @@ const CitizenDashboard = () => {
 
       setStats({
         healthRecords: 5,
-        appointments: 2,
         notifications: 3,
         profileCompleteness: 85
       });
@@ -35,14 +33,6 @@ const CitizenDashboard = () => {
       setRecentActivity([
         {
           id: 1,
-          type: 'appointment',
-          title: 'Appointment Scheduled',
-          description: 'General checkup with Dr. Smith',
-          date: '2024-01-25',
-          time: '10:00 AM'
-        },
-        {
-          id: 2,
           type: 'record',
           title: 'Health Record Added',
           description: 'Blood test results uploaded',
@@ -50,7 +40,7 @@ const CitizenDashboard = () => {
           time: '02:30 PM'
         },
         {
-          id: 3,
+          id: 2,
           type: 'notification',
           title: 'Vaccination Reminder',
           description: 'Flu shot due in 2 weeks',
@@ -70,8 +60,6 @@ const CitizenDashboard = () => {
 
   const getActivityIcon = (type) => {
     switch (type) {
-      case 'appointment':
-        return <MdCalendarToday className="text-blue-600" size={20} />;
       case 'record':
         return <MdHealing className="text-green-600" size={20} />;
       case 'notification':
@@ -115,19 +103,6 @@ const CitizenDashboard = () => {
         <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm font-medium">Appointments</p>
-              <p className="text-3xl font-bold mt-2">{stats.appointments}</p>
-              <p className="text-blue-600 text-sm mt-1">Next: Tomorrow</p>
-            </div>
-            <div className="bg-green-100 p-3 rounded-lg">
-              <MdCalendarToday className="text-green-600" size={24} />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
               <p className="text-gray-600 text-sm font-medium">Notifications</p>
               <p className="text-3xl font-bold mt-2">{stats.notifications}</p>
               <p className="text-orange-600 text-sm mt-1">3 unread</p>
@@ -158,10 +133,6 @@ const CitizenDashboard = () => {
           <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
             <div className="space-y-3">
-              <button className="w-full flex items-center space-x-3 p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
-                <MdCalendarToday className="text-blue-600" size={20} />
-                <span className="font-medium">Book Appointment</span>
-              </button>
               <button className="w-full flex items-center space-x-3 p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
                 <MdLocalHospital className="text-green-600" size={20} />
                 <span className="font-medium">Find Healthcare Provider</span>

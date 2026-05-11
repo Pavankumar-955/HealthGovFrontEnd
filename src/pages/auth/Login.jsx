@@ -41,7 +41,15 @@ export default function Login() {
         navigate('/researcher/dashboard');
       } else if (userRole === "MANAGER") {
         navigate("/manager/dashboard");
-      } else {
+      } 
+      else if(userRole === 'COMPLIANCE') 
+        {
+          navigate('/compliance/dashboard');
+        }
+       else if(userRole === 'AUDITOR') {
+          navigate('/audit/dashboard');
+        }
+      else {
         navigate('/citizen/dashboard');
       }
 
@@ -135,6 +143,8 @@ export default function Login() {
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
+
+          
 
           <p className="mt-6 text-center text-sm text-slate-500">
             Don't have an account?{' '}

@@ -12,7 +12,6 @@ import ResetPassword from "./pages/auth/ResetPassword"
 import CitizenDashboard from "./pages/dashboard/CitizenDashboard"
 import CitizenProfile from "./pages/citizen/CitizenProfile"
 import CitizenHealthRecords from "./pages/citizen/CitizenHealthRecords"
-import CitizenAppointments from "./pages/citizen/CitizenAppointments"
 import CitizenNotifications from "./pages/citizen/CitizenNotifications"
 
 // Admin
@@ -44,6 +43,14 @@ import Program from "./components/layout/Program"
 import Research from "./components/layout/Research"
 import Contact from "./components/layout/Contact"
 import Body from "./components/ui/Body"
+import ComplianceLayout from "./layouts/ComplianceLayout"
+import ComplianceList from "./pages/compliance/ComplianceList"
+import Dashboard from "./pages/compliance/Dasboard"
+
+
+
+
+import ErrorBoundary from './components/feedbacks/ErrorBoundary'
 
 function App() {
   const { user } = useAuth()
@@ -57,6 +64,9 @@ function App() {
         <Route path="/signup" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+         <Route path="/compliance" element={<ComplianceLayout />} />
+          <Route path="/compliance/list" element={<ComplianceList />} />
+          <Route path="/compliance/dashboard" element={<Dashboard />} />
 
         {/* CITIZEN */}
         <Route path="/citizen" element={
@@ -67,7 +77,6 @@ function App() {
           <Route path="dashboard" element={<CitizenDashboard />} />
           <Route path="profile" element={<CitizenProfile />} />
           <Route path="health-records" element={<CitizenHealthRecords />} />
-          <Route path="appointments" element={<CitizenAppointments />} />
           <Route path="notifications" element={<CitizenNotifications />} />
         </Route>
 
