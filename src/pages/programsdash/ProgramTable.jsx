@@ -16,11 +16,9 @@ const getStatusStyle = (status) => {
   }
 };
 
-const ProgramTable = ({ programs, onEdit, onDelete, onRowClick }) => {
+const ProgramTable = ({ programs, onEdit, onDelete, onView }) => {
   return (
     <table className="w-full bg-white rounded-xl shadow">
-      
-      {/* HEADER */}
       <thead className="bg-gray-100 text-left">
         <tr>
           <th className="p-3">ID</th>
@@ -32,51 +30,19 @@ const ProgramTable = ({ programs, onEdit, onDelete, onRowClick }) => {
           <th className="p-3 text-center">Action</th>
         </tr>
       </thead>
-
-      {/* BODY */}
       <tbody>
         {programs.map((p) => (
-          <tr
-            key={p.programId}
-            className="border-t hover:bg-gray-50"
-          >
-
-            {/* ID */}
+          <tr key={p.programId} className="border-t hover:bg-gray-50">
             <td className="p-3">{p.programId}</td>
-
-            {/* ✅ CLICK ONLY ON TITLE (NOT WHOLE ROW) */}
-            <td
-              className="p-3 text-blue-600 cursor-pointer"
-              onClick={() => onRowClick(p)}
-            >
-              {p.title}
-            </td>
-
-            {/* DESCRIPTION */}
-            <td className="p-3 max-w-[180px] truncate">
-              {p.description}
-            </td>
-
-            {/* BUDGET */}
+            <td className="p-3 text-slate-700">{p.title}</td>
+            <td className="p-3 max-w-[180px] truncate">{p.description}</td>
             <td className="p-3">₹{p.budget}</td>
-
-            {/* DATES */}
-            <td className="p-3 whitespace-nowrap">
-              {p.startDate} → {p.endDate}
-            </td>
-
-            {/* STATUS */}
+            <td className="p-3 whitespace-nowrap">{p.startDate} → {p.endDate}</td>
             <td className="p-3">
-              <span className={getStatusStyle(p.status)}>
-                {p.status}
-              </span>
+              <span className={getStatusStyle(p.status)}>{p.status}</span>
             </td>
-
-            {/* ACTIONS */}
             <td className="p-3">
-              <div className="flex justify-center gap-4">
-
-                {/* ✅ EDIT */}
+              <div className="flex justify-center gap-2">
                 <button
                   type="button"
                   onClick={(e) => {
@@ -84,13 +50,23 @@ const ProgramTable = ({ programs, onEdit, onDelete, onRowClick }) => {
                     e.preventDefault();
                     onEdit(p);
                   }}
-                  className="text-blue-600 hover:text-blue-800 text-lg"
+                  className="text-blue-600 hover:text-blue-800 text-lg cursor-pointer"
                   title="Edit"
                 >
                   <FaEdit />
                 </button>
-
-                {/* ✅ DELETE */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    onView(p);
+                  }}
+                  className="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-blue-700 cursor-pointer"
+                  title="View"
+                >
+                  View
+                </button>
                 <button
                   type="button"
                   onClick={(e) => {
@@ -98,15 +74,13 @@ const ProgramTable = ({ programs, onEdit, onDelete, onRowClick }) => {
                     e.preventDefault();
                     onDelete(p.programId);
                   }}
-                  className="text-red-500 hover:text-red-700 text-lg"
+                  className="text-red-500 hover:text-red-700 text-lg cursor-pointer"
                   title="Delete"
                 >
                   <FaTrash />
                 </button>
-
               </div>
             </td>
-
           </tr>
         ))}
       </tbody>

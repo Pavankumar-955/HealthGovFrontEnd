@@ -1,5 +1,5 @@
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon, BellIcon } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
 
 const mainNavigation = [
@@ -26,7 +26,7 @@ export default function Navbar() {
         <div className="flex h-16 items-center justify-between">
 
           {/* LEFT → LOGO */}
-          <Link to="/" className="flex items-center gap-2">
+          <div className="flex items-center gap-2 cursor-default">
             <img
               src="/images/web_Icon.png"
               alt="logo"
@@ -35,7 +35,7 @@ export default function Navbar() {
             <span className="text-lg font-bold text-white">
               HealthGov
             </span>
-          </Link>
+          </div>
 
           {/* CENTER → NAV LINKS */}
           <div className="hidden md:flex items-center gap-8">
@@ -52,6 +52,13 @@ export default function Navbar() {
 
           {/* RIGHT → AUTH */}
           <div className="hidden md:flex items-center gap-4">
+            <button
+              type="button"
+              className="rounded-full p-2 text-white transition hover:bg-white/10 cursor-pointer"
+              aria-label="Notifications"
+            >
+              <BellIcon className="h-5 w-5" />
+            </button>
             {authNavigation.map((item) => (
               <Link
                 key={item.name}

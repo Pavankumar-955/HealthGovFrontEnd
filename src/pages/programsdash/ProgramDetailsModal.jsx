@@ -1,121 +1,68 @@
-import React, { useEffect, useState } from "react";
-import {
-  getPrograms,
-  createProgram,
-  updateProgram,
-  deleteProgram,
-} from "../../api/ProgramApi.js";
+import React from "react";
+import { FaTimes } from "react-icons/fa";
 
-import ProgramTable from "./ProgramTable";
-import ProgramFormModal from "./ProgramFormModal";
-import ProgramDetailsModal from "./ProgramDetailsModal";
-
-import Footer from "../../components/ui/Footer";
-import toast from "react-hot-toast";
-
-const ProgramManagerDashboard = () => {
-  const [programs, setPrograms] = useState([]);
-  const [show, setShow] = useState(false);
-  const [editData, setEditData] = useState(null);
-  const [selectedProgram, setSelectedProgram] = useState(null);
-
-  const fetchPrograms = async () => {
-    try {
-      const res = await getPrograms();
-      setPrograms(res.data);
-    } catch {
-      toast.error("Failed to load programs ❌");
-    }
-  };
-
-  useEffect(() => {
-    fetchPrograms();
-  }, []);
-
-  // CREATE & UPDATE
-  const handleSubmit = async (data) => {
-    try {
-      if (editData) {
-        await updateProgram(editData.programId, data);
-        toast.success("Program updated ✅");
-      } else {
-        await createProgram(data);
-        toast.success("Program created ✅");
-      }
-
-      setShow(false);
-      setEditData(null);
-      fetchPrograms();
-    } catch {
-      toast.error("Operation failed ❌");
-    }
-  };
-
-  // DELETE
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete program?")) return;
-
-    try {
-      await deleteProgram(id);
-      toast.success("Program deleted ✅");
-      fetchPrograms();
-    } catch {
-      toast.error("Delete failed ❌");
-    }
-  };
+export default function ProgramDetailsModal({ program, onClose }) {
+  if (!program) return null;
 
   return (
-    <>
-      <div className="ml-64">
-        <div className="pt-10 min-h-screen bg-[#eef3f8] px-6">
-
-          {/* HEADER */}
-          <div className="max-w-7xl mx-auto flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-semibold">🏥 Program Manager</h2>
-
-            <button
-              onClick={() => setShow(true)}
-              className="bg-green-600 text-white px-5 py-2 rounded-lg shadow hover:bg-green-700"
-            >
-              + New Program
-            </button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="w-full max-w-3xl overflow-hidden rounded-[28px] bg-white shadow-2xl">
+        <div className="flex items-start justify-between border-b border-slate-200 px-6 py-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Program Details</p>
+            <h2 className="mt-2 text-2xl font-bold text-slate-900">{program.title}</h2>
+            <p className="text-sm text-slate-500">
+              {program.startDate} → {program.endDate} • {program.status}
+            </p>
           </div>
-
-          {/* TABLE */}
-          <ProgramTable
-            programs={programs}
-            onEdit={(p) => {
-              setEditData(p);
-              setShow(true);
-            }}
-            onDelete={handleDelete}
-            onRowClick={(p) => setSelectedProgram(p)}
-          />
-
-          {/* MODAL */}
-          <ProgramFormModal
-            show={show}
-            handleClose={() => {
-              setShow(false);
-              setEditData(null);
-            }}
-            handleSubmit={handleSubmit}
-            editData={editData}
-          />
-
-          {/* DETAILS */}
-          {selectedProgram && (
-            <ProgramDetailsModal
-              program={selectedProgram}
-              onClose={() => setSelectedProgram(null)}
-            />
-          )}
+          <button
+            onClick={onClose}
+            className="rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+            aria-label="Close details"
+          >
+            <FaTimes className="h-5 w-5" />
+          </button>
         </div>
 
-        <Footer />
-      </div>
-    </>
-  );
-};
+        <div className="space-y-6 p-6">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Program ID</p>
+              <p className="mt-2 text-lg font-semibold text-slate-900">{program.programId}</p>
+            </div>
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Budget</p>
+              <p className="mt-2 text-lg font-semibold text-slate-900">₹{program.budget}</p>
+            </div>
+          </div>
 
-export default ProgramManagerDashboard;
+          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
+            <h3 className="text-lg font-bold text-slate-900">Description</h3>
+            <p className="mt-3 text-sm leading-6 text-slate-600">{program.description}</p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
+              <h3 className="text-lg font-semibold text-slate-900">Dates</h3>
+              <p className="mt-2 text-sm text-slate-600">{program.startDate} to {program.endDate}</p>
+            </div>
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
+              <h3 className="text-lg font-semibold text-slate-900">Status</h3>
+              <p className="mt-2 text-sm text-slate-600">{program.status}</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -34,7 +34,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 // Public Pages
 import Navbar from "./components/ui/Navbar";
-import Footer from "./components/ui/Footer";
 import About from "./components/layout/About";
 import Program from "./components/layout/Program";
 import Research from "./components/layout/Research";
@@ -119,7 +118,6 @@ function App() {
             <div className="pt-16">
               <Navbar />
               <Body />
-              <Footer />
             </div>
           }
         />
@@ -130,7 +128,6 @@ function App() {
             <div className="pt-16">
               <Navbar />
               <About />
-              <Footer />
             </div>
           }
         />
@@ -141,7 +138,6 @@ function App() {
             <div className="pt-16">
               <Navbar />
               <Program />
-              <Footer />
             </div>
           }
         />
@@ -152,7 +148,6 @@ function App() {
             <div className="pt-16">
               <Navbar />
               <Research />
-              <Footer />
             </div>
           }
         />
@@ -163,7 +158,6 @@ function App() {
             <div className="pt-16">
               <Navbar />
               <Contact />
-              <Footer />
             </div>
           }
         />

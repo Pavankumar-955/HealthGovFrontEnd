@@ -11,7 +11,6 @@ import ProgramTable from "./ProgramTable";
 import ProgramFormModal from "./ProgramFormModal";
 import ProgramDetailsModal from "./ProgramDetailsModal";
 
-import Footer from "../../components/ui/Footer";
 import toast from "react-hot-toast";
 
 const ProgramManagerDashboard = () => {
@@ -80,7 +79,7 @@ const ProgramManagerDashboard = () => {
 
   return (
     <>
-      <div className="ml-64">
+      <div>
         <div className="pt-10 min-h-screen bg-[#eef3f8] px-6">
 
           {/* HEADER */}
@@ -89,7 +88,7 @@ const ProgramManagerDashboard = () => {
 
             <button
               onClick={() => setShow(true)}
-              className="bg-green-600 text-white px-4 py-2 rounded"
+              className="bg-green-600 text-white px-4 py-2 rounded cursor-pointer transition hover:bg-green-700"
             >
               + New Program
             </button>
@@ -106,14 +105,14 @@ const ProgramManagerDashboard = () => {
 
             <button
               onClick={handleSearch}
-              className="bg-blue-600 text-white px-3 py-2"
+              className="bg-blue-600 text-white px-3 py-2 cursor-pointer transition hover:bg-blue-700"
             >
               Search
             </button>
 
             <button
               onClick={fetchPrograms}
-              className="bg-gray-500 text-white px-3 py-2"
+              className="bg-gray-500 text-white px-3 py-2 cursor-pointer transition hover:bg-gray-600"
             >
               Reset
             </button>
@@ -127,7 +126,7 @@ const ProgramManagerDashboard = () => {
               setShow(true);
             }}
             onDelete={handleDelete}
-            onRowClick={(p) => setSelectedProgram(p)}
+            onView={(p) => setSelectedProgram(p)}
           />
 
           {/* FORM */}
@@ -150,7 +149,6 @@ const ProgramManagerDashboard = () => {
           )}
         </div>
 
-        <Footer />
       </div>
     </>
   );
