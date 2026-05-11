@@ -80,6 +80,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const logout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+    setUser(null);
+    navigate('/login');
+  };
+
   const isAuthenticated = !!user && !!token;
 
   return (
