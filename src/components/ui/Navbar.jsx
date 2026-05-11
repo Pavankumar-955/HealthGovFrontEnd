@@ -120,7 +120,7 @@ export default function Navbar() {
         <div className="flex h-16 items-center justify-between">
 
           {/* LEFT → LOGO */}
-          <Link to="/" className="flex items-center gap-2">
+          <div className="flex items-center gap-2 cursor-default">
             <img
               src="/images/web_Icon.png"
               alt="logo"
@@ -129,7 +129,7 @@ export default function Navbar() {
             <span className="text-lg font-bold text-white">
               HealthGov
             </span>
-          </Link>
+          </div>
 
           {/* CENTER → NAV LINKS */}
           <div className="hidden md:flex items-center gap-8">
