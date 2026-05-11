@@ -116,7 +116,7 @@ const ManagerApplications = () => {
       <div className="flex flex-col flex-1 ml-64 relative h-full">
 
         {/* 3. Scrollable Content Area */}
-        <main className="flex-1 overflow-y-auto pt-10 px-6 pb-24">
+        <main className="flex-1 overflow-hidden pt-10 px-6 pb-24">
           <div className="max-w-7xl mx-auto flex justify-between items-center mb-6">
             <h2 className="text-2xl font-semibold">📋 Project Applications</h2>
 
@@ -177,9 +177,9 @@ const ManagerApplications = () => {
           </div>
 
           {/* Table */}
-          <div className="max-w-7xl mx-auto bg-white rounded-xl shadow overflow-hidden">
+          <div className="max-w-7xl mx-auto bg-white rounded-xl shadow max-h-[500px] overflow-y-auto">
             <table className="w-full text-left">
-              <thead className="bg-gray-100">
+              <thead className="bg-gray-100 sticky top-0 z-10">
                 <tr>
                   <th className="p-3">ID</th>
                   <th className="p-3">Title</th>
