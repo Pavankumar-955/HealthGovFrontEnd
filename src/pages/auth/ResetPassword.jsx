@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import API from '../../api/axios';
 import toast from 'react-hot-toast';
@@ -13,6 +13,8 @@ export default function ResetPassword() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [countdown, setCountdown] = useState(0);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,7 +42,7 @@ export default function ResetPassword() {
     setLoading(true);
 
     try {
-      await API.post('/healthGov/forgotPassword/reset', {
+      await API.put('/healthGov/forgotPassword', {
         email,
         otp,
         password,
@@ -53,6 +55,35 @@ export default function ResetPassword() {
       setLoading(false);
     }
   };
+
+  const handleResendOTP = async () => {
+    if (!email) {
+      toast.error('Please enter your email address');
+      return;
+    }
+
+    setResendLoading(true);
+
+    try {
+      await API.post('/healthGov/forgotPassword/otp', null, {
+        params: { email }
+      });
+      toast.success('OTP sent successfully! Check your email.');
+      setCountdown(120); // 120 second countdown
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to send OTP');
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
+  // Countdown timer effect
+  React.useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [countdown]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-lime-100 via-emerald-100 to-white px-4 font-sans text-slate-900">
@@ -92,6 +123,17 @@ export default function ResetPassword() {
                 placeholder="Enter OTP"
                 required
               />
+              <div className="mt-2 flex items-center justify-between">
+                <p className="text-xs text-slate-500">Didn't receive OTP?</p>
+                <button
+                  type="button"
+                  onClick={handleResendOTP}
+                  disabled={resendLoading || countdown > 0}
+                  className="text-xs font-medium text-emerald-600 hover:text-emerald-700 disabled:text-slate-400 disabled:cursor-not-allowed"
+                >
+                  {resendLoading ? 'Sending...' : countdown > 0 ? `Resend in ${countdown}s` : 'Resend OTP'}
+                </button>
+              </div>
             </div>
 
             <div>
