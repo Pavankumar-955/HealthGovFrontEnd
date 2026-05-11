@@ -8,7 +8,6 @@ import {
   MdDashboard,
   MdPeople,
   MdPersonAdd,
-  MdAnalytics,
   MdSettings,
   MdLogout,
   MdMenu,
@@ -25,7 +24,6 @@ const AdminLayout = () => {
     { path: '/admin/dashboard', icon: MdDashboard, label: 'Dashboard' },
     { path: '/admin/users', icon: MdPeople, label: 'User Management' },
     { path: '/admin/add-user', icon: MdPersonAdd, label: 'Add User' },
-    { path: '/admin/analytics', icon: MdAnalytics, label: 'Analytics' },
     { path: '/admin/settings', icon: MdSettings, label: 'System Settings' },
   ];
 
@@ -48,7 +46,6 @@ const AdminLayout = () => {
             <Link to="/admin/dashboard" className="text-lg font-medium text-white hover:text-gray-200 transition">Dashboard</Link>
             <Link to="/admin/users" className="text-lg font-medium text-white hover:text-gray-200 transition">Users</Link>
             <Link to="/admin/add-user" className="text-lg font-medium text-white hover:text-gray-200 transition">Add User</Link>
-            <Link to="/admin/analytics" className="text-lg font-medium text-white hover:text-gray-200 transition">Analytics</Link>
           </div>
           {/* Profile and Logout (right) */}
           <div className="flex items-center gap-4">

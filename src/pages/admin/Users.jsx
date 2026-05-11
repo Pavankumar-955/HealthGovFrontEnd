@@ -9,6 +9,8 @@ const Users = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('ALL');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
   const [editingUser, setEditingUser] = useState(null);
   const [editName, setEditName] = useState('');
   const [editPhone, setEditPhone] = useState('');
@@ -16,6 +18,10 @@ const Users = () => {
   useEffect(() => {
     fetchUsers();
   }, [filterRole]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterRole]);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -100,6 +106,41 @@ const Users = () => {
     user.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    const getValue = (item, key) => {
+      if (key === 'name') return (item.name || item.fullName || '').toLowerCase();
+      if (key === 'email') return (item.email || '').toLowerCase();
+      if (key === 'role') return (item.role || '').toLowerCase();
+      if (key === 'status') return (item.status || '').toLowerCase();
+      if (key === 'userId') return item.userId || 0;
+      return '';
+    };
+    const aValue = getValue(a, sortConfig.key);
+    const bValue = getValue(b, sortConfig.key);
+    if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+    if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  const pageSize = 10;
+  const totalPages = Math.ceil(sortedUsers.length / pageSize) || 1;
+  const paginatedUsers = sortedUsers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const handleSort = (key) => {
+    setSortConfig((current) => {
+      if (current.key === key) {
+        return { key, direction: current.direction === 'asc' ? 'desc' : 'asc' };
+      }
+      return { key, direction: 'asc' };
+    });
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+  };
+
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-8">
@@ -153,7 +194,6 @@ const Users = () => {
             </Link>
           </div>
         </div>
-      </div>
 
       {editingUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
@@ -218,17 +258,42 @@ const Users = () => {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">ID</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Name</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Email</th>
+                  <th
+                    onClick={() => handleSort('userId')}
+                    className="cursor-pointer px-6 py-3 text-left text-sm font-semibold text-gray-900"
+                  >
+                    ID
+                  </th>
+                  <th
+                    onClick={() => handleSort('name')}
+                    className="cursor-pointer px-6 py-3 text-left text-sm font-semibold text-gray-900"
+                  >
+                    Name
+                  </th>
+                  <th
+                    onClick={() => handleSort('email')}
+                    className="cursor-pointer px-6 py-3 text-left text-sm font-semibold text-gray-900"
+                  >
+                    Email
+                  </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Phone</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Role</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
+                  <th
+                    onClick={() => handleSort('role')}
+                    className="cursor-pointer px-6 py-3 text-left text-sm font-semibold text-gray-900"
+                  >
+                    Role
+                  </th>
+                  <th
+                    onClick={() => handleSort('status')}
+                    className="cursor-pointer px-6 py-3 text-left text-sm font-semibold text-gray-900"
+                  >
+                    Status
+                  </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredUsers.map((user) => (
+                {paginatedUsers.map((user) => (
                   <tr key={user.userId} className="border-b border-gray-200 hover:bg-gray-50 transition">
                     <td className="px-6 py-4 text-sm text-gray-900">{user.userId}</td>
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">{user.name || user.fullName || 'N/A'}</td>
@@ -267,7 +332,7 @@ const Users = () => {
                           onClick={() => toggleUserStatus(user)}
                           disabled={user.role === 'ADMIN'}
                           className={`transition ${user.role === 'ADMIN' ? 'text-gray-300 cursor-not-allowed' : user.status === 'ACTIVE' ? 'text-orange-600 hover:text-orange-900' : 'text-green-600 hover:text-green-900'}`}
-                          title={user.role === 'ADMIN' ? 'Cannot change admin status' : `Set to ${user.status === 'ACTIVE' ? 'Inactive' : 'Active'}`}
+                          title={user.role === 'ADMIN' ? 'Cannot change admin status' : 'Set to ' + (user.status === 'ACTIVE' ? 'Inactive' : 'Active')}
                         >
                           <MdToggleOn size={20} />
                         </button>
@@ -281,10 +346,40 @@ const Users = () => {
         </div>
 
         {/* Pagination Info */}
-        <div className="px-6 py-4 border-t border-gray-200 text-sm text-gray-600">
-          Showing {filteredUsers.length} of {users.length} users
+        <div className="flex flex-col gap-3 px-6 py-4 border-t border-gray-200 text-sm text-gray-600 md:flex-row md:items-center md:justify-between">
+          <div>
+            Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, sortedUsers.length)} of {sortedUsers.length} users
+          </div>
+          {totalPages > 1 && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="rounded-lg border border-gray-300 px-3 py-1 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Prev
+              </button>
+              {Array.from({ length: totalPages }, (_, index) => (
+                <button
+                  key={index + 1}
+                  onClick={() => handlePageChange(index + 1)}
+                  className={`rounded-lg px-3 py-1 text-sm font-medium ${currentPage === index + 1 ? 'bg-green-600 text-white' : 'bg-white text-slate-700 border border-gray-300'}`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="rounded-lg border border-gray-300 px-3 py-1 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </div>
+    </div>
     </div>
   );
 };
