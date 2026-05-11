@@ -2,15 +2,12 @@ import React, { useEffect, useState, useRef } from "react";
 import {
   getNotificationsByUser,
   markNotificationAsRead,
-} from "../../api/notificationApi";
+} from "../../../api/notificationApi";
 
-import {
-  getManagerProjects,
-  decideProject,
-} from "../../api/managerApi";
+import { getManagerProjects, decideProject } from "../../../api/managerApi";
 
-import ManagerSidebar from "./ManagerSidebar";
-import Footer from "../../components/ui/Footer";
+import ManagerSidebar from "../ManagerSidebar.jsx";
+import Footer from "../../../components/ui/Footer";
 import ProjectDetailsModal from "./ProjectDetailsModal";
 import DecisionModal from "./DecisionModal";
 
