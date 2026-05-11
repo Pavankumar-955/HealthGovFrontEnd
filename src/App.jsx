@@ -23,7 +23,6 @@ import Analytics from "./pages/admin/Analytics"
 // Layouts
 import CitizenLayout from "./layouts/CitizenLayout"
 import AdminLayout from "./layouts/AdminLayout"
-import DashboardLayout from "./layouts/DashboardLayout"
 
 // Components
 import ProtectedRoute from "./components/ProtectedRoute"
@@ -36,6 +35,14 @@ import Program from "./components/layout/Program"
 import Research from "./components/layout/Research"
 import Contact from "./components/layout/Contact"
 import Body from "./components/ui/Body"
+import ComplianceLayout from "./layouts/ComplianceLayout"
+import ComplianceList from "./pages/compliance/ComplianceList"
+import Dashboard from "./pages/compliance/Dasboard"
+
+
+
+
+import ErrorBoundary from './components/feedbacks/ErrorBoundary'
 
 function App() {
   const { isAuthenticated, user } = useAuth()
@@ -48,6 +55,9 @@ function App() {
         <Route path="/signup" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+         <Route path="/compliance" element={<ComplianceLayout />} />
+          <Route path="/compliance/list" element={<ComplianceList />} />
+          <Route path="/compliance/dashboard" element={<Dashboard />} />
 
         {/* Citizen Routes */}
         <Route

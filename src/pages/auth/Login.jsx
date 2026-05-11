@@ -29,7 +29,15 @@ export default function Login() {
 
       if (userRole === 'ADMIN') {
         navigate('/admin/dashboard');
-      } else {
+      } 
+      else if(userRole === 'COMPLIANCE') 
+        {
+          navigate('/compliance/dashboard');
+        }
+       else if(userRole === 'AUDITOR') {
+          navigate('/audit/dashboard');
+        }
+      else {
         navigate('/citizen/dashboard');
       }
 
