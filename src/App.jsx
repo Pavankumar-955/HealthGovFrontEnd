@@ -13,6 +13,7 @@ import CitizenDashboard from "./pages/dashboard/CitizenDashboard";
 import CitizenProfile from "./pages/citizen/CitizenProfile";
 import CitizenHealthRecords from "./pages/citizen/CitizenHealthRecords";
 import CitizenNotifications from "./pages/citizen/CitizenNotifications";
+import CitizenSetup from "./pages/citizen/CitizenSetup";
 
 // Admin Pages
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
@@ -72,6 +73,7 @@ function App() {
           </ProtectedRoute>
         }>
           <Route path="dashboard" element={<CitizenDashboard />} />
+          <Route path="register" element={<CitizenSetup />} />
           <Route path="profile" element={<CitizenProfile />} />
           <Route path="health-records" element={<CitizenHealthRecords />} />
           <Route path="notifications" element={<CitizenNotifications />} />
