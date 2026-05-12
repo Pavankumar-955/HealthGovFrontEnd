@@ -47,6 +47,7 @@ import ComplianceLayout from "./layouts/ComplianceLayout";
 import ComplianceList from "./pages/compliance/ComplianceList";
 import Dashboard from "./pages/compliance/Dasboard";
 import ErrorBoundary from './components/feedbacks/ErrorBoundary';
+import ResourceInfrastructure from "./pages/manager/HealthProgram/ResourceInfrastructure";
 
 function App() {
   const { isAuthenticated, user } = useAuth();
@@ -97,6 +98,7 @@ function App() {
         <Route path="/manager/dashboard" element={<ProtectedRoute requiredRole="MANAGER"><ManagerDashboard /></ProtectedRoute>} />
         <Route path="/manager/applications" element={<ProtectedRoute requiredRole="MANAGER"><ManagerApplications /></ProtectedRoute>} />
         <Route path="/manager/health-programs"element={<ProtectedRoute requiredRole="MANAGER"><HealthPrograms /></ProtectedRoute>}/>
+        <Route path="/manager/infrastructure" element={<ProtectedRoute requiredRole="MANAGER"><ResourceInfrastructure /></ProtectedRoute>} />
 
 
         {/* ROLE-BASED REDIRECTION */}

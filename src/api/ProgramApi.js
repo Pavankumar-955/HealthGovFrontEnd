@@ -19,3 +19,7 @@ export const updateProgram = (id, data) =>
 // ✅ ✅ FIXED DELETE
 export const deleteProgram = (id) =>
   API.delete(`${BASE_URL}/${id}`);
+
+// ✅ REGISTER CITIZEN FOR PROGRAM
+export const registerForProgram = (id) =>
+  API.post(`${BASE_URL}/${id}/register`);

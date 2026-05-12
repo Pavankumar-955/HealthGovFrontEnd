@@ -1,188 +1,198 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import API from '../../api/axios';
-import toast from 'react-hot-toast';
-import { MdHealing, MdCalendarToday, MdNotifications, MdPerson, MdLocalHospital, MdTrendingUp } from 'react-icons/md';
+import React, { useEffect, useState } from "react";
+import Footer from "../../components/ui/Footer.jsx";
+import { getPrograms, registerForProgram } from "../../api/ProgramApi.js";
+import { getCitizenEnrollments } from "../../api/citizenApi.js";
+import { toast } from "react-hot-toast";
 
 const CitizenDashboard = () => {
-  const { user } = useAuth();
-  const [stats, setStats] = useState({
-    healthRecords: 0,
-    notifications: 0,
-    profileCompleteness: 0
-  });
-  const [recentActivity, setRecentActivity] = useState([]);
+  const [availablePrograms, setAvailablePrograms] = useState([]);
+  const [myEnrollments, setMyEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+  // ✅ Decode citizenId from token
+  const token = localStorage.getItem("token");
+  let citizenId = null;
 
-  const fetchDashboardData = async () => {
+  if (token) {
     try {
-      // Fetch user profile to get user ID
-      // Note: This would need a proper endpoint in the backend
-      // For now, using mock data
+      const decoded = JSON.parse(atob(token.split(".")[1]));
+      citizenId = decoded.userId; // ✅ adjust if backend uses different key
+    } catch {
+      console.error("Invalid token");
+    }
+  }
 
-      setStats({
-        healthRecords: 5,
-        notifications: 3,
-        profileCompleteness: 85
-      });
+  // ✅ Load Data
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const progRes = await getPrograms();
+      const enrollRes = await getCitizenEnrollments();
 
-      setRecentActivity([
-        {
-          id: 1,
-          type: 'record',
-          title: 'Health Record Added',
-          description: 'Blood test results uploaded',
-          date: '2024-01-20',
-          time: '02:30 PM'
-        },
-        {
-          id: 2,
-          type: 'notification',
-          title: 'Vaccination Reminder',
-          description: 'Flu shot due in 2 weeks',
-          date: '2024-01-18',
-          time: '09:00 AM'
-        }
-      ]);
+      setAvailablePrograms(
+        Array.isArray(progRes.data) ? progRes.data : progRes.data?.data || []
+      );
 
-      toast.success('Dashboard loaded successfully');
-    } catch (error) {
-      toast.error('Failed to load dashboard data');
-      console.error('Dashboard error:', error);
+      setMyEnrollments(
+        Array.isArray(enrollRes.data) ? enrollRes.data : enrollRes.data?.data || []
+      );
+    } catch (err) {
+      console.error("Error loading dashboard:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const getActivityIcon = (type) => {
-    switch (type) {
-      case 'record':
-        return <MdHealing className="text-green-600" size={20} />;
-      case 'notification':
-        return <MdNotifications className="text-orange-600" size={20} />;
-      default:
-        return <MdPerson className="text-gray-600" size={20} />;
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  // ✅ REGISTER FUNCTION (FULL PAYLOAD)
+  const handleRegister = async (programId) => {
+    try {
+      const payload = {
+        citizenId,
+        programId,
+        date: new Date().toISOString().split("T")[0], // ✅ today's date
+        status: "ACTIVE",
+      };
+
+      await registerForProgram(payload);
+
+      toast.success("✅ You are registered in this program!");
+
+      loadData(); // refresh UI
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Registration failed");
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-6xl mx-auto">
-      {/* Welcome Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Welcome back, {user?.name || user?.email}!</h1>
-        <p className="text-gray-600">Manage your health information and stay connected with your healthcare providers</p>
-      </div>
+    <>
+      <div className="ml-64 p-8 min-h-screen bg-[#f3f7fa]">
+        <div className="max-w-6xl mx-auto">
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Health Records</p>
-              <p className="text-3xl font-bold mt-2">{stats.healthRecords}</p>
-              <p className="text-green-600 text-sm mt-1">+2 this month</p>
-            </div>
-            <div className="bg-blue-100 p-3 rounded-lg">
-              <MdHealing className="text-blue-600" size={24} />
-            </div>
+          {/* HEADER */}
+          <div className="mb-10">
+            <h1 className="text-3xl font-bold text-slate-900">
+              Hello, Citizen 👋
+            </h1>
+            <p className="text-slate-500 mt-2">
+              Manage your health registrations and explore new initiatives.
+            </p>
           </div>
-        </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Notifications</p>
-              <p className="text-3xl font-bold mt-2">{stats.notifications}</p>
-              <p className="text-orange-600 text-sm mt-1">3 unread</p>
-            </div>
-            <div className="bg-orange-100 p-3 rounded-lg">
-              <MdNotifications className="text-orange-600" size={24} />
-            </div>
-          </div>
-        </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-        <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Profile Complete</p>
-              <p className="text-3xl font-bold mt-2">{stats.profileCompleteness}%</p>
-              <p className="text-purple-600 text-sm mt-1">Almost there!</p>
-            </div>
-            <div className="bg-purple-100 p-3 rounded-lg">
-              <MdPerson className="text-purple-600" size={24} />
-            </div>
-          </div>
-        </div>
-      </div>
+            {/* LEFT - PROGRAMS */}
+            <div className="lg:col-span-2 space-y-6">
+              <h2 className="text-xl font-bold text-slate-800">
+                Available Health Programs
+              </h2>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Quick Actions */}
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
-            <div className="space-y-3">
-              <button className="w-full flex items-center space-x-3 p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
-                <MdLocalHospital className="text-green-600" size={20} />
-                <span className="font-medium">Find Healthcare Provider</span>
-              </button>
-              <button className="w-full flex items-center space-x-3 p-3 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors">
-                <MdTrendingUp className="text-purple-600" size={20} />
-                <span className="font-medium">View Health Trends</span>
-              </button>
-            </div>
-          </div>
-        </div>
+              {loading ? (
+                <p className="text-slate-500">Loading...</p>
+              ) : availablePrograms.length === 0 ? (
+                <p className="text-slate-400">No programs available.</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {availablePrograms.map((prog) => {
+                    const programId =
+                      prog._id || prog.id || prog.programId;
 
-        {/* Recent Activity */}
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h2 className="text-xl font-bold mb-4">Recent Activity</h2>
-            <div className="space-y-4">
-              {recentActivity.map((activity) => (
-                <div key={activity.id} className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg">
-                  <div className="flex-shrink-0">
-                    {getActivityIcon(activity.type)}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{activity.title}</h3>
-                    <p className="text-gray-600 text-sm mt-1">{activity.description}</p>
-                    <p className="text-gray-500 text-xs mt-2">
-                      {activity.date} at {activity.time}
+                    // ✅ Check if already registered
+                    const registered = myEnrollments.some(
+                      (e) => e.programId === programId
+                    );
+
+                    return (
+                      <ProgramCard
+                        key={programId}
+                        program={prog}
+                        onRegister={handleRegister}
+                        isRegistered={registered}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* RIGHT - MY ENROLLMENTS */}
+            <div className="bg-white rounded-2xl p-6 shadow border h-fit">
+              <h2 className="text-xl font-bold mb-6">
+                ✅ My Enrollments
+              </h2>
+
+              {myEnrollments.length === 0 ? (
+                <p className="text-gray-400">
+                  You haven’t enrolled in any programs yet.
+                </p>
+              ) : (
+                myEnrollments.map((item) => (
+                  <div
+                    key={item.programId}
+                    className="p-3 bg-green-50 rounded mb-2"
+                  >
+                    <p className="font-bold text-green-800">
+                      {item.program?.title || "Program"}
+                    </p>
+                    <p className="text-xs text-green-600">
+                      ✅ Registered
                     </p>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
-            {recentActivity.length === 0 && (
-              <p className="text-gray-500 text-center py-8">No recent activity</p>
-            )}
+
           </div>
         </div>
       </div>
 
-      {/* Health Tips */}
-      <div className="mt-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-6 text-white">
-        <div className="flex items-center space-x-4">
-          <div className="bg-white bg-opacity-20 p-3 rounded-lg">
-            <MdHealing size={24} />
+      <Footer />
+    </>
+  );
+};
+
+// ✅ PROGRAM CARD COMPONENT
+const ProgramCard = ({ program, onRegister, isRegistered }) => {
+  const programId = program._id || program.id || program.programId;
+
+  return (
+    <div className="bg-white p-5 rounded-xl shadow border">
+
+      <h3 className="font-bold text-lg mb-2">{program.title}</h3>
+
+      <p className="text-sm text-gray-600 mb-4">
+        {program.description}
+      </p>
+
+      <div className="flex justify-between items-center">
+
+        {/* DATE */}
+        <span className="text-xs text-gray-400">
+          📅 {new Date().toLocaleDateString()}
+        </span>
+
+        {/* ✅ REGISTER BUTTON / STATUS */}
+        {isRegistered ? (
+          <div className="text-right">
+            <span className="text-green-600 font-bold text-xs">
+              ✅ Registered
+            </span>
+            <p className="text-[10px] text-gray-400">
+              Already enrolled
+            </p>
           </div>
-          <div>
-            <h3 className="text-xl font-bold">Health Tip of the Day</h3>
-            <p className="mt-2">Stay hydrated! Aim for at least 8 glasses of water daily to maintain optimal health and energy levels.</p>
-          </div>
-        </div>
+        ) : (
+          <button
+            onClick={() => onRegister(programId)}
+            className="bg-blue-600 text-white px-4 py-2 text-xs rounded"
+          >
+            Register
+          </button>
+        )}
+
       </div>
     </div>
   );

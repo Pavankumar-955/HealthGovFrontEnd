@@ -13,6 +13,7 @@ import ProgramDetailsModal from "./ProgramDetailsModal";
  
 import toast from "react-hot-toast";
 import ManagerSidebar from "../ManagerSidebar";
+
  
 const HealthPrograms = () => {
   const [programs, setPrograms] = useState([]);
@@ -26,6 +27,7 @@ const HealthPrograms = () => {
     try {
       const res = await getPrograms();
       setPrograms(res.data);
+      console.log("Fetched programs:", res.data);
     } catch {
       toast.error("Failed to load programs ❌");
     }
