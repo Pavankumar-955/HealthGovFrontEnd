@@ -9,22 +9,18 @@ import {
 } from "../../../api/infraApi";
 
 import toast from "react-hot-toast";
-
 import InfraSearch from "./InfraSearch";
 import InfraTable from "./InfraTable";
 import AddInfraModal from "./AddInfraModal";
 import EditInfraModal from "./EditInfraModal";
-import DeleteInfraModal from "./DeleteInfraModal"; // ✅ IMPORTANT
+import DeleteInfraModal from "./DeleteInfraModal";
 
 const InfraTab = ({ programId: propProgramId }) => {
   const { id } = useParams();
-
-  // ✅ fallback logic
   const programId = propProgramId || id;
 
   const [infraList, setInfraList] = useState([]);
   const [originalData, setOriginalData] = useState([]);
-  const [page, setPage] = useState(1);
 
   const [search, setSearch] = useState({
     type: "",
@@ -42,7 +38,6 @@ const InfraTab = ({ programId: propProgramId }) => {
   // ✅ LOAD DATA
   const loadInfra = async () => {
     if (!programId) return;
-
     try {
       const res = await getInfraByProgram(programId);
       setInfraList(res.data || []);
@@ -71,48 +66,31 @@ const InfraTab = ({ programId: propProgramId }) => {
         search.location || null,
         search.status || null
       );
-
       setInfraList(res.data || []);
-      setPage(1);
     } catch {
       toast.error("Search failed ❌");
     }
   };
 
-  // ✅ CLEAR
+  // ✅ CLEAR FILTER
   const handleClearFilters = () => {
     if (!search.type && !search.location && !search.status) {
       toast("Already showing all ✅");
       return;
     }
 
-    setSearch({
-      type: "",
-      location: "",
-      status: "",
-    });
-
+    setSearch({ type: "", location: "", status: "" });
     setInfraList(originalData);
-    setPage(1);
-
     toast.success("Filters cleared ✅");
   };
 
-  // ✅ OPEN DELETE MODAL
-const handleDelete = (id) => {
-  // ✅ find full object using ID
-  const fullInfra = originalData.find(
-    (item) => item.infraId === id
-  );
+  // ✅ DELETE
+  const handleDelete = (id) => {
+    const full = originalData.find((i) => i.infraId === id);
+    setDeleteData(full);
+    setShowDeleteModal(true);
+  };
 
-  console.log("FULL DELETE DATA:", fullInfra);
-
-  setDeleteData(fullInfra);
-  setShowDeleteModal(true);
-};
-
-
-  // ✅ CONFIRM DELETE
   const confirmDelete = async (id) => {
     try {
       await deleteInfra(id);
@@ -165,24 +143,23 @@ const handleDelete = (id) => {
   };
 
   return (
-    <div className="pt-10 min-h-screen bg-[#eef3f8] px-6">
+    <div className="flex flex-col flex-1 min-h-0">
 
       {/* ✅ HEADER */}
-      <div className="max-w-7xl mx-auto flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold">
-          🏗 Infrastructure
-        </h2>
+      <div className="flex justify-between items-center mb-2 pl-6 pt-4 pr-6">
+        <h2 className="text-lg font-semibold ">🏗 Infrastructure</h2>
 
         <button
-          onClick={() => setShowAddModal(true)}
-          className="bg-green-600 text-white px-5 py-2 rounded-lg shadow hover:bg-green-700 cursor-pointer text-sm"
-        >
-          + Add Infrastructure
-        </button>
+  onClick={() => setShowAddModal(true)}
+  className="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-sm hover:bg-green-200 cursor-pointer transition"
+>
+  + Add Infrastructure
+</button>
+
       </div>
 
       {/* ✅ SEARCH */}
-      <div className="max-w-7xl mx-auto bg-white p-4 rounded-xl shadow mb-4">
+      <div className="bg-white p-4 rounded-xl shadow mb-3">
         <InfraSearch
           search={search}
           setSearch={setSearch}
@@ -191,15 +168,22 @@ const handleDelete = (id) => {
         />
       </div>
 
-      {/* ✅ TABLE */}
-      <div className="max-w-7xl mx-auto">
-        <InfraTable
-          data={infraList}
-          page={page}
-          setPage={setPage}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+      {/* ✅ ✅ FIXED TABLE LAYOUT */}
+      <div className="flex-1 min-h-0 flex flex-col">
+
+        <div className="flex-1 min-h-0 bg-white rounded-xl shadow overflow-hidden flex flex-col">
+
+          {/* ✅ ONLY THIS SCROLLS */}
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <InfraTable
+              data={infraList}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          </div>
+
+        </div>
+
       </div>
 
       {/* ✅ MODALS */}
