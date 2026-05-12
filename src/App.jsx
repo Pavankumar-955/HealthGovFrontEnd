@@ -30,8 +30,6 @@ import ManagerDashboard from "./pages/manager/ManagerDashboard";
 import ManagerApplications from "./pages/manager/Project/ManagerApplications";
 import HealthPrograms from "./pages/manager/HealthProgram/HealthPrograms";
 import ManagerProjectReport from "./pages/manager/Project/ManagerProjectReport";
-// ✅ Program Manager Page
-import ProgramManagerDashboard from "./pages/programsdash/ProgramManagerDashboard";
 
 
 // ✅ HealthCare Provider Pages
@@ -111,17 +109,6 @@ function App() {
         <Route path="/manager/applications" element={<ProtectedRoute requiredRole="MANAGER"><ManagerApplications /></ProtectedRoute>} />
         <Route path="/manager/health-programs" element={<ProtectedRoute requiredRole="MANAGER"><HealthPrograms /></ProtectedRoute>} />
         <Route path="/manager/reports/project" element={<ManagerProjectReport />} />
-
-        {/* ================= PROGRAM MANAGER ROUTES ================= */}
-        <Route
-          path="/manager/dashboard"
-          element={
-            <ProtectedRoute requiredRole="MANAGER">
-              <ProgramManagerDashboard />
-            </ProtectedRoute>
-          }
-        />
-
 
         {/* HealthCare Provider */}
 
