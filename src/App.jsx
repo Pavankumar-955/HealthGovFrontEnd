@@ -1,6 +1,7 @@
-import "./App.css"
-import { Routes, Route, Navigate } from "react-router-dom"
-import { useAuth } from "./context/AuthContext"
+import { Toaster } from "react-hot-toast";
+import "./App.css";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 
 // Pages
 import Login from "./pages/auth/Login"
@@ -45,13 +46,13 @@ import AuditReports from "./pages/auditor/AuditReports"
 import AuditLayout from "./layouts/AuditLayout"
 
 function App() {
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated, user } = useAuth();
 
   return (
     <>
     <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
-        {/* Authentication Routes */}
+        {/* AUTH ROUTES */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -101,28 +102,70 @@ function App() {
           <Route path="notifications" element={<CitizenNotifications />} />
         </Route>
 
-        {/* Admin Routes */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute requiredRole="ADMIN">
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
+        {/* ADMIN ROUTES */}
+        <Route path="/admin" element={
+          <ProtectedRoute requiredRole="ADMIN">
+            <AdminLayout />
+          </ProtectedRoute>
+        }>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="users" element={<Users />} />
           <Route path="add-user" element={<AddUser />} />
           <Route path="analytics" element={<Analytics />} />
         </Route>
 
-        {/* Legacy Dashboard Route - Redirect based on role */}
+        {/* RESEARCHER ROUTES */}
+        <Route path="/researcher/dashboard" element={<ProtectedRoute requiredRole="RESEARCHER"><ResearcherDashboard /></ProtectedRoute>} />
+        <Route path="/researcher/projects" element={<ProtectedRoute requiredRole="RESEARCHER"><ResearcherProjects /></ProtectedRoute>} />
+
+        {/* MANAGER ROUTES */}
+        <Route path="/manager/dashboard" element={<ProtectedRoute requiredRole="MANAGER"><ManagerDashboard /></ProtectedRoute>} />
+        <Route path="/manager/applications" element={<ProtectedRoute requiredRole="MANAGER"><ManagerApplications /></ProtectedRoute>} />
+        <Route path="/manager/health-programs" element={<ProtectedRoute requiredRole="MANAGER"><HealthPrograms /></ProtectedRoute>} />
+        <Route path="/manager/reports/project" element={<ManagerProjectReport />} />
+
+        {/* ================= PROGRAM MANAGER ROUTES ================= */}
+        <Route
+          path="/manager/dashboard"
+          element={
+            <ProtectedRoute requiredRole="MANAGER">
+              <ProgramManagerDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+
+        {/* HealthCare Provider */}
+
+        <Route
+          path="/provider"
+          element={
+            <ProtectedRoute requiredRole="PROVIDER">
+              <ProviderLayout />
+            </ProtectedRoute>
+          }
+        >
+          {/* ✅ Dashboard */}
+          <Route path="dashboard" element={<ProviderDashboard />} />
+
+          {/* ✅ Programs List */}
+          <Route path="programs" element={<ProgramsPage />} />
+
+          {/* ✅ Program Details (Infra + Resource inside tabs) */}
+          <Route path="programs/:id" element={<ProgramDetailsPage />} />
+        </Route>
+
+        {/* ROLE-BASED REDIRECTION */}
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
-              {user?.role === 'ADMIN' ? (
+              {user?.role === "ADMIN" ? (
                 <Navigate to="/admin/dashboard" replace />
+              ) : user?.role === "MANAGER" ? (
+                <Navigate to="/manager/dashboard" replace />
+              ) : user?.role === "PROVIDER" ? (
+                <Navigate to="/provider/dashboard" replace />
               ) : (
                 <Navigate to="/citizen/dashboard" replace />
               )}
@@ -130,77 +173,18 @@ function App() {
           }
         />
 
-        {/* Home / Public Pages with Navbar */}
-        <Route
-          path="/"
-          element={
-            <>
-              <div className="pt-16">
-                <Navbar />
-                <Body />
-                <Footer />
-              </div>
-            </>
-          }
-        />
+        {/* PUBLIC ROUTES */}
+        <Route path="/about" element={<div className="pt-16"><Navbar /><About /><Footer /></div>} />
+        <Route path="/programs" element={<div className="pt-16"><Navbar /><Program /><Footer /></div>} />
+        <Route path="/research" element={<div className="pt-16"><Navbar /><Research /><Footer /></div>} />
+        <Route path="/contact" element={<div className="pt-16"><Navbar /><Contact /><Footer /></div>} />
+        <Route path="/" element={<div className="pt-16"><Navbar /><Body /><Footer /></div>} />
 
-        <Route
-          path="/about"
-          element={
-            <>
-              <div className="pt-16">
-                <Navbar />
-                <About />
-                <Footer />
-              </div>
-            </>
-          }
-        />
-
-        <Route
-          path="/programs"
-          element={
-            <>
-              <div className="pt-16">
-                <Navbar />
-                <Program />
-                <Footer />
-              </div>
-            </>
-          }
-        />
-
-        <Route
-          path="/research"
-          element={
-            <>
-              <div className="pt-16">
-                <Navbar />
-                <Research />
-                <Footer />
-              </div>
-            </>
-          }
-        />
-
-        <Route
-          path="/contact"
-          element={
-            <>
-              <div className="pt-16">
-                <Navbar />
-                <Contact />
-                <Footer />
-              </div>
-            </>
-          }
-        />
-
-        {/* Catch all - redirect to home */}
+        {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
