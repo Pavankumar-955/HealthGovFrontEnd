@@ -1,33 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
-  getInfraByProgram,
-  searchInfraByProgram,
-  updateInfra,
-  deleteInfra,
-  createInfra,
-} from "../../api/infraApi";
+  getResourcesByProgram,
+  searchResourcesByProgram,
+  updateResource,
+  deleteResource,
+  createResource,
+} from "../../../api/resourceApi";
 
 import toast from "react-hot-toast";
 
-import InfraSearch from "./InfraSearch";
-import InfraTable from "./InfraTable";
-import AddInfraModal from "./AddInfraModal";
-import EditInfraModal from "./EditInfraModal";
-
-const InfraTab = ({ programId: propProgramId }) => {
+import ResourceSearch from "./ResourceSearch";
+import ResourceTable from "./ResourceTable";
+import AddResourceModal from "./AddResourceModal";
+import EditResourceModal from "./EditResourceModal";
+import DeleteResourceModal from "./DeleteResourceModal";
+const ResourceTab = ({ programId: propProgramId }) => {
   const { id } = useParams();
 
-  // ✅ FIX: fallback logic
+  // ✅ SAME fallback logic as Infra
   const programId = propProgramId || id;
 
-  const [infraList, setInfraList] = useState([]);
+  const [resourceList, setResourceList] = useState([]);
   const [originalData, setOriginalData] = useState([]);
   const [page, setPage] = useState(1);
 
   const [search, setSearch] = useState({
     type: "",
-    location: "",
     status: "",
   });
 
@@ -35,115 +34,124 @@ const InfraTab = ({ programId: propProgramId }) => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editData, setEditData] = useState(null);
 
-  // ✅ LOAD DATA (safe)
-  const loadInfra = async () => {
-    if (!programId) return; // ✅ prevent bad API call
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+const [deleteData, setDeleteData] = useState(null);
+
+  // ✅ LOAD DATA
+  const loadResources = async () => {
+    if (!programId) return;
 
     try {
-      const res = await getInfraByProgram(programId);
-      setInfraList(res.data || []);
+      const res = await getResourcesByProgram(programId);
+      setResourceList(res.data || []);
       setOriginalData(res.data || []);
-    } catch {
-      toast.error("Failed to load infrastructure ❌");
+    } catch (err) {
+      toast.error(err);
     }
   };
 
   useEffect(() => {
-    loadInfra();
+    loadResources();
   }, [programId]);
 
   // ✅ SEARCH
   const handleSearch = async () => {
-    if (!search.type && !search.location && !search.status) {
-      setInfraList(originalData);
-      toast("Showing all infrastructure ✅");
+    if (!search.type && !search.status) {
+      setResourceList(originalData);
+      toast("Showing all resources ✅");
       return;
     }
 
     try {
-      const res = await searchInfraByProgram(
+      const res = await searchResourcesByProgram(
         programId,
         search.type || null,
-        search.location || null,
         search.status || null
       );
 
-      setInfraList(res.data || []);
+      setResourceList(res.data || []);
       setPage(1);
-    } catch {
-      toast.error("Search failed ❌");
+    } catch (err) {
+      toast.error(err);
     }
   };
 
-  // ✅ CLEAR
+  // ✅ CLEAR FILTERS
   const handleClearFilters = () => {
-    if (!search.type && !search.location && !search.status) {
+    if (!search.type && !search.status) {
       toast("Already showing all ✅");
       return;
     }
 
     setSearch({
       type: "",
-      location: "",
       status: "",
     });
 
-    setInfraList(originalData);
+    setResourceList(originalData);
     setPage(1);
 
     toast.success("Filters cleared ✅");
   };
 
   // ✅ DELETE
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this infrastructure?")) return;
+const handleDelete = (id) => {
+  const fullResource = originalData.find(
+    (item) => item.resourceId === id
+  );
 
-    try {
-      await deleteInfra(id);
-      toast.success("Deleted ✅");
-      loadInfra();
-    } catch {
-      toast.error("Delete failed ❌");
-    }
-  };
+  setDeleteData(fullResource);
+  setShowDeleteModal(true);
+};
+
+const confirmDelete = async (id) => {
+  try {
+    await deleteResource(id);
+    toast.success("Deleted ✅");
+    setShowDeleteModal(false);
+    loadResources();
+  } catch (err) {
+    toast.error("Delete failed ❌");
+  }
+};
 
   // ✅ EDIT
-  const handleEdit = (infra) => {
-    setEditData({ ...infra });
+  const handleEdit = (resource) => {
+    setEditData({ ...resource });
     setShowEditModal(true);
   };
 
   // ✅ UPDATE
   const handleUpdate = async (data) => {
-    if (data.capacity < 0) {
-      toast.error("Capacity must be ≥ 0 ❌");
+    if (data.quantity < 0) {
+      toast.error("Quantity must be ≥ 0 ❌");
       return;
     }
 
     try {
-      await updateInfra(data.infraId, data);
+      await updateResource(data.resourceId, data);
       toast.success("Updated ✅");
       setShowEditModal(false);
-      loadInfra();
-    } catch {
-      toast.error("Update failed ❌");
+      loadResources();
+    } catch (err) {
+      toast.error(err);
     }
   };
 
   // ✅ CREATE
   const handleCreate = async (data) => {
-    if (data.capacity < 0) {
-      toast.error("Capacity must be ≥ 0 ❌");
+    if (data.quantity < 0) {
+      toast.error("Quantity must be ≥ 0 ❌");
       return;
     }
 
     try {
-      await createInfra({ ...data, programId });
+      await createResource({ ...data, programId });
       toast.success("Created ✅");
       setShowAddModal(false);
-      loadInfra();
-    } catch {
-      toast.error("Create failed ❌");
+      loadResources();
+    } catch (err) {
+      toast.error(err);
     }
   };
 
@@ -153,20 +161,20 @@ const InfraTab = ({ programId: propProgramId }) => {
       {/* ✅ HEADER */}
       <div className="max-w-7xl mx-auto flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">
-          🏗 Infrastructure
+          📦 Resources
         </h2>
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="bg-green-600 text-white px-5 py-2 rounded-lg shadow hover:bg-green-700"
+          className="bg-green-600 text-white px-5 py-2 rounded-lg shadow hover:bg-green-700 cursor-pointer text-sm"
         >
-          + Add Infrastructure
+          + Add Resource
         </button>
       </div>
 
       {/* ✅ SEARCH */}
       <div className="max-w-7xl mx-auto bg-white p-4 rounded-xl shadow mb-4">
-        <InfraSearch
+        <ResourceSearch
           search={search}
           setSearch={setSearch}
           onSearch={handleSearch}
@@ -176,8 +184,8 @@ const InfraTab = ({ programId: propProgramId }) => {
 
       {/* ✅ TABLE */}
       <div className="max-w-7xl mx-auto">
-        <InfraTable
-          data={infraList}
+        <ResourceTable
+          data={resourceList}
           page={page}
           setPage={setPage}
           onEdit={handleEdit}
@@ -186,21 +194,27 @@ const InfraTab = ({ programId: propProgramId }) => {
       </div>
 
       {/* ✅ MODALS */}
-      <AddInfraModal
+      <AddResourceModal
         show={showAddModal}
         onClose={() => setShowAddModal(false)}
         onCreate={handleCreate}
       />
 
-      <EditInfraModal
+      <EditResourceModal
         show={showEditModal}
         data={editData}
         onClose={() => setShowEditModal(false)}
         onUpdate={handleUpdate}
       />
 
+    <DeleteResourceModal
+  show={showDeleteModal}
+  data={deleteData}
+  onConfirm={confirmDelete}
+  onCancel={() => setShowDeleteModal(false)}
+/>
     </div>
   );
 };
 
-export default InfraTab;
+export default ResourceTab;

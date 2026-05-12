@@ -83,7 +83,7 @@ const AddResourceModal = ({ show, onClose, onCreate }) => {
 
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-black text-lg"
+            className="text-gray-500 hover:text-black text-lg cursor-pointer"
           >
             ✖
           </button>
@@ -201,9 +201,9 @@ const AddResourceModal = ({ show, onClose, onCreate }) => {
           {/* ✅ BUTTON */}
           <button
             type="submit"
-            className="w-full bg-green-600 text-white py-2 rounded-lg shadow hover:bg-green-700"
+            className="w-full bg-green-600 text-white py-2 rounded-lg shadow hover:bg-green-700 cursor-pointer"
           >
-            Create
+            Add
           </button>
 
         </form>

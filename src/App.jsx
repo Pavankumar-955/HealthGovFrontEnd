@@ -22,13 +22,12 @@ import Analytics from "./pages/admin/Analytics";
 
 // ✅ Program Manager Page
 import ProgramManagerDashboard from "./pages/programsdash/ProgramManagerDashboard";
-import ProgramDetailsPage from "./pages/infra/ProgramDetailsPage";
+import ProgramDetailsPage from "./pages/provider/ProgramDetailsPage";
 
-// ✅ Infrastructure Pages
-// import InfrastructureLayout from "./layouts/InfrastructureLayout";
-import ManagerLayout from "./layouts/ManagerLayout";
-import InfraTab from "./pages/infra/InfraTab";
-import ResourceTab from "./pages/resoucre/ResourceTab";
+// ✅ HealthCare Provider Pages
+import ProviderDashboard from "./pages/dashboard/ProviderDashboard";
+import ProviderLayout from "./layouts/ProviderLayout";
+import ProgramsPage from "./pages/provider/ProgramsPage";
 // Layouts
 import CitizenLayout from "./layouts/CitizenLayout"
 import AdminLayout from "./layouts/AdminLayout"
@@ -52,6 +51,8 @@ import Dashboard from "./pages/compliance/Dasboard"
 
 
 import ErrorBoundary from './components/feedbacks/ErrorBoundary'
+
+
 
 function App() {
   const { user } = useAuth();
@@ -107,38 +108,28 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/manager/programs/:id"
-          element={
-            <ProtectedRoute requiredRole="MANAGER">
-              <ProgramDetailsPage />
-            </ProtectedRoute>
-          }
-        />
 
-        {/* ✅ INFRA */}
+
+{/* HealthCare Provider */}
+      
 <Route
-  path="/manager/programs/:id/infrastructure"
+  path="/provider"
   element={
-    <ProtectedRoute requiredRole="MANAGER">
-      <ManagerLayout />
+    <ProtectedRoute requiredRole="PROVIDER">
+      <ProviderLayout />
     </ProtectedRoute>
   }
 >
-  <Route index element={<InfraTab />} />
+  {/* ✅ Dashboard */}
+  <Route path="dashboard" element={<ProviderDashboard />} />
+
+  {/* ✅ Programs List */}
+  <Route path="programs" element={<ProgramsPage />} />
+
+  {/* ✅ Program Details (Infra + Resource inside tabs) */}
+  <Route path="programs/:id" element={<ProgramDetailsPage />} />
 </Route>
 
-{/* ✅ RESOURCE */}
-<Route
-  path="/manager/programs/:id/resources"
-  element={
-    <ProtectedRoute requiredRole="MANAGER">
-      <ManagerLayout />
-    </ProtectedRoute>
-  }
->
-  <Route index element={<ResourceTab />} />
-</Route>
         {/* ================= ROLE-BASED REDIRECTION ================= */}
         <Route
           path="/dashboard"
@@ -148,6 +139,8 @@ function App() {
                 <Navigate to="/admin/dashboard" replace />
               ) : user?.role === "MANAGER" ? (
                 <Navigate to="/manager/dashboard" replace />
+              ) : user?.role === "PROVIDER" ? (
+                <Navigate to="/provider/dashboard" replace />
               ) : (
                 <Navigate to="/citizen/dashboard" replace />
               )}

@@ -1,3 +1,5 @@
+import React from "react";
+
 const InfraSearch = ({ search, setSearch, onSearch, onClear }) => {
 
   const isEmpty =
@@ -49,30 +51,39 @@ const InfraSearch = ({ search, setSearch, onSearch, onClear }) => {
           <option value="DECOMMISSIONED">DECOMMISSIONED</option>
         </select>
 
-        {/* SEARCH */}
-        <button
-          onClick={onSearch}
-          disabled={isEmpty}
-          className={`px-5 py-2 rounded-lg shadow text-sm text-white ${
-            isEmpty
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700"
-          }`}
-        >
-          Search
-        </button>
+        {/* ✅ SEARCH BUTTON WITH TOOLTIP */}
+        <div title={isEmpty ? "No filters selected" : "Search"}>
+          <button
+            onClick={onSearch}
+            disabled={isEmpty}
+            className={`px-5 py-2 rounded-lg shadow text-sm text-white ${
+              isEmpty
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700 cursor-pointer"
+            }`}
+          >
+            Search
+          </button>
+        </div>
 
-        {/* RESET */}
-        <button
-          onClick={onClear}
-          className="px-5 py-2 rounded-lg shadow text-sm text-white bg-gray-500 hover:bg-gray-600"
-        >
-          Reset
-        </button>
+        {/* ✅ RESET BUTTON WITH TOOLTIP */}
+        <div title={isEmpty ? "Nothing to reset" : "Reset filters"}>
+          <button
+            onClick={onClear}
+            disabled={isEmpty}
+            className={`px-5 py-2 rounded-lg shadow text-sm text-white ${
+              isEmpty
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-gray-500 hover:bg-gray-600 cursor-pointer"
+            }`}
+          >
+            Reset
+          </button>
+        </div>
 
       </div>
 
-      {/* ✅ ROW 2: FILTERS (LEFT ✅) */}
+      {/* ✅ ROW 2: FILTER TAGS */}
       {!isEmpty && (
         <div className="flex flex-wrap items-center gap-2 text-sm">
 
@@ -96,12 +107,12 @@ const InfraSearch = ({ search, setSearch, onSearch, onClear }) => {
             </span>
           )}
 
-          <button
+          {/* <button
             onClick={onClear}
-            className="text-red-600 hover:underline ml-2"
+            className="text-red-600 hover:underline ml-2 cursor-pointer"
           >
             Clear
-          </button>
+          </button> */}
 
         </div>
       )}

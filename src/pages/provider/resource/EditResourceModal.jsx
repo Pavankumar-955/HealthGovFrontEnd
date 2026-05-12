@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
-const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
+const EditResourceModal = ({ show, data, onClose, onUpdate }) => {
+
   const [form, setForm] = useState({});
   const [touched, setTouched] = useState({});
 
@@ -13,13 +14,40 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
 
   if (!show || !form) return null;
 
+  // ✅ BLOCK IF COMPLETED
+  if (data?.status === "COMPLETED") {
+    return (
+      <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+
+        <div className="bg-white w-full max-w-md rounded-xl shadow p-6 text-center">
+
+          <h3 className="text-xl font-semibold mb-3">
+            Edit Resource
+          </h3>
+
+          <p className="text-red-600 mb-4">
+            Completed resources cannot be modified ❌
+          </p>
+
+          <button
+            onClick={onClose}
+            className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+          >
+            Close
+          </button>
+
+        </div>
+      </div>
+    );
+  }
+
   // ✅ VALIDATION
   const errors = {
-    capacity:
-      form.capacity === "" ||
-      form.capacity === "-" ||
-      isNaN(form.capacity) ||
-      Number(form.capacity) < 0,
+    quantity:
+      form.quantity === "" ||
+      form.quantity === "-" ||
+      isNaN(form.quantity) ||
+      Number(form.quantity) < 0,
 
     status: !form.status,
   };
@@ -31,7 +59,7 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
     e.preventDefault();
 
     setTouched({
-      capacity: true,
+      quantity: true,
       status: true,
     });
 
@@ -40,9 +68,18 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
       return;
     }
 
+    // ✅ STRICT RULE
+    if (
+      form.status === "COMPLETED" &&
+      data?.status !== "ACTIVE"
+    ) {
+      toast.error("Only ACTIVE resources can be completed ❌");
+      return;
+    }
+
     onUpdate({
       ...form,
-      capacity: Number(form.capacity),
+      quantity: Number(form.quantity),
     });
   };
 
@@ -54,12 +91,12 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
         {/* ✅ HEADER */}
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-semibold">
-            Edit Infrastructure
+            Edit Resource
           </h3>
 
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-black text-lg"
+            className="text-gray-500 hover:text-black text-lg cursor-pointer"
           >
             ✖
           </button>
@@ -68,7 +105,7 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
         {/* ✅ FORM */}
         <form onSubmit={handleSubmit} className="space-y-3">
 
-          {/* ✅ TYPE (READ ONLY) */}
+          {/* ✅ TYPE */}
           <div>
             <label className="text-sm text-gray-600">Type</label>
             <input
@@ -78,46 +115,36 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
             />
           </div>
 
-          {/* ✅ LOCATION (READ ONLY) */}
+          {/* ✅ QUANTITY */}
           <div>
-            <label className="text-sm text-gray-600">Location</label>
-            <input
-              value={form.location || ""}
-              disabled
-              className="w-full border p-2 rounded bg-gray-100"
-            />
-          </div>
-
-          {/* ✅ CAPACITY */}
-          <div>
-            <label className="text-sm text-gray-600">Capacity *</label>
+            <label className="text-sm text-gray-600">Quantity *</label>
             <input
               type="number"
-              value={form.capacity ?? ""}
+              value={form.quantity ?? ""}
               onBlur={() =>
-                setTouched({ ...touched, capacity: true })}
+                setTouched({ ...touched, quantity: true })
+              }
               onChange={(e) => {
                 const value = e.target.value;
 
                 if (value === "" || value === "-") {
-                  setForm({ ...form, capacity: value });
+                  setForm({ ...form, quantity: value });
                   return;
                 }
 
                 const num = Number(value);
-
                 if (!isNaN(num)) {
-                  setForm({ ...form, capacity: num });
+                  setForm({ ...form, quantity: num });
                 }
               }}
               className={`w-full border p-2 rounded ${
-                isInvalid("capacity") ? "border-red-500" : ""
+                isInvalid("quantity") ? "border-red-500" : ""
               }`}
             />
 
-            {isInvalid("capacity") && (
+            {isInvalid("quantity") && (
               <p className="text-red-500 text-xs">
-                Capacity must be ≥ 0
+                Quantity must be ≥ 0
               </p>
             )}
           </div>
@@ -128,7 +155,8 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
             <select
               value={form.status || ""}
               onBlur={() =>
-                setTouched({ ...touched, status: true })}
+                setTouched({ ...touched, status: true })
+              }
               onChange={(e) =>
                 setForm({ ...form, status: e.target.value })}
               className={`w-full border p-2 rounded ${
@@ -136,10 +164,29 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
               }`}
             >
               <option value="">Select Status</option>
-              <option value="OPERATIONAL">OPERATIONAL</option>
-              <option value="UNDER_MAINTENANCE">UNDER_MAINTENANCE</option>
-              <option value="TEMPORARILY_CLOSED">TEMPORARILY_CLOSED</option>
-              <option value="DECOMMISSIONED">DECOMMISSIONED</option>
+
+              {form.type === "FUNDS" ? (
+                <>
+                  <option value="PENDING">PENDING</option>
+                  <option value="ALLOCATED">ALLOCATED</option>
+                  <option value="ACTIVE">ACTIVE</option>
+
+                  {data?.status === "ACTIVE" && (
+                    <option value="COMPLETED">COMPLETED</option>
+                  )}
+                </>
+              ) : (
+                <>
+                  <option value="ALLOCATED">ALLOCATED</option>
+                  <option value="ACTIVE">ACTIVE</option>
+                  <option value="INACTIVE">INACTIVE</option>
+
+                  {data?.status === "ACTIVE" && (
+                    <option value="COMPLETED">COMPLETED</option>
+                  )}
+                </>
+              )}
+
             </select>
 
             {isInvalid("status") && (
@@ -152,16 +199,15 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
           {/* ✅ BUTTON */}
           <button
             type="submit"
-            className="w-full bg-green-600 text-white py-2 rounded-lg shadow hover:bg-green-700"
+            className="w-full bg-green-600 text-white py-2 rounded-lg shadow hover:bg-green-700 cursor-pointer"
           >
             Update
           </button>
 
         </form>
-
       </div>
     </div>
   );
 };
 
-export default EditInfraModal;
+export default EditResourceModal;

@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 
 const ResourceTable = ({ data = [], page, setPage, onEdit, onDelete }) => {
-
   const rowsPerPage = 5;
 
   // ✅ SAFE DATA
@@ -18,7 +17,7 @@ const ResourceTable = ({ data = [], page, setPage, onEdit, onDelete }) => {
   const paginatedData =
     safeData.slice(startIndex, startIndex + rowsPerPage);
 
-  // ✅ STATUS STYLE (match system)
+  // ✅ STATUS STYLE
   const getStatusStyle = (status) => {
     switch (status) {
       case "ACTIVE":
@@ -34,6 +33,28 @@ const ResourceTable = ({ data = [], page, setPage, onEdit, onDelete }) => {
       default:
         return "bg-gray-400 text-white px-3 py-1 rounded-full text-xs";
     }
+  };
+
+  // ✅ DYNAMIC DELETE MESSAGE
+  const getDeleteMessage = (status) => {
+    switch (status) {
+      case "COMPLETED":
+        return "Completed resources cannot be deleted";
+      case "ALLOCATED":
+        return "Allocated resources cannot be deleted";
+      case "ACTIVE":
+        return "Active resources cannot be deleted";
+      default:
+        return "Delete";
+    }
+  };
+
+  // ✅ DYNAMIC EDIT MESSAGE
+  const getEditMessage = (status) => {
+    if (status === "COMPLETED") {
+      return "Completed resources cannot be edited";
+    }
+    return "Edit";
   };
 
   return (
@@ -74,13 +95,9 @@ const ResourceTable = ({ data = [], page, setPage, onEdit, onDelete }) => {
                     key={resource.resourceId}
                     className="border-t hover:bg-gray-50"
                   >
-                    {/* ID */}
+
                     <td className="p-3">{resource.resourceId}</td>
-
-                    {/* TYPE */}
                     <td className="p-3">{resource.type}</td>
-
-                    {/* QUANTITY */}
                     <td className="p-3">{resource.quantity}</td>
 
                     {/* STATUS */}
@@ -95,45 +112,39 @@ const ResourceTable = ({ data = [], page, setPage, onEdit, onDelete }) => {
                       <div className="flex justify-center gap-3">
 
                         {/* ✅ EDIT */}
-                        <button
-                          disabled={isCompleted}
-                          onClick={() =>
-                            !isCompleted && onEdit(resource)
-                          }
-                          className={`px-4 py-1 rounded-lg text-sm ${
-                            isCompleted
-                              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                              : "bg-blue-600 text-white hover:bg-blue-700"
-                          }`}
-                          title={
-                            isCompleted
-                              ? "Completed resource cannot be edited"
-                              : "Edit"
-                          }
-                        >
-                          Edit
-                        </button>
+                        <div title={getEditMessage(resource.status)}>
+                          <button
+                            disabled={isCompleted}
+                            onClick={() =>
+                              !isCompleted && onEdit(resource)
+                            }
+                            className={`px-4 py-1 rounded-lg text-sm ${
+                              isCompleted
+                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                : "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
+                            }`}
+                          >
+                            Edit
+                          </button>
+                        </div>
 
                         {/* ✅ DELETE */}
-                        <button
-                          disabled={isDeleteBlocked}
-                          onClick={() =>
-                            !isDeleteBlocked &&
-                            onDelete(resource.resourceId)
-                          }
-                          className={`px-4 py-1 rounded-lg text-sm ${
-                            isDeleteBlocked
-                              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                              : "bg-red-600 text-white hover:bg-red-700"
-                          }`}
-                          title={
-                            isDeleteBlocked
-                              ? "Cannot delete ACTIVE, ALLOCATED or COMPLETED resources"
-                              : "Delete"
-                          }
-                        >
-                          Delete
-                        </button>
+                        <div title={getDeleteMessage(resource.status)}>
+                          <button
+                            disabled={isDeleteBlocked}
+                            onClick={() =>
+                              !isDeleteBlocked &&
+                              onDelete(resource.resourceId)
+                            }
+                            className={`px-4 py-1 rounded-lg text-sm ${
+                              isDeleteBlocked
+                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                : "bg-red-600 text-white hover:bg-red-700 cursor-pointer"
+                            }`}
+                          >
+                            Delete
+                          </button>
+                        </div>
 
                       </div>
                     </td>
@@ -154,8 +165,8 @@ const ResourceTable = ({ data = [], page, setPage, onEdit, onDelete }) => {
           onClick={() => setPage(page - 1)}
           className={`px-4 py-2 rounded-lg shadow text-sm ${
             page === 1
-              ? "bg-gray-300 text-gray-500"
-              : "bg-gray-600 text-white hover:bg-gray-700"
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-gray-600 text-white hover:bg-gray-700 cursor-pointer"
           }`}
         >
           Prev
@@ -170,8 +181,8 @@ const ResourceTable = ({ data = [], page, setPage, onEdit, onDelete }) => {
           onClick={() => setPage(page + 1)}
           className={`px-4 py-2 rounded-lg shadow text-sm ${
             page === totalPages
-              ? "bg-gray-300 text-gray-500"
-              : "bg-gray-600 text-white hover:bg-gray-700"
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-gray-600 text-white hover:bg-gray-700 cursor-pointer"
           }`}
         >
           Next
