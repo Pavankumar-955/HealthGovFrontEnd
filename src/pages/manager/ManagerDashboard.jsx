@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
+
 import ManagerSidebar from "./ManagerSidebar.jsx";
 import Footer from "../../components/ui/Footer";
 import { getManagerProjects } from "../../api/managerApi";
@@ -13,7 +15,6 @@ const ManagerDashboard = () => {
     totalGrants: 0,
   });
 
-  // Fetch stats
   const fetchStats = async () => {
     try {
       const res = await getManagerProjects();
@@ -52,58 +53,89 @@ const ManagerDashboard = () => {
     fetchStats();
   }, []);
 
+  /* ✅ PIE DATA */
+  const total = stats.total || 1;
+
+  const pieData = [
+    { name: "Approved", value: stats.approved },
+    { name: "Rejected", value: stats.rejected },
+    { name: "Pending", value: stats.pending },
+  ];
+
+  const COLORS = ["#16a34a", "#dc2626", "#facc15"];
+
   return (
-    <>
+    <div className="flex h-screen overflow-hidden bg-[#eef3f8]">
+
+      {/* ✅ SIDEBAR */}
       <ManagerSidebar />
 
-      <div className="ml-64 p-6 min-h-screen bg-[#eef3f8]">
+      {/* ✅ MAIN WRAPPER */}
+      <div className="flex flex-col flex-1 ml-64">
 
-        <h2 className="text-3xl font-semibold mb-6">
-          📊 Manager Dashboard
-        </h2>
+        {/* ✅ CONTENT AREA (NO PAGE SCROLL) */}
+        <main className="flex-1 overflow-y-auto p-6 pb-24">
 
-        {/* ✅ CARDS ONLY */}
-        <div className="grid grid-cols-5 gap-6">
+          <h2 className="text-3xl font-semibold mb-6">
+            📊 Manager Dashboard
+          </h2>
 
-          <Card title="Total Applications" value={stats.total} />
+          {/* CARDS */}
+          <div className="grid grid-cols-5 gap-6">
+            <Card title="Total Applications" value={stats.total} />
+            <Card title="✅ Approved Applications" value={stats.approved} type="green" />
+            <Card title="⏳ Pending Applications" value={stats.pending} type="yellow" />
+            <Card title="❌ Rejected Applications" value={stats.rejected} type="red" />
+            <Card title="💰 Total Grants Approved" value={`₹ ${stats.totalGrants}`} type="blue" />
+          </div>
 
-          <Card
-            title="✅ Approved Applications"
-            value={stats.approved}
-            type="green"
-          />
+          {/* ✅ CHART */}
+          <div className="mt-8 max-w-md">
+            <div className="bg-white p-5 rounded-xl shadow border">
 
-          <Card
-            title="⏳ Pending Applications"
-            value={stats.pending}
-            type="yellow"
-          />
+              <h3 className="text-lg font-semibold mb-3">
+                📊 Application Status Distribution
+              </h3>
 
-          <Card
-            title="❌ Rejected Applications"
-            value={stats.rejected}
-            type="red"
-          />
+              <PieChart width={260} height={240}>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  dataKey="value"
+                  label={({ value }) =>
+                    `${((value / total) * 100).toFixed(0)}%`
+                  }
+                >
+                  {pieData.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i]} />
+                  ))}
+                </Pie>
 
-          <Card
-            title="💰 Total Grants Approved"
-            value={`₹ ${stats.totalGrants}`}
-            type="blue"
-          />
+                <Tooltip />
+                <Legend />
+              </PieChart>
 
+            </div>
+          </div>
+
+        </main>
+
+        {/* ✅ FIXED FOOTER (SAME AS APPLICATIONS) */}
+        <div className="fixed bottom-0 right-0 left-64 bg-white border-t z-40">
+          <Footer />
         </div>
 
       </div>
-
-      <Footer />
-    </>
+    </div>
   );
 };
 
 export default ManagerDashboard;
 
 
-// CARD COMPONENT
+/* ✅ CARD COMPONENT */
 const Card = ({ title, value, type }) => {
 
   let bg = "bg-white text-gray-800";
