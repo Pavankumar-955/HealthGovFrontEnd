@@ -27,7 +27,6 @@ const Users = () => {
     setLoading(true);
     try {
       if (filterRole === 'ALL') {
-        // Fetch all users including inactive ones
         const response = await API.get('/healthGov/getAllUsers');
         setUsers(response.data);
       } else {

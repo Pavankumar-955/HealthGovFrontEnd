@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-
+ 
 const ProgramFormModal = ({ show, handleClose, handleSubmit, editData }) => {
   const [form, setForm] = useState({
     title: "",
@@ -9,7 +9,7 @@ const ProgramFormModal = ({ show, handleClose, handleSubmit, editData }) => {
     endDate: "",
     status: "PENDING",
   });
-
+ 
   // ✅ Load edit data when editing
   useEffect(() => {
     if (editData) {
@@ -33,29 +33,29 @@ const ProgramFormModal = ({ show, handleClose, handleSubmit, editData }) => {
       });
     }
   }, [editData, show]);
-
+ 
   if (!show) return null;
-
+ 
   const onChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
+ 
   const onSubmit = () => {
     handleSubmit({
       ...form,
       budget: Number(form.budget),
     });
   };
-
+ 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/30">
-
+ 
       <div className="bg-white p-6 rounded-xl w-full max-w-md shadow">
-
+ 
         <h2 className="text-xl font-semibold mb-4">
           {editData ? "Update Program" : "Create Program"}
         </h2>
-
+ 
         {/* Title */}
         <input
           name="title"
@@ -64,7 +64,7 @@ const ProgramFormModal = ({ show, handleClose, handleSubmit, editData }) => {
           placeholder="Title"
           className="w-full border p-2 mb-2"
         />
-
+ 
         {/* Description */}
         <textarea
           name="description"
@@ -73,7 +73,7 @@ const ProgramFormModal = ({ show, handleClose, handleSubmit, editData }) => {
           placeholder="Description"
           className="w-full border p-2 mb-2"
         />
-
+ 
         {/* Budget */}
         <input
           name="budget"
@@ -83,7 +83,7 @@ const ProgramFormModal = ({ show, handleClose, handleSubmit, editData }) => {
           placeholder="Budget"
           className="w-full border p-2 mb-2"
         />
-
+ 
         {/* Dates */}
         <input
           type="date"
@@ -92,7 +92,7 @@ const ProgramFormModal = ({ show, handleClose, handleSubmit, editData }) => {
           onChange={onChange}
           className="w-full border p-2 mb-2"
         />
-
+ 
         <input
           type="date"
           name="endDate"
@@ -100,7 +100,7 @@ const ProgramFormModal = ({ show, handleClose, handleSubmit, editData }) => {
           onChange={onChange}
           className="w-full border p-2 mb-2"
         />
-
+ 
         {/* Status */}
         <select
           name="status"
@@ -113,7 +113,7 @@ const ProgramFormModal = ({ show, handleClose, handleSubmit, editData }) => {
           <option value="INACTIVE">INACTIVE</option>
           <option value="COMPLETED">COMPLETED</option>
         </select>
-
+ 
         {/* Buttons */}
         <div className="flex justify-end gap-3 mt-4">
           <button
@@ -122,7 +122,7 @@ const ProgramFormModal = ({ show, handleClose, handleSubmit, editData }) => {
           >
             Cancel
           </button>
-
+ 
           <button
             onClick={onSubmit}
             className="bg-green-600 text-white px-4 py-1 rounded"
@@ -130,10 +130,10 @@ const ProgramFormModal = ({ show, handleClose, handleSubmit, editData }) => {
             {editData ? "Update" : "Create"}
           </button>
         </div>
-
+ 
       </div>
     </div>
   );
 };
-
+ 
 export default ProgramFormModal;

@@ -1,6 +1,6 @@
 import React from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
-
+ 
 const getStatusStyle = (status) => {
   switch (status) {
     case "ACTIVE":
@@ -15,7 +15,7 @@ const getStatusStyle = (status) => {
       return "bg-gray-400 text-white px-3 py-1 rounded-full text-xs";
   }
 };
-
+ 
 const ProgramTable = ({ programs, onEdit, onDelete, onView }) => {
   return (
     <table className="w-full bg-white rounded-xl shadow">
@@ -87,5 +87,5 @@ const ProgramTable = ({ programs, onEdit, onDelete, onView }) => {
     </table>
   );
 };
-
+ 
 export default ProgramTable;

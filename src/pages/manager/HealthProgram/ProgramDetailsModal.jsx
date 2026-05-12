@@ -1,9 +1,9 @@
 import React from "react";
 import { FaTimes } from "react-icons/fa";
-
+ 
 export default function ProgramDetailsModal({ program, onClose }) {
   if (!program) return null;
-
+ 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-3xl overflow-hidden rounded-[28px] bg-white shadow-2xl">
@@ -23,7 +23,7 @@ export default function ProgramDetailsModal({ program, onClose }) {
             <FaTimes className="h-5 w-5" />
           </button>
         </div>
-
+ 
         <div className="space-y-6 p-6">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
@@ -35,12 +35,12 @@ export default function ProgramDetailsModal({ program, onClose }) {
               <p className="mt-2 text-lg font-semibold text-slate-900">₹{program.budget}</p>
             </div>
           </div>
-
+ 
           <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
             <h3 className="text-lg font-bold text-slate-900">Description</h3>
             <p className="mt-3 text-sm leading-6 text-slate-600">{program.description}</p>
           </div>
-
+ 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
               <h3 className="text-lg font-semibold text-slate-900">Dates</h3>
@@ -51,7 +51,7 @@ export default function ProgramDetailsModal({ program, onClose }) {
               <p className="mt-2 text-sm text-slate-600">{program.status}</p>
             </div>
           </div>
-
+ 
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
             <button
               type="button"
