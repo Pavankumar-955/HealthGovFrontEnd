@@ -9,115 +9,138 @@ import AuditsList from './AuditsList.jsx';
 import {
   getAllAudits,
   getAuditSummary,
-  updateAuditStatus
+  updateAudit   // ✅ USE THIS (important)
 } from "../../api/auditsAPI.js";
 
 const AuditDashboard = () => {
 
   const [audits, setAudits] = useState([]);
-  const [officerFilter, setOfficerFilter] = useState("ALL");
   const [filteredAudits, setFilteredAudits] = useState([]);
+
+  const [officerFilter, setOfficerFilter] = useState("ALL");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [scopeFilter, setScopeFilter] = useState("ALL");
 
   const [summary, setSummary] = useState({
     totalAudits: 0,
-    byStatus: {},
+    byStatus: {}
   });
-
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('ALL');
-  const [scopeFilter, setScopeFilter] = useState('ALL');
 
   const [selectedAudit, setSelectedAudit] = useState(null);
 
+  // ✅ UNIQUE OFFICERS
   const officers = [...new Map(
-  audits.map(a => [a.officer.userId, a.officer])
-).values()];
-  // ✅ FETCH
+    audits.map(a => [a.officer?.userId, a.officer])
+  ).values()];
+
+  // ✅ FETCH INITIAL DATA
   useEffect(() => {
     fetchAudits();
     fetchSummary();
   }, []);
 
   const fetchAudits = async () => {
-    const res = await getAllAudits();
-    setAudits(res.data);
+    try {
+      const res = await getAllAudits();
+      setAudits(res.data);
+    } catch (err) {
+      toast.error("Failed to load audits");
+    }
   };
 
   const fetchSummary = async () => {
-    const res = await getAuditSummary();
-    setSummary(res.data);
+    try {
+      const res = await getAuditSummary();
+      setSummary(res.data);
+    } catch {
+      toast.error("Failed to load summary");
+    }
   };
 
-  // ✅ FILTER
- useEffect(() => {
+  // ✅ FILTER LOGIC
+  useEffect(() => {
 
-  const filtered = audits.filter((audit) => {
-    const scopeType = audit.scope.split(":")[0];
+    const filtered = audits.filter((audit) => {
+      const scopeType = audit.scope.split(":")[0];
 
-    const matchesStatus =
-      statusFilter === "ALL" || audit.status === statusFilter;
+      const matchesStatus =
+        statusFilter === "ALL" || audit.status === statusFilter;
 
-    const matchesScope =
-      scopeFilter === "ALL" || scopeType === scopeFilter;
+      const matchesScope =
+        scopeFilter === "ALL" || scopeType === scopeFilter;
 
-    const matchesOfficer =
-      officerFilter === "ALL" ||
-      audit.officer?.userId.toString() === officerFilter;
+      const matchesOfficer =
+        officerFilter === "ALL" ||
+        audit.officer?.userId?.toString() === officerFilter;
 
-    return matchesStatus && matchesScope && matchesOfficer;
-  });
+      return matchesStatus && matchesScope && matchesOfficer;
+    });
 
-  setFilteredAudits(filtered);
+    setFilteredAudits(filtered);
 
-}, [statusFilter, scopeFilter, officerFilter, audits]);
+  }, [audits, statusFilter, scopeFilter, officerFilter]);
 
-  // ✅ VIEW
+  // ✅ SELECT AUDIT
   const handleSelectAudit = (audit) => {
     setSelectedAudit(audit);
   };
 
-  // ✅ UPDATE (FIXED ✅)
+  // ✅ ✅ ✅ FINAL FIXED UPDATE FUNCTION
   const handleUpdateStatus = async ({ findings, status }) => {
     try {
-      await updateAuditStatus(selectedAudit.auditId, status);
 
-      toast.success("Audit updated successfully");
+      const payload = {
+        findings: findings || "",
+        status: status,
+        date: selectedAudit.date   // ✅ REQUIRED (very important)
+      };
 
+      // ✅ SINGLE API CALL
+      await updateAudit(selectedAudit.auditId, payload);
+
+      toast.success("✅ Audit updated successfully");
+
+      // ✅ refresh UI
       await fetchAudits();
       await fetchSummary();
 
       setSelectedAudit(null);
 
     } catch (err) {
-      toast.error("Update failed");
+      console.error(err);
+      toast.error("❌ Update failed");
     }
   };
 
   return (
     <div className="space-y-6">
 
+      {/* ✅ SUMMARY */}
       <SummaryCards summary={summary} />
 
+      {/* ✅ FILTER */}
       <AuditFilter
-  statusFilter={statusFilter}
-  setStatusFilter={setStatusFilter}
-  scopeFilter={scopeFilter}
-  setScopeFilter={setScopeFilter}
-  officerFilter={officerFilter}
-  setOfficerFilter={setOfficerFilter}
-  officers={officers}
-  onClear={() => {
-    setStatusFilter("ALL");
-    setScopeFilter("ALL");
-    setOfficerFilter("ALL");
-  }}
-/>
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        scopeFilter={scopeFilter}
+        setScopeFilter={setScopeFilter}
+        officerFilter={officerFilter}
+        setOfficerFilter={setOfficerFilter}
+        officers={officers}
+        onClear={() => {
+          setStatusFilter("ALL");
+          setScopeFilter("ALL");
+          setOfficerFilter("ALL");
+        }}
+      />
 
+      {/* ✅ LIST */}
       <AuditsList
         audits={filteredAudits}
         handleSelectAudit={handleSelectAudit}
       />
 
+      {/* ✅ MODAL */}
       {selectedAudit && (
         <AuditModal
           audit={selectedAudit}

@@ -27,28 +27,6 @@ export const updateAudit = (auditId, payload) => {
   return API.put(`/api/v1/audits/update/${auditId}`, payload);
 };
 
-/* ✅ UPDATE STATUS ONLY */
-export const updateAuditStatus = (auditId, status) => {
-  return API.patch(
-    `/api/v1/audits/update/${auditId}/status`,
-    null,
-    {
-      params: { status },
-    }
-  );
-};
-
-/* ✅ UPDATE FINDINGS ONLY */
-export const updateAuditFindings = (auditId, findings) => {
-  return API.patch(
-    `/api/v1/audits/update/${auditId}/findings`,
-    null,
-    {
-      params: { findings },
-    }
-  );
-};
-
 /* ✅ GET AUDIT SUMMARY */
 export const getAuditSummary = () => {
   return API.get("/api/v1/audits/summary");
