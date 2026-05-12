@@ -34,11 +34,12 @@ const authNavigation = [
 
 const roleMeta = {
   compliance: {
-    label: "Compliance Officer"
-    
+    label: "Compliance Officer",
+    links: ["compliance-dashboard", "compliance-reports", "compliance-analytics"]
   },
   auditor: {
-    label: "Government Auditor"
+    label: "Government Auditor",
+    links: ["Dashboard", "Audits", "Reports", "Analytics"]
   },
 };
 
@@ -77,23 +78,6 @@ export default function Navbar() {
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const navRef = useRef(null);
-  const [userRole, setUserRole] = useState(
-    typeof window !== "undefined" ? localStorage.getItem("userRole") : null
-  );
-
-  const [isNotifOpen, setIsNotifOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const navRef = useRef(null);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const handleRoleChange = () => {
-      setUserRole(localStorage.getItem("userRole"));
-    };
-
-    window.addEventListener("roleChanged", handleRoleChange);
-    return () => window.removeEventListener("roleChanged", handleRoleChange);
-  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -108,9 +92,6 @@ export default function Navbar() {
       return () => window.removeEventListener("click", handleClickOutside);
     }
   }, [isNotifOpen, isProfileOpen]);
-    window.addEventListener("click", handleClickOutside);
-    return () => window.removeEventListener("click", handleClickOutside);
-  }, []);
 
   const metadata = userRole ? roleMeta[userRole] : null;
   const profile = userRole ? roleUsers[userRole] : null;
@@ -119,25 +100,24 @@ export default function Navbar() {
   const navItems = userRole && roleNavigation[userRole] ? roleNavigation[userRole] : mainNavigation;
 
   const handleLogout = () => {
-    localStorage.removeItem("userRole");
-    setUserRole(null);
     setIsProfileOpen(false);
-    navigate("/login");
+    logout();
   };
 
   return (
-    <Disclosure
-      as="nav"
-      className="fixed top-0 left-0 z-40 w-full bg-[#009930] shadow-md"
-      ref={navRef}
-    >
+    <>
+      <Disclosure
+        as="nav"
+        className="fixed top-0 left-0 z-40 w-full bg-[#009930] shadow-md"
+        ref={navRef}
+      >
       <div className="mx-auto max-w-7xl px-4">
         
         {/* ✅ FLEX FIX */}
         <div className="flex h-16 items-center justify-between">
 
           {/* LEFT → LOGO */}
-          <div className="flex items-center gap-2 cursor-default">
+          <Link to="/" className="flex items-center gap-2">
             <img
               src="/images/web_Icon.png"
               alt="logo"
@@ -146,7 +126,7 @@ export default function Navbar() {
             <span className="text-lg font-bold text-white">
               HealthGov
             </span>
-          </div>
+          </Link>
 
           {/* CENTER → NAV LINKS */}
           <div className="hidden md:flex items-center gap-8">
