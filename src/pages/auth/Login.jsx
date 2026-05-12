@@ -46,7 +46,7 @@ export default function Login() {
        else if(userRole === 'AUDITOR') {
           navigate('/audit-dashboard');
         }
-      else if (userRole === 'RESEARCHER') {
+       else if (userRole === 'RESEARCHER') {
         navigate('/researcher/projects'); // ✅ FIXED HERE
       } else if (userRole === 'MANAGER') {
         navigate('/manager/dashboard');

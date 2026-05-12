@@ -34,11 +34,12 @@ const authNavigation = [
 
 const roleMeta = {
   compliance: {
-    label: "Compliance Officer"
-    
+    label: "Compliance Officer",
+    links: ["compliance-dashboard", "compliance-reports", "compliance-analytics"]
   },
   auditor: {
-    label: "Government Auditor"
+    label: "Government Auditor",
+    links: ["Dashboard", "Audits", "Reports", "Analytics"]
   },
 };
 
@@ -116,7 +117,7 @@ export default function Navbar() {
         <div className="flex h-16 items-center justify-between">
 
           {/* LEFT → LOGO */}
-          <div className="flex items-center gap-2 cursor-default">
+          <Link to="/" className="flex items-center gap-2">
             <img
               src="/images/web_Icon.png"
               alt="logo"
@@ -125,7 +126,7 @@ export default function Navbar() {
             <span className="text-lg font-bold text-white">
               HealthGov
             </span>
-          </div>
+          </Link>
 
           {/* CENTER → NAV LINKS */}
           <div className="hidden md:flex items-center gap-8">

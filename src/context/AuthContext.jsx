@@ -80,7 +80,8 @@ export const AuthProvider = ({ children }) => {
       console.log("Logged in User ID:", userData.userId); // Debugging
     }
   };
- 
+
+  
   const logout = () => {
     localStorage.removeItem('token');
     setToken(null);

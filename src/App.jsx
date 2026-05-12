@@ -1,7 +1,10 @@
-import { Toaster } from "react-hot-toast";
 import "./App.css";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
+
+// ✅ Toast (use ONLY react-toastify)
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // ✅ Auth Pages
 import Login from "./pages/auth/Login";
@@ -21,37 +24,21 @@ import Users from "./pages/admin/Users";
 import AddUser from "./pages/admin/AddUser";
 import Analytics from "./pages/admin/Analytics";
 
-// ✅ Researcher
-import ResearcherDashboard from "./pages/researcher/ResearcherDashboard";
-import ResearcherProjects from "./pages/researcher/ResearcherProjects";
-
-// ✅ Manager
-import ManagerDashboard from "./pages/manager/ManagerDashboard";
-import ManagerApplications from "./pages/manager/Project/ManagerApplications";
-import HealthPrograms from "./pages/manager/HealthProgram/HealthPrograms";
-import ManagerProjectReport from "./pages/manager/Project/ManagerProjectReport";
-
-// ✅ Provider
-import ProviderDashboard from "./pages/dashboard/ProviderDashboard";
-import ProviderLayout from "./layouts/ProviderLayout";
-import ProgramsPage from "./pages/provider/ProgramsPage";
-import ProgramDetailsPage from "./pages/provider/ProgramDetailsPage";
+// ✅ Layouts
+import CitizenLayout from "./layouts/CitizenLayout";
+import AdminLayout from "./layouts/AdminLayout";
+import ComplianceLayout from "./layouts/ComplianceLayout";
+import AuditLayout from "./layouts/AuditLayout";
 
 // ✅ Compliance
-import ComplianceLayout from "./layouts/ComplianceLayout";
 import ComplianceDashboard from "./pages/compliance/ComplianceDasboard";
 import ComplianceReports from "./pages/compliance/ComplianceReports";
 import ComplianceAnalytics from "./pages/compliance/ComplianceAnalytics";
 
-// ✅ Audit
-import AuditLayout from "./layouts/AuditLayout";
+// ✅ Audit (ONLY ONCE ✅ FIXED)
 import AuditDashboard from "./pages/auditor/AuditDashboard";
 import AuditReports from "./pages/auditor/AuditReports";
 import AuditAnalytics from "./pages/auditor/AuditAnalytics";
-
-// ✅ Layouts
-import CitizenLayout from "./layouts/CitizenLayout";
-import AdminLayout from "./layouts/AdminLayout";
 
 // ✅ Components
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -68,7 +55,8 @@ function App() {
 
   return (
     <>
-      <Toaster position="top-right" />
+      {/* ✅ Toast */}
+      <ToastContainer position="top-right" autoClose={3000} />
 
       <Routes>
 
@@ -134,32 +122,6 @@ function App() {
           <Route path="analytics" element={<Analytics />} />
         </Route>
 
-        {/* ✅ RESEARCHER */}
-        <Route
-          path="/researcher/dashboard"
-          element={<ProtectedRoute requiredRole="RESEARCHER"><ResearcherDashboard /></ProtectedRoute>}
-        />
-        <Route
-          path="/researcher/projects"
-          element={<ProtectedRoute requiredRole="RESEARCHER"><ResearcherProjects /></ProtectedRoute>}
-        />
-
-        
-
-        {/* ✅ PROVIDER */}
-        <Route
-          path="/provider"
-          element={
-            <ProtectedRoute requiredRole="PROVIDER">
-              <ProviderLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="dashboard" element={<ProviderDashboard />} />
-          <Route path="programs" element={<ProgramsPage />} />
-          <Route path="programs/:id" element={<ProgramDetailsPage />} />
-        </Route>
-
         {/* ✅ ROLE REDIRECT */}
         <Route
           path="/dashboard"
@@ -167,10 +129,6 @@ function App() {
             <ProtectedRoute>
               {user?.role === "ADMIN" ? (
                 <Navigate to="/admin/dashboard" replace />
-              ) : user?.role === "MANAGER" ? (
-                <Navigate to="/manager/dashboard" replace />
-              ) : user?.role === "PROVIDER" ? (
-                <Navigate to="/provider/dashboard" replace />
               ) : user?.role === "COMPLIANCE" ? (
                 <Navigate to="/compliance-dashboard" replace />
               ) : user?.role === "AUDITOR" ? (
@@ -182,12 +140,27 @@ function App() {
           }
         />
 
-        {/* ✅ PUBLIC */}
-        <Route path="/" element={<div className="pt-16"><Navbar /><Body /><Footer /></div>} />
-        <Route path="/about" element={<div className="pt-16"><Navbar /><About /><Footer /></div>} />
-        <Route path="/programs" element={<div className="pt-16"><Navbar /><Program /><Footer /></div>} />
-        <Route path="/research" element={<div className="pt-16"><Navbar /><Research /><Footer /></div>} />
-        <Route path="/contact" element={<div className="pt-16"><Navbar /><Contact /><Footer /></div>} />
+        {/* ✅ PUBLIC ROUTES */}
+        <Route
+          path="/"
+          element={<div className="pt-16"><Navbar /><Body /><Footer /></div>}
+        />
+        <Route
+          path="/about"
+          element={<div className="pt-16"><Navbar /><About /><Footer /></div>}
+        />
+        <Route
+          path="/programs"
+          element={<div className="pt-16"><Navbar /><Program /><Footer /></div>}
+        />
+        <Route
+          path="/research"
+          element={<div className="pt-16"><Navbar /><Research /><Footer /></div>}
+        />
+        <Route
+          path="/contact"
+          element={<div className="pt-16"><Navbar /><Contact /><Footer /></div>}
+        />
 
         {/* ✅ FALLBACK */}
         <Route path="*" element={<Navigate to="/" replace />} />
