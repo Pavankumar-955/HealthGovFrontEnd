@@ -1,3 +1,4 @@
+import { Toaster } from "react-hot-toast";
 import "./App.css";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
@@ -28,6 +29,7 @@ import ResearcherProjects from "./pages/researcher/ResearcherProjects";
 import ManagerDashboard from "./pages/manager/ManagerDashboard";
 import ManagerApplications from "./pages/manager/Project/ManagerApplications";
 import HealthPrograms from "./pages/manager/HealthProgram/HealthPrograms";
+import ManagerProjectReport from "./pages/manager/Project/ManagerProjectReport";
 
 // Layouts
 import CitizenLayout from "./layouts/CitizenLayout";
@@ -53,6 +55,7 @@ function App() {
 
   return (
     <>
+    <Toaster position="top-right" />
       <Routes>
         {/* AUTH ROUTES */}
         <Route path="/login" element={<Login />} />
@@ -97,6 +100,7 @@ function App() {
         <Route path="/manager/dashboard" element={<ProtectedRoute requiredRole="MANAGER"><ManagerDashboard /></ProtectedRoute>} />
         <Route path="/manager/applications" element={<ProtectedRoute requiredRole="MANAGER"><ManagerApplications /></ProtectedRoute>} />
         <Route path="/manager/health-programs"element={<ProtectedRoute requiredRole="MANAGER"><HealthPrograms /></ProtectedRoute>}/>
+        <Route path="/manager/reports/project" element={<ManagerProjectReport />}/>
 
 
         {/* ROLE-BASED REDIRECTION */}

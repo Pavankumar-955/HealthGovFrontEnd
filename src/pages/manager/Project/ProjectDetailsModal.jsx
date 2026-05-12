@@ -1,3 +1,4 @@
+import { downloadProjectReportPDF } from "./reportGeneratorManager";
 export default function ProjectDetailsModal({ project, onClose }) {
 
   if (!project) return null;
@@ -65,14 +66,23 @@ export default function ProjectDetailsModal({ project, onClose }) {
           </div>
 
           {/* FOOTER */}
-          <div className="text-right mt-6">
-            <button
-              onClick={onClose}
-              className="bg-gray-800 text-white px-4 py-2 rounded-lg"
-            >
-              Close
-            </button>
-          </div>
+          <div className="flex justify-end gap-3 mt-6">
+
+  <button
+    onClick={onClose}
+    className="bg-gray-800 text-white px-4 py-2 rounded-lg"
+  >
+    Close
+  </button>
+
+  <button
+    onClick={() => downloadProjectReportPDF(project)}
+    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg"
+  >
+    Download PDF 📄
+  </button>
+
+</div>
 
         </div>
 
