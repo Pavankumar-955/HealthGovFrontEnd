@@ -143,7 +143,8 @@ const ComplianceAnalytics = () => {
                           boxShadow: '0 20px 50px rgba(15, 23, 42, 0.12)',
                         }}
                       />
-                      <Bar dataKey="count" radius={[12, 12, 0, 0]} fill="#fb923c" animationDuration={1400} />
+                      <Bar dataKey="count" radius={[8, 8, 0, 0]}     barSize={35}  
+ fill="#fb923c" animationDuration={1400} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>

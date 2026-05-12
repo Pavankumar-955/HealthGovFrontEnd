@@ -21,9 +21,9 @@ const roleNavigation = {
     { name: "Analytics", to: "/compliance-analytics" },
   ],
   auditor: [
-    { name: "Dashboard", to: "/audit" },
-    { name: "Audit Reports", to: "/audit" },
-    { name: "Analytics", to: "/audit" },
+    { name: "Dashboard", to: "/audit-dashboard" },
+    { name: "Audit Reports", to: "/audit-reports" },
+    { name: "Analytics", to: "/audit-analytics" },
   ],
 };
 
@@ -34,12 +34,11 @@ const authNavigation = [
 
 const roleMeta = {
   compliance: {
-    label: "Compliance Officer",
-    links: ["compliance-dashboard", "compliance-reports", "compliance-analytics"]
+    label: "Compliance Officer"
+    
   },
   auditor: {
-    label: "Government Auditor",
-    links: ["Dashboard", "Audits", "Reports", "Analytics"]
+    label: "Government Auditor"
   },
 };
 

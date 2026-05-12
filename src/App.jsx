@@ -39,6 +39,10 @@ import Contact from "./components/layout/Contact"
 import Body from "./components/ui/Body"
 import ComplianceAnalytics from "./pages/compliance/ComplianceAnalytics"
 import ComplianceDashboard from "./pages/compliance/ComplianceDasboard"
+import AuditDashboard from "./pages/auditor/AuditDashboard"
+import AuditAnalytics from "./pages/auditor/AuditAnalytics"
+import AuditReports from "./pages/auditor/AuditReports"
+import AuditLayout from "./layouts/AuditLayout"
 
 function App() {
   const { isAuthenticated, user } = useAuth()
@@ -53,49 +57,34 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
+         
+         /* ✅ COMPLIANCE GROUP */
         <Route
-          path="/compliance"
           element={
             <ProtectedRoute requiredRole="COMPLIANCE">
               <ComplianceLayout />
             </ProtectedRoute>
           }
         >
-          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="/compliance-dashboard" element={<ComplianceDashboard />} />
+          <Route path="/compliance-reports" element={<ComplianceReports />} />
+          <Route path="/compliance-analytics" element={<ComplianceAnalytics />} />
         </Route>
 
+
+        /* ✅ AUDIT GROUP */
         <Route
-          path="/compliance-dashboard"
           element={
-            <ProtectedRoute requiredRole="COMPLIANCE">
-              <ComplianceLayout />
+            <ProtectedRoute requiredRole="AUDITOR">
+              <AuditLayout />
             </ProtectedRoute>
           }
         >
-          <Route index element={<ComplianceDashboard />} />
+          <Route path="/audit-dashboard" element={<AuditDashboard />} />
+          <Route path="/audit-reports" element={<AuditReports />} />
+          <Route path="/audit-analytics" element={<AuditAnalytics />} />
         </Route>
 
-        <Route
-          path="/compliance-reports"
-          element={
-            <ProtectedRoute requiredRole="COMPLIANCE">
-              <ComplianceLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<ComplianceReports />} />
-        </Route>
-
-        <Route
-          path="/compliance-analytics"
-          element={
-            <ProtectedRoute requiredRole="COMPLIANCE">
-              <ComplianceLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<ComplianceAnalytics />} />
-        </Route>
 
         {/* Citizen Routes */}
         <Route

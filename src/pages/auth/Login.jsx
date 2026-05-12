@@ -35,7 +35,7 @@ export default function Login() {
           navigate('/compliance-dashboard');
         }
        else if(userRole === 'AUDITOR') {
-          navigate('/audit/dashboard');
+          navigate('/audit-dashboard');
         }
       else {
         navigate('/citizen/dashboard');
