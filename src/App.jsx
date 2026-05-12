@@ -30,6 +30,16 @@ import ManagerDashboard from "./pages/manager/ManagerDashboard";
 import ManagerApplications from "./pages/manager/Project/ManagerApplications";
 import HealthPrograms from "./pages/manager/HealthProgram/HealthPrograms";
 import ManagerProjectReport from "./pages/manager/Project/ManagerProjectReport";
+// ✅ Program Manager Page
+import ProgramManagerDashboard from "./pages/programsdash/ProgramManagerDashboard";
+
+
+// ✅ HealthCare Provider Pages
+import ProviderDashboard from "./pages/dashboard/ProviderDashboard";
+import ProviderLayout from "./layouts/ProviderLayout";
+import ProgramsPage from "./pages/provider/ProgramsPage";
+import ProgramDetailsPage from "./pages/provider/ProgramDetailsPage";
+
 
 // Layouts
 import CitizenLayout from "./layouts/CitizenLayout";
@@ -55,7 +65,7 @@ function App() {
 
   return (
     <>
-    <Toaster position="top-right" />
+      <Toaster position="top-right" />
       <Routes>
         {/* AUTH ROUTES */}
         <Route path="/login" element={<Login />} />
@@ -99,9 +109,39 @@ function App() {
         {/* MANAGER ROUTES */}
         <Route path="/manager/dashboard" element={<ProtectedRoute requiredRole="MANAGER"><ManagerDashboard /></ProtectedRoute>} />
         <Route path="/manager/applications" element={<ProtectedRoute requiredRole="MANAGER"><ManagerApplications /></ProtectedRoute>} />
-        <Route path="/manager/health-programs"element={<ProtectedRoute requiredRole="MANAGER"><HealthPrograms /></ProtectedRoute>}/>
-        <Route path="/manager/reports/project" element={<ManagerProjectReport />}/>
+        <Route path="/manager/health-programs" element={<ProtectedRoute requiredRole="MANAGER"><HealthPrograms /></ProtectedRoute>} />
+        <Route path="/manager/reports/project" element={<ManagerProjectReport />} />
 
+        {/* ================= PROGRAM MANAGER ROUTES ================= */}
+        <Route
+          path="/manager/dashboard"
+          element={
+            <ProtectedRoute requiredRole="MANAGER">
+              <ProgramManagerDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+
+        {/* HealthCare Provider */}
+
+        <Route
+          path="/provider"
+          element={
+            <ProtectedRoute requiredRole="PROVIDER">
+              <ProviderLayout />
+            </ProtectedRoute>
+          }
+        >
+          {/* ✅ Dashboard */}
+          <Route path="dashboard" element={<ProviderDashboard />} />
+
+          {/* ✅ Programs List */}
+          <Route path="programs" element={<ProgramsPage />} />
+
+          {/* ✅ Program Details (Infra + Resource inside tabs) */}
+          <Route path="programs/:id" element={<ProgramDetailsPage />} />
+        </Route>
 
         {/* ROLE-BASED REDIRECTION */}
         <Route
@@ -112,6 +152,8 @@ function App() {
                 <Navigate to="/admin/dashboard" replace />
               ) : user?.role === "MANAGER" ? (
                 <Navigate to="/manager/dashboard" replace />
+              ) : user?.role === "PROVIDER" ? (
+                <Navigate to="/provider/dashboard" replace />
               ) : (
                 <Navigate to="/citizen/dashboard" replace />
               )}
