@@ -20,6 +20,7 @@ export const AuthProvider = ({ children }) => {
         ...decoded,
         userId: decoded.userId || decoded.id || decoded.sub,
         name: decoded.name || decoded.fullName,
+        email: decoded.email,
         role: decoded.role
       };
     } catch (err) {
@@ -78,6 +79,14 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       console.log("Logged in User ID:", userData.userId); // Debugging
     }
+  };
+
+  
+  const logout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+    setUser(null);
+    navigate('/login');
   };
 
   const isAuthenticated = !!user && !!token;

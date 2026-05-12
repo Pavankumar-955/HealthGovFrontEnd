@@ -1,13 +1,16 @@
 import React, { useState, useEffect, use } from 'react'
-import ComplianceList from './ComplianceList'
-import SummaryCards from './SummaryCards'
-import { getComplianceSummary, getAllComplianceRecords } from "../../api/complianceAPI.js";
+import { toast } from "react-toastify";
+import ComplianceList from './ComplianceList.jsx'
+import SummaryCards from './SummaryCards.jsx'
+import { getComplianceSummary, getAllComplianceRecords,officerUpdateCompliance } from "../../api/complianceAPI.js";
 import ComplianceFilter from './ComplianceFilter.jsx';
 import ComplianceCard from './ComplianceCard.jsx';
 import ComplianceCardModal from './ComplianceModal.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 
-const Dashboard = () => {
+const ComplianceDashboard = () => {
+  const { user } = useAuth();
   const[complianceRecords, setComplianceRecords] = useState([])
    const [summary, setSummary] = useState({
       totalRecords: 0,
@@ -97,12 +100,30 @@ const fetchSummary = async () => {
     setIsModalOpen(true)
   }
 
+  const handleSaveCompliance = async (editData, record) => {
+  try {
+    await officerUpdateCompliance(record.type, record.entityId, {
+      result: editData.result,
+      notes: editData.notes,
+      officerId: user?.userId,
+    });
+    toast.success("Compliance updated successfully!");
+    await fetchComplianceRecords();
+    await fetchSummary();
+    setSelectedRecord(null);
+
+  } catch (error) {
+    console.error(error);
+    toast.error("❌ Failed to update compliance");
+  }
+};
+
 
   return (
   <div className="space-y-6">
 
-
     <SummaryCards summary={summary} />
+    
 
    <ComplianceFilter
   searchTerm={searchTerm}
@@ -123,6 +144,7 @@ const fetchSummary = async () => {
     setDateTo("");
   }}
 />
+
    
   <ComplianceList
     complianceRecords={filteredRecords}
@@ -135,14 +157,11 @@ const fetchSummary = async () => {
     summary={summary}
     record={selectedRecord}
     onClose={() => setSelectedRecord(null)}
-    onSave={(updatedData) => {
-      console.log("Save to API:", updatedData);
-      setSelectedRecord(null);
-    }}
+    onSave={(editData) => handleSaveCompliance(editData, selectedRecord)}
   />
 )}
   </div>
 )
 }
 
-export default Dashboard
+export default ComplianceDashboard

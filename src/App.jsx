@@ -7,18 +7,22 @@ import Login from "./pages/auth/Login"
 import Register from "./pages/auth/Register"
 import ForgotPassword from "./pages/auth/ForgotPassword"
 import ResetPassword from "./pages/auth/ResetPassword"
-
-// Citizen Pages
 import CitizenDashboard from "./pages/dashboard/CitizenDashboard"
 import CitizenProfile from "./pages/citizen/CitizenProfile"
 import CitizenHealthRecords from "./pages/citizen/CitizenHealthRecords"
 import CitizenNotifications from "./pages/citizen/CitizenNotifications"
-
-// Admin Pages
 import AdminDashboard from "./pages/dashboard/AdminDashboard"
 import Users from "./pages/admin/Users"
 import AddUser from "./pages/admin/AddUser"
 import Analytics from "./pages/admin/Analytics"
+import ComplianceLayout from "./layouts/ComplianceLayout"
+
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+
+import ComplianceRecords from "./pages/compliance/ComplianceRecords"
+import ComplianceReports from "./pages/compliance/ComplianceReports"
 
 // Layouts
 import CitizenLayout from "./layouts/CitizenLayout"
@@ -26,8 +30,6 @@ import AdminLayout from "./layouts/AdminLayout"
 
 // Components
 import ProtectedRoute from "./components/ProtectedRoute"
-
-// Public Pages
 import Navbar from "./components/ui/Navbar"
 import Footer from "./components/ui/Footer"
 import About from "./components/layout/About"
@@ -35,29 +37,65 @@ import Program from "./components/layout/Program"
 import Research from "./components/layout/Research"
 import Contact from "./components/layout/Contact"
 import Body from "./components/ui/Body"
-import ComplianceLayout from "./layouts/ComplianceLayout"
-import ComplianceList from "./pages/compliance/ComplianceList"
-import Dashboard from "./pages/compliance/Dasboard"
-
-
-
-
-import ErrorBoundary from './components/feedbacks/ErrorBoundary'
+import ComplianceAnalytics from "./pages/compliance/ComplianceAnalytics"
+import ComplianceDashboard from "./pages/compliance/ComplianceDasboard"
 
 function App() {
   const { isAuthenticated, user } = useAuth()
 
   return (
     <>
+    <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
         {/* Authentication Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-         <Route path="/compliance" element={<ComplianceLayout />} />
-          <Route path="/compliance/list" element={<ComplianceList />} />
-          <Route path="/compliance/dashboard" element={<Dashboard />} />
+
+        <Route
+          path="/compliance"
+          element={
+            <ProtectedRoute requiredRole="COMPLIANCE">
+              <ComplianceLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="dashboard" replace />} />
+        </Route>
+
+        <Route
+          path="/compliance-dashboard"
+          element={
+            <ProtectedRoute requiredRole="COMPLIANCE">
+              <ComplianceLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<ComplianceDashboard />} />
+        </Route>
+
+        <Route
+          path="/compliance-reports"
+          element={
+            <ProtectedRoute requiredRole="COMPLIANCE">
+              <ComplianceLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<ComplianceReports />} />
+        </Route>
+
+        <Route
+          path="/compliance-analytics"
+          element={
+            <ProtectedRoute requiredRole="COMPLIANCE">
+              <ComplianceLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<ComplianceAnalytics />} />
+        </Route>
 
         {/* Citizen Routes */}
         <Route
@@ -103,7 +141,7 @@ function App() {
           }
         />
 
-        {/* Public Pages with Navbar */}
+        {/* Home / Public Pages with Navbar */}
         <Route
           path="/"
           element={

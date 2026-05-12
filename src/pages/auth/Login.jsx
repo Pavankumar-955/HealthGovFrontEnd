@@ -32,7 +32,7 @@ export default function Login() {
       } 
       else if(userRole === 'COMPLIANCE') 
         {
-          navigate('/compliance/dashboard');
+          navigate('/compliance-dashboard');
         }
        else if(userRole === 'AUDITOR') {
           navigate('/audit/dashboard');
