@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DocumentArrowDownIcon } from '@heroicons/react/24/outline';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 import { getAllAudits } from "../../api/auditsAPI.js";
 
 const getCompletion = (status) => {

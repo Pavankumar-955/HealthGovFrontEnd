@@ -1,64 +1,84 @@
-import "./App.css"
-import { Routes, Route, Navigate } from "react-router-dom"
-import { useAuth } from "./context/AuthContext"
+import { Toaster } from "react-hot-toast";
+import "./App.css";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 
-// Pages
-import Login from "./pages/auth/Login"
-import Register from "./pages/auth/Register"
-import ForgotPassword from "./pages/auth/ForgotPassword"
-import ResetPassword from "./pages/auth/ResetPassword"
-import CitizenDashboard from "./pages/dashboard/CitizenDashboard"
-import CitizenProfile from "./pages/citizen/CitizenProfile"
-import CitizenHealthRecords from "./pages/citizen/CitizenHealthRecords"
-import CitizenNotifications from "./pages/citizen/CitizenNotifications"
-import AdminDashboard from "./pages/dashboard/AdminDashboard"
-import Users from "./pages/admin/Users"
-import AddUser from "./pages/admin/AddUser"
-import Analytics from "./pages/admin/Analytics"
-import ComplianceLayout from "./layouts/ComplianceLayout"
+// ✅ Auth Pages
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+// ✅ Citizen Pages
+import CitizenDashboard from "./pages/dashboard/CitizenDashboard";
+import CitizenProfile from "./pages/citizen/CitizenProfile";
+import CitizenHealthRecords from "./pages/citizen/CitizenHealthRecords";
+import CitizenNotifications from "./pages/citizen/CitizenNotifications";
 
+// ✅ Admin Pages
+import AdminDashboard from "./pages/dashboard/AdminDashboard";
+import Users from "./pages/admin/Users";
+import AddUser from "./pages/admin/AddUser";
+import Analytics from "./pages/admin/Analytics";
 
-import ComplianceRecords from "./pages/compliance/ComplianceRecords"
-import ComplianceReports from "./pages/compliance/ComplianceReports"
+// ✅ Researcher
+import ResearcherDashboard from "./pages/researcher/ResearcherDashboard";
+import ResearcherProjects from "./pages/researcher/ResearcherProjects";
 
-// Layouts
-import CitizenLayout from "./layouts/CitizenLayout"
-import AdminLayout from "./layouts/AdminLayout"
+// ✅ Manager
+import ManagerDashboard from "./pages/manager/ManagerDashboard";
+import ManagerApplications from "./pages/manager/Project/ManagerApplications";
+import HealthPrograms from "./pages/manager/HealthProgram/HealthPrograms";
+import ManagerProjectReport from "./pages/manager/Project/ManagerProjectReport";
 
-// Components
-import ProtectedRoute from "./components/ProtectedRoute"
-import Navbar from "./components/ui/Navbar"
-import Footer from "./components/ui/Footer"
-import About from "./components/layout/About"
-import Program from "./components/layout/Program"
-import Research from "./components/layout/Research"
-import Contact from "./components/layout/Contact"
-import Body from "./components/ui/Body"
-import ComplianceAnalytics from "./pages/compliance/ComplianceAnalytics"
-import ComplianceDashboard from "./pages/compliance/ComplianceDasboard"
-import AuditDashboard from "./pages/auditor/AuditDashboard"
-import AuditAnalytics from "./pages/auditor/AuditAnalytics"
-import AuditReports from "./pages/auditor/AuditReports"
-import AuditLayout from "./layouts/AuditLayout"
+// ✅ Provider
+import ProviderDashboard from "./pages/dashboard/ProviderDashboard";
+import ProviderLayout from "./layouts/ProviderLayout";
+import ProgramsPage from "./pages/provider/ProgramsPage";
+import ProgramDetailsPage from "./pages/provider/ProgramDetailsPage";
+
+// ✅ Compliance
+import ComplianceLayout from "./layouts/ComplianceLayout";
+import ComplianceDashboard from "./pages/compliance/ComplianceDasboard";
+import ComplianceReports from "./pages/compliance/ComplianceReports";
+import ComplianceAnalytics from "./pages/compliance/ComplianceAnalytics";
+
+// ✅ Audit
+import AuditLayout from "./layouts/AuditLayout";
+import AuditDashboard from "./pages/auditor/AuditDashboard";
+import AuditReports from "./pages/auditor/AuditReports";
+import AuditAnalytics from "./pages/auditor/AuditAnalytics";
+
+// ✅ Layouts
+import CitizenLayout from "./layouts/CitizenLayout";
+import AdminLayout from "./layouts/AdminLayout";
+
+// ✅ Components
+import ProtectedRoute from "./components/ProtectedRoute";
+import Navbar from "./components/ui/Navbar";
+import Footer from "./components/ui/Footer";
+import About from "./components/layout/About";
+import Program from "./components/layout/Program";
+import Research from "./components/layout/Research";
+import Contact from "./components/layout/Contact";
+import Body from "./components/ui/Body";
 
 function App() {
-  const { isAuthenticated, user } = useAuth()
+  const { user } = useAuth();
 
   return (
     <>
-    <ToastContainer position="top-right" autoClose={3000} />
+      <Toaster position="top-right" />
+
       <Routes>
-        {/* Authentication Routes */}
+
+        {/* ✅ AUTH */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
-         
-         /* ✅ COMPLIANCE GROUP */
+        {/* ✅ COMPLIANCE */}
         <Route
           element={
             <ProtectedRoute requiredRole="COMPLIANCE">
@@ -71,8 +91,7 @@ function App() {
           <Route path="/compliance-analytics" element={<ComplianceAnalytics />} />
         </Route>
 
-
-        /* ✅ AUDIT GROUP */
+        {/* ✅ AUDIT */}
         <Route
           element={
             <ProtectedRoute requiredRole="AUDITOR">
@@ -85,8 +104,7 @@ function App() {
           <Route path="/audit-analytics" element={<AuditAnalytics />} />
         </Route>
 
-
-        {/* Citizen Routes */}
+        {/* ✅ CITIZEN */}
         <Route
           path="/citizen"
           element={
@@ -101,7 +119,7 @@ function App() {
           <Route path="notifications" element={<CitizenNotifications />} />
         </Route>
 
-        {/* Admin Routes */}
+        {/* ✅ ADMIN */}
         <Route
           path="/admin"
           element={
@@ -116,13 +134,47 @@ function App() {
           <Route path="analytics" element={<Analytics />} />
         </Route>
 
-        {/* Legacy Dashboard Route - Redirect based on role */}
+        {/* ✅ RESEARCHER */}
+        <Route
+          path="/researcher/dashboard"
+          element={<ProtectedRoute requiredRole="RESEARCHER"><ResearcherDashboard /></ProtectedRoute>}
+        />
+        <Route
+          path="/researcher/projects"
+          element={<ProtectedRoute requiredRole="RESEARCHER"><ResearcherProjects /></ProtectedRoute>}
+        />
+
+        
+
+        {/* ✅ PROVIDER */}
+        <Route
+          path="/provider"
+          element={
+            <ProtectedRoute requiredRole="PROVIDER">
+              <ProviderLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="dashboard" element={<ProviderDashboard />} />
+          <Route path="programs" element={<ProgramsPage />} />
+          <Route path="programs/:id" element={<ProgramDetailsPage />} />
+        </Route>
+
+        {/* ✅ ROLE REDIRECT */}
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
-              {user?.role === 'ADMIN' ? (
+              {user?.role === "ADMIN" ? (
                 <Navigate to="/admin/dashboard" replace />
+              ) : user?.role === "MANAGER" ? (
+                <Navigate to="/manager/dashboard" replace />
+              ) : user?.role === "PROVIDER" ? (
+                <Navigate to="/provider/dashboard" replace />
+              ) : user?.role === "COMPLIANCE" ? (
+                <Navigate to="/compliance-dashboard" replace />
+              ) : user?.role === "AUDITOR" ? (
+                <Navigate to="/audit-dashboard" replace />
               ) : (
                 <Navigate to="/citizen/dashboard" replace />
               )}
@@ -130,77 +182,19 @@ function App() {
           }
         />
 
-        {/* Home / Public Pages with Navbar */}
-        <Route
-          path="/"
-          element={
-            <>
-              <div className="pt-16">
-                <Navbar />
-                <Body />
-                <Footer />
-              </div>
-            </>
-          }
-        />
+        {/* ✅ PUBLIC */}
+        <Route path="/" element={<div className="pt-16"><Navbar /><Body /><Footer /></div>} />
+        <Route path="/about" element={<div className="pt-16"><Navbar /><About /><Footer /></div>} />
+        <Route path="/programs" element={<div className="pt-16"><Navbar /><Program /><Footer /></div>} />
+        <Route path="/research" element={<div className="pt-16"><Navbar /><Research /><Footer /></div>} />
+        <Route path="/contact" element={<div className="pt-16"><Navbar /><Contact /><Footer /></div>} />
 
-        <Route
-          path="/about"
-          element={
-            <>
-              <div className="pt-16">
-                <Navbar />
-                <About />
-                <Footer />
-              </div>
-            </>
-          }
-        />
-
-        <Route
-          path="/programs"
-          element={
-            <>
-              <div className="pt-16">
-                <Navbar />
-                <Program />
-                <Footer />
-              </div>
-            </>
-          }
-        />
-
-        <Route
-          path="/research"
-          element={
-            <>
-              <div className="pt-16">
-                <Navbar />
-                <Research />
-                <Footer />
-              </div>
-            </>
-          }
-        />
-
-        <Route
-          path="/contact"
-          element={
-            <>
-              <div className="pt-16">
-                <Navbar />
-                <Contact />
-                <Footer />
-              </div>
-            </>
-          }
-        />
-
-        {/* Catch all - redirect to home */}
+        {/* ✅ FALLBACK */}
         <Route path="*" element={<Navigate to="/" replace />} />
+
       </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
