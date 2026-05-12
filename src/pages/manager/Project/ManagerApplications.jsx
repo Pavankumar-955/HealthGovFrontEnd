@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { downloadOverallReportPDF } from "./reportGeneratorManager";
 import {
   getNotificationsByUser,
   markNotificationAsRead,
@@ -14,6 +15,8 @@ import DecisionModal from "./DecisionModal";
 import toast from "react-hot-toast";
 
 const ManagerApplications = () => {
+const [showProjectReport, setShowProjectReport] = useState(false);
+
   const [projects, setProjects] = useState([]);
   const [status, setStatus] = useState("");
   const [searchId, setSearchId] = useState("");
@@ -110,7 +113,7 @@ const ManagerApplications = () => {
   return (
     <div className="flex h-screen overflow-hidden bg-[#eef3f8]">
       {/* 1. Sidebar */}
-      <ManagerSidebar />
+      <ManagerSidebar onOpenProjectReport={() => setShowProjectReport(true)} />
 
       {/* 2. Main Wrapper - h-screen + overflow-hidden prevents the whole page from scrolling */}
       <div className="flex flex-col flex-1 ml-64 relative h-full">
@@ -241,8 +244,96 @@ const ManagerApplications = () => {
       {/* Modals */}
       {selectedProject && <ProjectDetailsModal project={selectedProject} onClose={() => setSelectedProject(null)} />}
       {selectedForReview && <DecisionModal application={selectedForReview} onClose={() => setSelectedForReview(null)} onSubmit={handleDecisionSubmit} />}
+    
+{/* ✅ ✅ REPORT MODAL */}
+{showProjectReport && (
+  <>
+    {/* BLUR BACKGROUND */}
+    <div
+      className="fixed inset-0 backdrop-blur-sm bg-black/30 z-[9998]"
+      onClick={() => setShowProjectReport(false)}
+    />
+
+    {/* MODAL */}
+    <div className="fixed inset-0 flex items-center justify-center z-[9999]">
+
+      <div
+        className="bg-white w-full max-w-lg rounded-xl shadow-2xl p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+
+        {/* HEADER */}
+        <div className="mb-4 border-b pb-2">
+          <h3 className="text-xl font-semibold">
+            📊 Project Application Report
+          </h3>
+        </div>
+
+        {/* BODY */}
+        {(() => {
+          const user = JSON.parse(atob(localStorage.getItem("token").split(".")[1]));
+
+          const pending = projects.filter(p => p.status === "PENDING").length;
+          const approved = projects.filter(p => p.status === "APPROVED").length;
+          const rejected = projects.filter(p => p.status === "REJECTED").length;
+
+          return (
+            <div className="space-y-3 text-sm">
+              <p><strong>ID:</strong> {user.userId}</p>
+              <p><strong>Email:</strong> {user.sub}</p>
+
+              <div className="border p-3 bg-gray-50 rounded-lg">
+                <p><strong>Total Applications:</strong> {projects.length}</p>
+                <p><strong>Pending:</strong> {pending}</p>
+                <p><strong>Approved:</strong> {approved}</p>
+                <p><strong>Rejected:</strong> {rejected}</p>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* FOOTER */}
+        <div className="flex justify-end gap-3 mt-6">
+
+          <button
+            onClick={() => setShowProjectReport(false)}
+            className="bg-gray-800 text-white px-4 py-2 rounded-lg"
+          >
+            Close
+          </button>
+
+          <button
+            onClick={() => {
+              const user = JSON.parse(atob(localStorage.getItem("token").split(".")[1]));
+
+              const report = {
+                managerId: user.userId,
+                email: user.sub,
+                total: projects.length,
+                pending: projects.filter(p => p.status === "PENDING").length,
+                approved: projects.filter(p => p.status === "APPROVED").length,
+                rejected: projects.filter(p => p.status === "REJECTED").length
+              };
+
+              downloadOverallReportPDF(report);
+            }}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg"
+          >
+            Download PDF 📄
+          </button>
+
+        </div>
+
+      </div>
     </div>
+  </>
+)}
+
+    </div>
+
+    
   );
+
 };
 
 export default ManagerApplications;
