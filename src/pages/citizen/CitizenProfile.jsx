@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // NEW IMPORT
 import { useAuth } from '../../context/AuthContext'; 
+import axios from 'axios';
 import API from '../../api/axios'; 
 import toast from 'react-hot-toast';
-import { MdSave, MdCheckCircle, MdEdit, MdCancel } from 'react-icons/md';
+import { MdSave, MdCheckCircle, MdEdit, MdCancel, MdUpload, MdDelete, MdFilePresent } from 'react-icons/md';
 
 export default function CitizenProfile() {
   const { user } = useAuth();
@@ -23,6 +24,15 @@ export default function CitizenProfile() {
     contactInfo: '',
     address: ''
   });
+
+  // Document upload states
+  const [documents, setDocuments] = useState([]);
+  const [uploadForm, setUploadForm] = useState({
+    documentName: '',
+    documentType: '',
+    file: null
+  });
+  const [uploading, setUploading] = useState(false);
 
   const formatBackendDate = (dateVal) => {
     if (!dateVal) return '';
@@ -76,6 +86,25 @@ export default function CitizenProfile() {
     fetchProfileData();
   }, [user, navigate]); 
 
+  // Fetch documents when citizenId is available
+  useEffect(() => {
+    if (citizenId) {
+      fetchDocuments();
+    }
+  }, [citizenId]);
+
+  const fetchDocuments = async () => {
+    try {
+      console.log('Fetching documents for citizenId:', citizenId);
+      const response = await API.get(`/document/${citizenId}`);
+      console.log('Documents response:', response.data);
+      setDocuments(response.data);
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+      toast.error('Failed to load documents.');
+    }
+  }; 
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -106,6 +135,74 @@ export default function CitizenProfile() {
       toast.error("Failed to save changes.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Document upload handlers
+  const handleUploadChange = (e) => {
+    const { name, value, files } = e.target;
+    if (name === 'file') {
+      setUploadForm({ ...uploadForm, file: files[0] });
+    } else {
+      setUploadForm({ ...uploadForm, [name]: value });
+    }
+  };
+
+  const handleUpload = async (e) => {
+    e.preventDefault();
+    if (!citizenId) {
+      toast.error('Profile not loaded. Please refresh.');
+      return;
+    }
+    if (!uploadForm.documentName || !uploadForm.documentType || !uploadForm.file) {
+      toast.error('Please fill all fields and select a file.');
+      return;
+    }
+
+    setUploading(true);
+    const formData = new FormData();
+    const documentType = uploadForm.documentType?.trim().toUpperCase();
+    console.log('Upload payload:', {
+      documentName: uploadForm.documentName,
+      documentType,
+      fileName: uploadForm.file?.name,
+      fileType: uploadForm.file?.type,
+      citizenId
+    });
+    formData.append('documentName', uploadForm.documentName);
+    formData.append('documentType', documentType);
+    formData.append('file', uploadForm.file);
+
+    try {
+      console.log('Uploading document for citizenId:', citizenId);
+      const token = localStorage.getItem('token');
+      const response = await axios.post(`${API.defaults.baseURL}/document/${citizenId}`, formData, {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : undefined,
+        },
+      });
+      console.log('Upload response:', response);
+      toast.success('Document uploaded successfully!');
+      setUploadForm({ documentName: '', documentType: '', file: null });
+      fetchDocuments(); // Refresh list
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to upload document.';
+      toast.error(errorMsg);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDeleteDocument = async (documentId) => {
+    if (!window.confirm('Are you sure you want to delete this document?')) return;
+    try {
+      await API.delete(`/document/${citizenId}/${documentId}`);
+      toast.success('Document deleted successfully!');
+      fetchDocuments(); // Refresh list
+    } catch (error) {
+      console.error('Error deleting document:', error);
+      toast.error('Failed to delete document.');
     }
   };
 
@@ -243,6 +340,94 @@ export default function CitizenProfile() {
               ></textarea>
             </div>
 
+          </div>
+
+          {/* DOCUMENTS SECTION */}
+          <div className="border-t border-gray-200 pt-8">
+            <h3 className="text-xl font-bold text-gray-800 mb-6">My Documents</h3>
+
+            {/* Upload Form */}
+            <div className="bg-gray-50 p-6 rounded-lg mb-6">
+              <h4 className="text-lg font-semibold text-gray-700 mb-4">Upload New Document</h4>
+              <form onSubmit={handleUpload} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <input
+                    type="text"
+                    name="documentName"
+                    placeholder="Document Name"
+                    value={uploadForm.documentName}
+                    onChange={handleUploadChange}
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                  <select
+                    name="documentType"
+                    value={uploadForm.documentType}
+                    onChange={handleUploadChange}
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">Select Type</option>
+                    <option value="ID_PROOF">ID Proof</option>
+                    <option value="HEALTH_CARD">Health Card</option>
+                  </select>
+                  <input
+                    type="file"
+                    name="file"
+                    onChange={handleUploadChange}
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    required
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={uploading}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold flex items-center gap-2 disabled:opacity-50"
+                >
+                  <MdUpload size={20} />
+                  {uploading ? 'Uploading...' : 'Upload Document'}
+                </button>
+              </form>
+            </div>
+
+            {/* Documents List */}
+            <div className="space-y-4">
+              <h4 className="text-lg font-semibold text-gray-700">Uploaded Documents</h4>
+              {documents.length === 0 ? (
+                <p className="text-gray-500">No documents uploaded yet.</p>
+              ) : (
+                documents.map((doc) => (
+                  <div key={doc.documentId} className="bg-white border border-gray-200 rounded-lg p-4 flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                      <MdFilePresent size={24} className="text-blue-500" />
+                      <div>
+                        <p className="font-medium text-gray-800">{doc.documentName}</p>
+                        <p className="text-sm text-gray-500">{doc.documentType} • {doc.verificationStatus}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      {doc.fileUrl && (
+                        <a
+                          href={doc.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800"
+                        >
+                          View
+                        </a>
+                      )}
+                      <button
+                        onClick={() => handleDeleteDocument(doc.documentId)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <MdDelete size={20} />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
       </div>
