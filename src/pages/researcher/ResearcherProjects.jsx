@@ -133,7 +133,7 @@ const ResearcherProjects = () => {
 
     // Search by ID
     const filteredProjects = projects.filter((p) =>
-        searchId ? p.projectId.toString().includes(searchId) : true
+        searchId ? p.projectId.toString() === searchId : true
     );
 
     const handleOverallReport = () => {

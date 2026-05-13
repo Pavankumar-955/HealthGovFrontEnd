@@ -19,6 +19,7 @@ import CitizenProfile from "./pages/citizen/CitizenProfile";
 import CitizenHealthRecords from "./pages/citizen/CitizenHealthRecords";
 import CitizenNotifications from "./pages/citizen/CitizenNotifications";
 import CitizenSetup from "./pages/citizen/CitizenSetup";
+import DocVerification from "./pages/provider/DocVerification";
 
 // ✅ Admin Pages
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
@@ -156,16 +157,6 @@ function App() {
         <Route path="/manager/health-programs" element={<ProtectedRoute requiredRole="MANAGER"><HealthPrograms /></ProtectedRoute>} />
         <Route path="/manager/reports/project" element={<ManagerProjectReport />} />
 
-        {/* ================= PROGRAM MANAGER ROUTES ================= */}
-        <Route
-          path="/manager/dashboard"
-          element={
-            <ProtectedRoute requiredRole="MANAGER">
-              {/* <ProgramManagerDashboard /> */}
-            </ProtectedRoute>
-          }
-        />
-
 
         {/* HealthCare Provider */}
 
@@ -190,7 +181,7 @@ function App() {
           <Route path="HealthRecords" element={<ProviderHealthRecords />} />
           <Route path="health-records" element={<ProviderHealthRecords />} />
 
-          <Route path="doc-verification" element={<DocVerification/>} />  
+          <Route path="doc-verification" element={<DocVerification />} />
         </Route>
 
         {/* ✅ ROLE REDIRECT */}
