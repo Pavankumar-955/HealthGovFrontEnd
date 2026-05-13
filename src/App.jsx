@@ -1,3 +1,4 @@
+import { Toaster } from "react-hot-toast";
 import "./App.css";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
@@ -23,6 +24,16 @@ import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import Users from "./pages/admin/Users";
 import AddUser from "./pages/admin/AddUser";
 import Analytics from "./pages/admin/Analytics";
+
+// Researcher Pages
+import ResearcherDashboard from "./pages/researcher/ResearcherDashboard";
+import ResearcherProjects from "./pages/researcher/ResearcherProjects";
+
+// Manager Pages
+import ManagerDashboard from "./pages/manager/ManagerDashboard";
+import ManagerApplications from "./pages/manager/Project/ManagerApplications";
+import HealthPrograms from "./pages/manager/HealthProgram/HealthPrograms";
+import ManagerProjectReport from "./pages/manager/Project/ManagerProjectReport";
 
 // ✅ Layouts
 import CitizenLayout from "./layouts/CitizenLayout";
@@ -56,7 +67,7 @@ function App() {
   return (
     <>
       {/* ✅ Toast */}
-      <ToastContainer position="top-right" autoClose={3000} />
+      <Toaster position="top-right" />
 
       <Routes>
 
@@ -121,6 +132,17 @@ function App() {
           <Route path="add-user" element={<AddUser />} />
           <Route path="analytics" element={<Analytics />} />
         </Route>
+
+        {/* RESEARCHER ROUTES */}
+        <Route path="/researcher/dashboard" element={<ProtectedRoute requiredRole="RESEARCHER"><ResearcherDashboard /></ProtectedRoute>} />
+        <Route path="/researcher/projects" element={<ProtectedRoute requiredRole="RESEARCHER"><ResearcherProjects /></ProtectedRoute>} />
+
+        {/* MANAGER ROUTES */}
+        <Route path="/manager/dashboard" element={<ProtectedRoute requiredRole="MANAGER"><ManagerDashboard /></ProtectedRoute>} />
+        <Route path="/manager/applications" element={<ProtectedRoute requiredRole="MANAGER"><ManagerApplications /></ProtectedRoute>} />
+        <Route path="/manager/health-programs" element={<ProtectedRoute requiredRole="MANAGER"><HealthPrograms /></ProtectedRoute>} />
+        <Route path="/manager/reports/project" element={<ManagerProjectReport />} />
+
 
         {/* ✅ ROLE REDIRECT */}
         <Route

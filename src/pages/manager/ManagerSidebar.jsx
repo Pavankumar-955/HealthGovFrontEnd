@@ -7,7 +7,7 @@ const ManagerSidebar = ({ onOpenProjectReport }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ collapse state
+  // Reports dropdown open / close
   const [showReports, setShowReports] = useState(false);
 
   const token = localStorage.getItem("token");
@@ -15,6 +15,7 @@ const ManagerSidebar = ({ onOpenProjectReport }) => {
   let email = "";
   let role = "";
 
+  // Decode token to get email and role
   if (token) {
     try {
       const decoded = JSON.parse(atob(token.split(".")[1]));
@@ -36,7 +37,7 @@ const ManagerSidebar = ({ onOpenProjectReport }) => {
     }, 600);
   };
 
-  // ✅ active detection
+  // active detection
   const isDashboard = location.pathname.includes("/manager/dashboard");
   const isApplications = location.pathname.includes("/manager/applications");
   const isPrograms = location.pathname.includes("/manager/health-programs");
@@ -89,7 +90,7 @@ const ManagerSidebar = ({ onOpenProjectReport }) => {
           Health Programs
         </button>
 
-        {/* ✅ REPORTS BUTTON */}
+        {/* REPORTS BUTTON */}
         <button
           onClick={() => setShowReports(!showReports)}
           className="px-4 py-2 rounded-lg text-left transition font-medium bg-white/10 hover:bg-white/20"
@@ -97,11 +98,11 @@ const ManagerSidebar = ({ onOpenProjectReport }) => {
           Reports
         </button>
 
-        {/* ✅ SUB OPTIONS */}
+        {/* SUB OPTIONS */}
         {showReports && (
           <div className="flex flex-col gap-2 ml-2">
 
-            {/* ✅ OPEN POPUP */}
+            {/* OPEN POPUP */}
             <button
               onClick={onOpenProjectReport}
               className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm"
@@ -109,7 +110,7 @@ const ManagerSidebar = ({ onOpenProjectReport }) => {
               Project Application Report
             </button>
 
-            {/* ✅ NORMAL NAVIGATION */}
+            {/* NORMAL NAVIGATION */}
             <button
               onClick={() => navigate("/manager/reports/health")}
               className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm"
