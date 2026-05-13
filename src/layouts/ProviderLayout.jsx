@@ -100,7 +100,6 @@ const ProviderLayout = () => {
                   </div>
                 )}
               </div>
- 
               {/* Mobile menu toggle */}
               <button className="md:hidden ml-4" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
                 {mobileMenuOpen ? <MdClose size={28} /> : <MdMenu size={28} />}

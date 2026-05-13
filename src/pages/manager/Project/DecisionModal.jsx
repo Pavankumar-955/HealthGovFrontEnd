@@ -1,6 +1,6 @@
 import { useState } from "react";
 import PaymentModal from "./PaymentModal";
-
+import toast from "react-hot-toast";
 export default function DecisionModal({ application, onClose, onSubmit }) {
 
   const [decision, setDecision] = useState("");
@@ -11,23 +11,23 @@ export default function DecisionModal({ application, onClose, onSubmit }) {
   const submitHandler = () => {
 
     if (!decision) {
-      alert("Select decision");
+      toast.error("Select decision");
       return;
     }
 
     if (decision === "APPROVED") {
-      if (!amount) {
-        alert("Enter amount");
+      if (!amount || Number(amount) <= 0) {
+        toast.error("Enter valid amount greater than 0");
         return;
       }
 
-      setShowPayment(true);
+      setShowPayment(true); // Open payment modal
       return;
     }
 
     if (decision === "REJECTED") {
       if (!reason) {
-        alert("Enter reason");
+        toast.error("Enter reason");
         return;
       }
 

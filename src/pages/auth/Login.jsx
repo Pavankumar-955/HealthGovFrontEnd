@@ -33,12 +33,20 @@ export default function Login() {
 
       // ✅ Decode token safely
       const decodedToken = jwtDecode(token);
-      const userRole = decodedToken.role;
+      const userRole = decodedToken.role?.toString()?.toUpperCase();
 
       // ✅ Role-based redirect
       if (userRole === 'ADMIN') {
         navigate('/admin/dashboard');
-      } else if (userRole === 'RESEARCHER') {
+      } 
+      else if(userRole === 'COMPLIANCE') 
+        {
+          navigate('/compliance-dashboard');
+        }
+       else if(userRole === 'AUDITOR') {
+          navigate('/audit-dashboard');
+        }
+       else if (userRole === 'RESEARCHER') {
         navigate('/researcher/projects'); // ✅ FIXED HERE
       } else if (userRole === 'MANAGER') {
         navigate('/manager/dashboard');
@@ -122,6 +130,8 @@ export default function Login() {
                 Forgot password?
               </Link>
             </div>
+
+
 
             {/* Button */}
             <button

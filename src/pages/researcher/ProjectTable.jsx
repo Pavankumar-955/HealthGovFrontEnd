@@ -1,119 +1,100 @@
 import React from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 
-const getStatusStyle = (status) => {
-  switch (status) {
-    case "PENDING":
-      return "bg-yellow-400 text-white px-3 py-1 rounded-full text-sm";
-    case "APPROVED":
-      return "bg-green-600 text-white px-3 py-1 rounded-full text-sm";
-    case "REJECTED":
-      return "bg-red-500 text-white px-3 py-1 rounded-full text-sm";
-    default:
-      return "bg-gray-400 text-white px-3 py-1 rounded-full text-sm";
-  }
-};
-
 const ProjectTable = ({ projects, onEdit, onDelete, onRowClick }) => {
   return (
-    <table className="w-full bg-white rounded-xl shadow">
+    /* Wrapper added to ensure the table stays in one line and scrolls horizontally if needed */
+    <div className="w-full max-h-[420px] overflow-y-auto overflow-x-auto bg-white rounded-xl shadow">
+      <table className="w-full text-left border-collapse">
+        <thead className="bg-gray-100 sticky top-0 z-10">
+          <tr>
+            <th className="p-3 whitespace-nowrap">ID</th>
+            <th className="p-3 whitespace-nowrap">Title</th>
+            <th className="p-3 whitespace-nowrap">Description</th>
+            <th className="p-3 whitespace-nowrap">Dates</th>
+            <th className="p-3 whitespace-nowrap">Status</th>
+            <th className="p-3 whitespace-nowrap text-center">Action</th>
+          </tr>
+        </thead>
 
-      {/* ✅ ONLY CHANGE: added sticky classes */}
-      <thead className="bg-gray-100 text-left sticky top-0 z-10">
-        <tr>
-          <th className="p-3">ID</th>
-          <th className="p-3">Title</th>
-          <th className="p-3">Description</th>
-          <th className="p-3">Dates</th>
-          <th className="p-3">Status</th>
-          <th className="p-3">Action</th>
-        </tr>
-      </thead>
+        <tbody>
+          {projects.map((p) => (
+            <tr
+              key={p.projectId}
+              onClick={() => onRowClick(p)}
+              className="border-t cursor-pointer hover:bg-gray-50"
+            >
+              <td className="p-3 whitespace-nowrap">{p.projectId}</td>
 
-      <tbody>
-        {projects.map((p) => (
-          <tr
-            key={p.projectId}
-            onClick={() => onRowClick(p)}
-            className="border-t cursor-pointer hover:bg-gray-50"
-          >
-            <td className="p-3">{p.projectId}</td>
+              {/* Added truncate and max-width to Title to protect other columns */}
+              <td className="p-3 whitespace-nowrap max-w-[200px] truncate" title={p.title}>
+                {p.title}
+              </td>
+              
+              <td className="p-3 whitespace-nowrap max-w-[250px] truncate" title={p.description}>
+                {p.description || "-"}
+              </td>
 
-            <td className="p-3">{p.title}</td>
+              <td className="p-3 whitespace-nowrap">
+                {p.startDate} → {p.endDate}
+              </td>
 
-            <td className="p-3 max-w-[180px] truncate">
-              {p.description}
-            </td>
+              <td className="p-3 whitespace-nowrap">
+                {p.status === "APPROVED" && (
+                  <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
+                    APPROVED
+                  </span>
+                )}
+                {p.status === "REJECTED" && (
+                  <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">
+                    REJECTED
+                  </span>
+                )}
+                {p.status === "PENDING" && (
+                  <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-semibold">
+                    PENDING
+                  </span>
+                )}
+              </td>
 
-            <td className="p-3 whitespace-nowrap">
-              {p.startDate} → {p.endDate}
-            </td>
-
-            {/* STATUS */}
-            <td className="p-3">
-              {p.status === "APPROVED" && (
-                <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
-                  APPROVED
-                </span>
-              )}
-
-              {p.status === "REJECTED" && (
-                <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">
-                  REJECTED
-                </span>
-              )}
-
-              {p.status === "PENDING" && (
-                <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-semibold">
-                  PENDING
-                </span>
-              )}
-            </td>
-
-            {/* ACTION COLUMN */}
-            <td className="p-3">
-
-              {(p.status === "PENDING" || p.status === "REJECTED") ? (
-                <div className="flex items-center justify-center gap-4">
-
-                  {/* EDIT ICON */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEdit(p);
-                    }}
-                    className="text-blue-600 hover:text-blue-800 text-lg"
-                    title="Edit"
-                  >
-                    <FaEdit />
-                  </button>
-
-                  {/* DELETE ICON */}
-                  {p.status === "PENDING" && (
+              <td className="p-3 whitespace-nowrap">
+                {(p.status === "PENDING" || p.status === "REJECTED") ? (
+                  <div className="flex items-center justify-center gap-4">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        onDelete(p.projectId);
+                        onEdit(p);
                       }}
-                      className="text-red-500 hover:text-red-700 text-lg"
-                      title="Delete"
+                      className="text-blue-600 hover:text-blue-800 text-lg"
+                      title="Edit"
                     >
-                      <FaTrash />
+                      <FaEdit />
                     </button>
-                  )}
 
-                </div>
-              ) : (
-                <span className="text-gray-500 font-semibold">
-                  Completed
-                </span>
-              )}
-
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+                    {p.status === "PENDING" && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(p.projectId);
+                        }}
+                        className="text-red-500 hover:text-red-700 text-lg"
+                        title="Delete"
+                      >
+                        <FaTrash />
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <span className="text-gray-500 font-semibold">Completed</span>
+                  </div>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 

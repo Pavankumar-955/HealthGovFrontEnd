@@ -20,6 +20,8 @@ export const AuthProvider = ({ children }) => {
         ...decoded,
         userId: decoded.userId || decoded.id || decoded.sub,
         name: decoded.name || decoded.fullName,
+        role: decoded.role?.toString()?.toUpperCase(),
+        email: decoded.email,
         role: decoded.role
       };
     } catch (err) {
@@ -80,6 +82,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  
   const logout = () => {
     localStorage.removeItem('token');
     setToken(null);

@@ -15,8 +15,8 @@ const ProjectFormModal = ({ show, handleClose, handleSubmit, editData }) => {
       setForm({
         title: editData.title || "",
         description: editData.description || "",
-        startDate: editData.startDate?.split("T")[0] || "",
-        endDate: editData.endDate?.split("T")[0] || "",
+        startDate: editData.startDate?.split("T")[0] || "", //Removes time part
+        endDate: editData.endDate?.split("T")[0] || "", 
       });
     } else {
       setForm({
