@@ -145,7 +145,7 @@ const ProgramsPage = () => {
                             }
                             className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded text-xs hover:bg-indigo-200"
                           >
-                            Open
+                            View
                           </button>
                         </td>
 
