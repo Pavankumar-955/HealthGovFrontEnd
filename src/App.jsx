@@ -155,6 +155,17 @@ function App() {
         <Route path="/manager/health-programs" element={<ProtectedRoute requiredRole="MANAGER"><HealthPrograms /></ProtectedRoute>} />
         <Route path="/manager/reports/project" element={<ManagerProjectReport />} />
 
+        {/* ================= PROGRAM MANAGER ROUTES ================= */}
+        <Route
+          path="/manager/dashboard"
+          element={
+            <ProtectedRoute requiredRole="MANAGER">
+              {/* <ProgramManagerDashboard /> */}
+            </ProtectedRoute>
+          }
+        />
+
+
         {/* HealthCare Provider */}
 
         <Route
