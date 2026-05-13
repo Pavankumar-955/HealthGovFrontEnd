@@ -117,8 +117,6 @@ export default function Navbar() {
 
   /* -------------------- COMPUTED DATA -------------------- */
 
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
-  const hasNotifications = unreadCount > 0;
 
   const navItems =
     userRole && roleNavigation[userRole]
@@ -178,11 +176,8 @@ export default function Navbar() {
                     className="relative inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
                   >
                     <BellIcon className="h-6 w-6" />
-                    {hasNotifications && (
-                      <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-400 text-[0.65rem] font-bold text-black">
-                        {unreadCount}
-                      </span>
-                    )}
+                    
+                   
                   </button>
 
                   {/* 👤 Profile */}
