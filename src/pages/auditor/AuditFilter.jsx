@@ -23,8 +23,15 @@ const AuditFilter = ({
           <select
             value={officerFilter}
             onChange={(e) => setOfficerFilter(e.target.value)}
-            className="min-w-[200px] px-3 py-2 border rounded-lg bg-gray-50"
-          >
+            
+className="
+    min-w-[160px] px-3 py-2 text-sm
+    border border-gray-300 rounded-lg
+    bg-gray-50
+    focus:outline-none
+    focus:border-blue-500
+    focus:ring-2 focus:ring-blue-200
+  "    >
             <option value="ALL">All Officers</option>
             {officers.map((o) => (
               <option key={o.userId} value={o.userId}>
@@ -37,8 +44,15 @@ const AuditFilter = ({
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="min-w-[170px] px-3 py-2 border rounded-lg bg-gray-50"
-          >
+           
+className="
+    min-w-[160px] px-3 py-2 text-sm
+    border border-gray-300 rounded-lg
+    bg-gray-50
+    focus:outline-none
+    focus:border-blue-500
+    focus:ring-2 focus:ring-blue-200
+  "    >
             <option value="ALL">All Status</option>
             <option value="SCHEDULED">Scheduled</option>
             <option value="IN_REVIEW">In Review</option>
@@ -51,7 +65,16 @@ const AuditFilter = ({
           <select
             value={scopeFilter}
             onChange={(e) => setScopeFilter(e.target.value)}
-            className="min-w-[170px] px-3 py-2 border rounded-lg bg-gray-50"
+           
+className="
+    min-w-[160px] px-3 py-2 text-sm
+    border border-gray-300 rounded-lg
+    bg-gray-50
+    focus:outline-none
+    focus:border-blue-500
+    focus:ring-2 focus:ring-blue-200
+  "
+
           >
             <option value="ALL">All Types</option>
             <option value="PROGRAM">Program</option>
