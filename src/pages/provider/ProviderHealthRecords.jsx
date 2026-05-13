@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import healthApi from '../../api/healthApi';
-import { MdSave, MdCheckCircle, MdCancel } from 'react-icons/md';
+import { MdSave, MdCheckCircle, MdCancel, MdBlock, MdPlayArrow } from 'react-icons/md';
 
 const ProviderHealthRecords = () => {
   const [allProfiles, setAllProfiles] = useState([]);
@@ -10,8 +10,6 @@ const ProviderHealthRecords = () => {
   const [medicalHistoryText, setMedicalHistoryText] = useState('');
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState(null);
-  
-  // Search term kept in state for logic consistency, but UI is removed
   const [searchTerm, setSearchTerm] = useState('');
 
   const fetchAllProfiles = async () => {
@@ -36,8 +34,6 @@ const ProviderHealthRecords = () => {
     setAllergies(record.allergies || '');
     const historyObj = record.medicalHistoryJson || {};
     setMedicalHistoryText(historyObj.history || ""); 
-    
-    // Smooth scroll to the editor form
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
   };
 
@@ -52,7 +48,7 @@ const ProviderHealthRecords = () => {
       };
       await healthApi.saveOrUpdateHealthProfile(citizenId, data);
       toast.success('Health profile updated successfully');
-      fetchAllProfiles(); // Refresh the list to show updated data
+      fetchAllProfiles();
     } catch (err) {
       toast.error('Error saving profile');
     } finally {
@@ -60,7 +56,20 @@ const ProviderHealthRecords = () => {
     }
   };
 
-  // Filter logic remains so code doesn't break, acts as a full list since searchTerm is ""
+  // ✅ New Function to handle Activate/Deactivate
+  const handleStatusUpdate = async (newStatus) => {
+    setLoading(true);
+    try {
+      await healthApi.approveHealthProfile(citizenId, newStatus);
+      toast.success(`Profile ${newStatus === 'ACTIVE' ? 'Activated' : 'Deactivated'} successfully`);
+      fetchAllProfiles();
+    } catch (err) {
+      toast.error('Error updating status');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filteredProfiles = allProfiles.filter(p => 
     p.citizenId?.toString().includes(searchTerm)
   );
@@ -68,12 +77,10 @@ const ProviderHealthRecords = () => {
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-8">
       
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Health Records Management</h1>
       </div>
 
-      {/* Records Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead className="bg-gray-50 border-b border-gray-200">
@@ -98,7 +105,7 @@ const ProviderHealthRecords = () => {
                     <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
                       record.status === 'ACTIVE' 
                         ? 'bg-green-100 text-green-700' 
-                        : 'bg-gray-100 text-gray-500'
+                        : 'bg-red-100 text-red-700'
                     }`}>
                       {record.status || 'INACTIVE'}
                     </span>
@@ -124,7 +131,6 @@ const ProviderHealthRecords = () => {
         </table>
       </div>
 
-      {/* Editor Form Section */}
       {citizenId && (
         <form 
           onSubmit={handleSubmit} 
@@ -167,15 +173,38 @@ const ProviderHealthRecords = () => {
             </div>
           </div>
           
-          <div className="pt-4">
+          {/* ✅ Action Buttons Section */}
+          <div className="pt-6 border-t border-gray-100 flex flex-wrap gap-4">
             <button 
               type="submit" 
               disabled={loading}
-              className="bg-[#0f964a] hover:bg-[#0a7a3b] text-white px-10 py-4 rounded-2xl font-bold shadow-lg shadow-green-100 hover:shadow-green-200 transition-all flex items-center gap-3 disabled:opacity-50"
+              className="bg-[#0f964a] hover:bg-[#0a7a3b] text-white px-8 py-4 rounded-2xl font-bold shadow-lg transition-all flex items-center gap-3 disabled:opacity-50"
             >
               <MdSave size={22} />
-              {loading ? "Saving Records..." : "Confirm & Save Changes"}
+              Save Info
             </button>
+
+            {profile?.status !== 'ACTIVE' ? (
+              <button 
+                type="button"
+                onClick={() => handleStatusUpdate('ACTIVE')}
+                disabled={loading}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-bold shadow-lg transition-all flex items-center gap-3 disabled:opacity-50"
+              >
+                <MdPlayArrow size={22} />
+                Activate Profile
+              </button>
+            ) : (
+              <button 
+                type="button"
+                onClick={() => handleStatusUpdate('INACTIVE')}
+                disabled={loading}
+                className="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-2xl font-bold shadow-lg transition-all flex items-center gap-3 disabled:opacity-50"
+              >
+                <MdBlock size={22} />
+                Deactivate Profile
+              </button>
+            )}
           </div>
         </form>
       )}

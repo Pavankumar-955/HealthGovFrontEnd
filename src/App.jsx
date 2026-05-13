@@ -17,7 +17,6 @@ import ResetPassword from "./pages/auth/ResetPassword";
 import CitizenDashboard from "./pages/dashboard/CitizenDashboard";
 import CitizenProfile from "./pages/citizen/CitizenProfile";
 import CitizenHealthRecords from "./pages/citizen/CitizenHealthRecords";
-import CitizenNotifications from "./pages/citizen/CitizenNotifications";
 import CitizenSetup from "./pages/citizen/CitizenSetup";
 import DocVerification from "./pages/provider/DocVerification";
 
@@ -129,7 +128,6 @@ function App() {
           <Route path="register" element={<CitizenSetup />} />
           <Route path="profile" element={<CitizenProfile />} />
           <Route path="health-records" element={<CitizenHealthRecords />} />
-          <Route path="notifications" element={<CitizenNotifications />} />
         </Route>
 
         {/* ✅ ADMIN */}
