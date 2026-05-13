@@ -12,7 +12,7 @@ import EnrollmentFormModel from "./EnrollmentFormModel";
 import EnrollmentsDetails from "./EnrollmentsDetails";
 
 import toast from "react-hot-toast";
-import ManagerSidebar from "../ManagerSidebar";
+import ManagerNavbar from "../ManagerNavbar";
 
 const Enrollments = () => {
   const [enrollments, setEnrollments] = useState([]);
@@ -35,15 +35,14 @@ const Enrollments = () => {
     fetchEnrollments();
   }, []);
 
-  // ✅ ✅ CREATE / UPDATE (FIXED HERE)
+  // ✅ CREATE / UPDATE
   const handleSubmit = async (data) => {
     try {
       if (editData) {
         await updateEnrollment({
           ...data,
-          enrollmentId: editData.enrollmentId, // ✅ FIX
+          enrollmentId: editData.enrollmentId,
         });
-
         toast.success("Updated ✅");
       } else {
         await createEnrollment(data);
@@ -84,62 +83,63 @@ const Enrollments = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#eef3f8]">
-      <ManagerSidebar />
+    <div className="min-h-screen bg-[#eef3f8]">
 
-      <div className="flex flex-col flex-1 ml-64">
-        <main className="flex-1 overflow-y-auto pt-10 px-6">
+      {/* ✅ NAVBAR */}
+      <ManagerNavbar />
 
-          {/* HEADER */}
-          <div className="max-w-7xl mx-auto flex justify-between mb-6">
-            <h2 className="text-2xl font-semibold">📋 Enrollments</h2>
+      {/* ✅ CONTENT */}
+      <div className="pt-20 px-6">
 
-            <button
-              onClick={() => setShow(true)}
-              className="bg-green-600 text-white px-4 py-2 rounded"
-            >
-              + New Enrollment
-            </button>
-          </div>
+        {/* HEADER */}
+        <div className="max-w-7xl mx-auto flex justify-between mb-6">
+          <h2 className="text-2xl font-semibold">📋 Enrollments</h2>
 
-          {/* SEARCH */}
-          <div className="max-w-7xl mx-auto flex gap-3 mb-4">
-            <input
-              value={searchId}
-              onChange={(e) => setSearchId(e.target.value)}
-              placeholder="Search by ID"
-              className="border px-3 py-2 rounded"
-            />
+          <button
+            onClick={() => setShow(true)}
+            className="bg-green-600 text-white px-4 py-2 rounded"
+          >
+            + New Enrollment
+          </button>
+        </div>
 
-            <button
-              onClick={handleSearch}
-              className="bg-blue-100 px-3 py-2 rounded"
-            >
-              Search
-            </button>
+        {/* SEARCH */}
+        <div className="max-w-7xl mx-auto flex gap-3 mb-4">
+          <input
+            value={searchId}
+            onChange={(e) => setSearchId(e.target.value)}
+            placeholder="Search by ID"
+            className="border px-3 py-2 rounded"
+          />
 
-            <button
-              onClick={fetchEnrollments}
-              className="bg-gray-100 px-3 py-2 rounded"
-            >
-              Reset
-            </button>
-          </div>
+          <button
+            onClick={handleSearch}
+            className="bg-blue-100 px-3 py-2 rounded"
+          >
+            Search
+          </button>
 
-          {/* TABLE */}
-          <div className="max-w-7xl mx-auto bg-white rounded-xl shadow">
-            <EnrollmentsTable
-              enrollments={enrollments}
-              onEdit={(e) => {
-                setEditData(e);
-                setShow(true);
-              }}
-              onDelete={handleDelete}
-              onView={(e) => setSelectedEnrollment(e)}
-            />
-          </div>
+          <button
+            onClick={fetchEnrollments}
+            className="bg-gray-100 px-3 py-2 rounded"
+          >
+            Reset
+          </button>
+        </div>
 
-        </main>
+        {/* TABLE */}
+        <div className="max-w-7xl mx-auto bg-white rounded-xl shadow">
+          <EnrollmentsTable
+            enrollments={enrollments}
+            onEdit={(e) => {
+              setEditData(e);
+              setShow(true);
+            }}
+            onDelete={handleDelete}
+            onView={(e) => setSelectedEnrollment(e)}
+          />
+        </div>
+
       </div>
 
       {/* FORM */}
@@ -160,6 +160,7 @@ const Enrollments = () => {
           onClose={() => setSelectedEnrollment(null)}
         />
       )}
+
     </div>
   );
 };

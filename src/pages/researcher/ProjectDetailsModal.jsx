@@ -1,4 +1,5 @@
 import React from "react";
+import { downloadProjectReportPDF } from "./reportGenerator";
 
 const ProjectDetailsModal = ({ project, onClose }) => {
   if (!project) return null;
@@ -11,22 +12,22 @@ const ProjectDetailsModal = ({ project, onClose }) => {
         onClick={onClose}
       />
 
-      {/* MODAL WRAPPER */}
-      <div className="fixed inset-0 flex items-center justify-center z-[99999] pointer-events-none">
+      {/* MODAL */}
+      <div className="fixed inset-0 flex items-center justify-center z-[99999] pointer-events-none"> {/* Prevents background interaction */}
         
         <div
-          className="bg-white w-full max-w-lg rounded-xl shadow-2xl p-6 pointer-events-auto"
-          onClick={(e) => e.stopPropagation()}
+          className="bg-white w-full max-w-lg rounded-xl shadow-2xl p-6 pointer-events-auto" // Allows clicking inside modal
+          onClick={(e) => e.stopPropagation()} // Prevents modal click from closing it
         >
 
-          {/* ✅ HEADER */}
+          {/* HEADER */}
           <div className="flex justify-between items-center mb-4 border-b pb-2">
             <h3 className="text-xl font-bold text-gray-800">
               Project Details
             </h3>
           </div>
 
-          {/* ✅ BODY */}
+          {/* BODY */}
           <div className="space-y-4 text-gray-700">
 
             <div className="grid grid-cols-2 gap-4">
@@ -57,14 +58,14 @@ const ProjectDetailsModal = ({ project, onClose }) => {
               <p><strong>End:</strong> {project.endDate}</p>
             </div>
 
-            {/* GRANT (APPROVED) */}
+            {/* APPROVED */}
             {project.status === "APPROVED" && (
               <p className="text-lg font-semibold text-green-700">
                 <strong>Grant:</strong> ₹{project.amount || "N/A"}
               </p>
             )}
 
-            {/* REJECTION REASON (NEW) */}
+            {/* REJECTED */}
             {project.status === "REJECTED" && (
               <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
                 <p className="text-red-700 text-sm">
@@ -77,14 +78,23 @@ const ProjectDetailsModal = ({ project, onClose }) => {
           </div>
 
           {/* FOOTER */}
-          <div className="text-right mt-6">
-            <button
-              onClick={onClose}
-              className="bg-gray-800 hover:bg-black text-white px-6 py-2 rounded-lg transition-colors"
-            >
-              Close
-            </button>
-          </div>
+          <div className="flex justify-end gap-3 mt-6">
+
+  <button
+    onClick={onClose}
+    className="bg-gray-800 hover:bg-black text-white px-6 py-2 rounded-lg"
+  >
+    Close
+  </button>
+
+  <button
+    onClick={() => downloadProjectReportPDF(project)}
+    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg"
+  >
+    Download PDF 📄
+  </button>
+
+</div>
 
         </div>
       </div>

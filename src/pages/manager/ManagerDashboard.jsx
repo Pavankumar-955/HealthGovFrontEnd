@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
-import ManagerSidebar from "./ManagerSidebar.jsx";
+import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
+
+import ManagerNavbar from "./ManagerNavbar";
 import Footer from "../../components/ui/Footer";
 import { getManagerProjects } from "../../api/managerApi";
+import { getPrograms } from "../../api/ProgramApi"; // ✅ ADDED
 
 const ManagerDashboard = () => {
 
@@ -13,7 +16,13 @@ const ManagerDashboard = () => {
     totalGrants: 0,
   });
 
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  // ✅ NEW STATE FOR PROGRAMS
+  const [programStats, setProgramStats] = useState({
+    total: 0,
+    active: 0,
+    inactive: 0,
+    completed: 0,
+  });
 
   const fetchStats = async () => {
     try {
@@ -45,99 +54,162 @@ const ManagerDashboard = () => {
       });
 
     } catch (err) {
-      console.error("Error fetching stats:", err);
+      console.error(err);
+    }
+  };
+
+  // ✅ FETCH PROGRAM DATA
+  const fetchProgramStats = async () => {
+    try {
+      const res = await getPrograms();
+      const data = res.data;
+
+      let active = 0;
+      let inactive = 0;
+      let completed = 0;
+
+      data.forEach((p) => {
+        if (p.status === "ACTIVE") active++;
+        else if (p.status === "INACTIVE") inactive++;
+        else if (p.status === "COMPLETED") completed++;
+      });
+
+      setProgramStats({
+        total: data.length,
+        active,
+        inactive,
+        completed,
+      });
+
+    } catch (err) {
+      console.error(err);
     }
   };
 
   useEffect(() => {
     fetchStats();
+    fetchProgramStats(); // ✅ ADDED
   }, []);
 
+  const total = stats.total || 1;
+
+  const pieData = [
+    { name: "Approved", value: stats.approved },
+    { name: "Rejected", value: stats.rejected },
+    { name: "Pending", value: stats.pending },
+  ];
+
+  const programPieData = [ // ✅ NEW
+    { name: "Active", value: programStats.active },
+    { name: "Inactive", value: programStats.inactive },
+    { name: "Completed", value: programStats.completed },
+  ];
+
+  const COLORS = ["#16a34a", "#dc2626", "#facc15"];
+  const PROGRAM_COLORS = ["#16a34a", "#6b7280", "#2563eb"];
+
   return (
-    <div className="flex min-h-screen bg-[#eef3f8]">
+    <div className="flex h-screen overflow-hidden bg-[#eef3f8]">
 
-      {/* ✅ MOBILE OVERLAY */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+      <ManagerNavbar />
 
-      {/* ✅ SIDEBAR */}
-      <div
-        className={`
-          fixed z-50 top-0 left-0 h-full w-64 bg-white shadow-lg
-          transform transition-transform duration-300
-          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-          lg:translate-x-0 lg:static lg:block
-        `}
-      >
-        <ManagerSidebar />
-      </div>
+      <div className="flex flex-col flex-1 pt-20">
 
-      {/* ✅ MAIN CONTENT */}
-      <div className="flex-1 flex flex-col lg:ml-64">
+        <main className="flex-1 overflow-y-auto p-6 pb-24">
 
-        {/* ✅ TOP BAR (Mobile Only) */}
-        <div className="flex items-center justify-between p-4 bg-white shadow lg:hidden">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="text-2xl"
-          >
-            ☰
-          </button>
-          <h2 className="font-semibold text-lg">Dashboard</h2>
-        </div>
-
-        {/* ✅ CONTENT */}
-        <div className="p-4 sm:p-6 flex-1">
-
-          <h2 className="text-lg sm:text-2xl lg:text-3xl font-semibold mb-6">
+          <h2 className="text-3xl font-semibold mb-6">
             📊 Manager Dashboard
           </h2>
 
-          {/* ✅ RESPONSIVE GRID */}
-          <div className="
-            grid
-            grid-cols-1
-            sm:grid-cols-2
-            md:grid-cols-2
-            lg:grid-cols-3
-            xl:grid-cols-5
-            gap-4 sm:gap-6
-          ">
-
+          {/* EXISTING SECTION */}
+          <div className="grid grid-cols-4 gap-6 mb-8">
             <Card title="Total Applications" value={stats.total} />
+            <Card title="✅ Approved Applications" value={stats.approved} type="green" />
+            <Card title="⏳ Pending Applications" value={stats.pending} type="yellow" />
+            <Card title="❌ Rejected Applications" value={stats.rejected} type="red" />
+          </div>
 
-            <Card
-              title="✅ Approved Applications"
-              value={stats.approved}
-              type="green"
-            />
+          <div className="grid grid-cols-4 gap-6 items-start">
+            <div className="col-span-1">
+              <Card
+                title="💰 Total Grants Approved"
+                value={`₹ ${stats.totalGrants}`}
+                type="blue"
+              />
+            </div>
 
-            <Card
-              title="⏳ Pending Applications"
-              value={stats.pending}
-              type="yellow"
-            />
+            <div className="col-span-3 bg-white p-5 rounded-xl shadow border max-w-md">
+              <h3 className="text-lg font-semibold mb-3">
+                📊 Application Status Distribution
+              </h3>
 
-            <Card
-              title="❌ Rejected Applications"
-              value={stats.rejected}
-              type="red"
-            />
+              <PieChart width={260} height={240}>
+                <Pie
+                  data={pieData}
+                  outerRadius={80}
+                  dataKey="value"
+                  label={({ value }) =>
+                    `${((value / total) * 100).toFixed(0)}%`
+                  }
+                >
+                  {pieData.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </div>
+          </div>
 
-            <Card
-              title="💰 Total Grants"
-              value={`₹ ${stats.totalGrants}`}
-              type="blue"
-            />
+          {/* ✅ ✅ NEW HORIZONTAL LINE */}
+          <hr className="my-10 border-gray-300" />
+
+          {/* ✅ ✅ NEW PROGRAM SECTION */}
+          <h3 className="text-2xl font-semibold mb-6">
+            🏥 Program Overview
+          </h3>
+
+          {/* PROGRAM CARDS */}
+          <div className="grid grid-cols-4 gap-6 mb-8">
+            <Card title="Total Programs" value={programStats.total} />
+            <Card title="✅ Active" value={programStats.active} type="green" />
+            <Card title="⚪ Inactive" value={programStats.inactive} />
+            <Card title="🔵 Completed" value={programStats.completed} type="blue" />
+          </div>
+
+          {/* PROGRAM PIE */}
+          <div className="bg-white p-5 rounded-xl shadow border max-w-md">
+            <h3 className="text-lg font-semibold mb-3">
+              📊 Program Status Distribution
+            </h3>
+
+            <PieChart width={260} height={240}>
+              <Pie
+                data={programPieData}
+                outerRadius={80}
+                dataKey="value"
+                label={({ value }) => {
+                  const total = programStats.total || 1;
+                  return `${((value / total) * 100).toFixed(0)}%`;
+                }}
+              >
+                {programPieData.map((_, i) => (
+                  <Cell key={i} fill={PROGRAM_COLORS[i]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
 
           </div>
+
+        </main>
+
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t z-40">
+          <Footer />
         </div>
 
-        <Footer />
       </div>
     </div>
   );
@@ -146,10 +218,7 @@ const ManagerDashboard = () => {
 export default ManagerDashboard;
 
 
-/////////////////////////////////////////////////////
-// ✅ CARD COMPONENT
-/////////////////////////////////////////////////////
-
+/* CARD */
 const Card = ({ title, value, type }) => {
 
   let bg = "bg-white text-gray-800";
@@ -160,21 +229,9 @@ const Card = ({ title, value, type }) => {
   if (type === "blue") bg = "bg-blue-100 text-blue-800";
 
   return (
-    <div
-      className={`${bg} 
-        p-4 sm:p-6 
-        rounded-xl shadow border
-        hover:-translate-y-1 sm:hover:-translate-y-2 
-        hover:shadow-lg 
-        transition duration-300`}
-    >
-      <h4 className="text-xs sm:text-sm font-medium">
-        {title}
-      </h4>
-
-      <p className="text-lg sm:text-2xl lg:text-3xl font-semibold mt-1">
-        {value}
-      </p>
+    <div className={`${bg} p-6 rounded-xl shadow border hover:-translate-y-2 hover:shadow-lg transition`}>
+      <h4 className="text-sm">{title}</h4>
+      <p className="text-2xl font-semibold">{value}</p>
     </div>
   );
 };

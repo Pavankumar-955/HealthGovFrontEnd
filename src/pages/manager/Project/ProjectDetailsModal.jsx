@@ -1,21 +1,22 @@
+import { downloadProjectReportPDF } from "./reportGeneratorManager";
 export default function ProjectDetailsModal({ project, onClose }) {
 
-  if (!project) return null;
+  if (!project) return null; // No data → no render
 
   return (
     <>
-      {/* ✅ BLUR BACKGROUND */}
+      {/* BLUR BACKGROUND */}
       <div
         className="fixed inset-0 backdrop-blur-sm bg-black/30 z-[9998]"
         onClick={onClose}
       />
 
-      {/* ✅ CENTER MODAL */}
+      {/* CENTER MODAL */}
       <div className="fixed inset-0 flex items-center justify-center z-[9999]">
 
         <div
           className="bg-white w-full max-w-lg rounded-xl shadow-2xl p-6"
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
         >
 
           {/* HEADER */}
@@ -48,14 +49,14 @@ export default function ProjectDetailsModal({ project, onClose }) {
               {project.researcherName || "N/A"}
             </p>
 
-            {/* ✅ APPROVED */}
+            {/* APPROVED */}
             {project.status === "APPROVED" && (
               <p className="text-green-600 font-semibold text-lg">
                 Grant: ₹ {project.amount || "N/A"}
               </p>
             )}
 
-            {/* ✅ REJECTED */}
+            {/* REJECTED */}
             {project.status === "REJECTED" && (
               <p className="text-red-600">
                 Reason: {project.reason || "Not provided"}
@@ -65,13 +66,22 @@ export default function ProjectDetailsModal({ project, onClose }) {
           </div>
 
           {/* FOOTER */}
-          <div className="text-right mt-6">
+          <div className="flex justify-end gap-3 mt-6">
+
             <button
               onClick={onClose}
               className="bg-gray-800 text-white px-4 py-2 rounded-lg"
             >
               Close
             </button>
+
+            <button
+              onClick={() => downloadProjectReportPDF(project)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg"
+            >
+              Download PDF 📄
+            </button>
+
           </div>
 
         </div>

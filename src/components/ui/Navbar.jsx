@@ -1,9 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react";
 import { Bars3Icon, BellIcon, ChevronDownIcon, UserCircleIcon } from "@heroicons/react/24/outline";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import Notifications from "./Notifications";
+import ProfileCard from "./ProfileCard";
 
 const mainNavigation = [
+  {name: "Home", to: "/"},
   { name: "About", to: "/about" },
   { name: "Programs", to: "/programs" },
   { name: "Research", to: "/research" },
@@ -12,14 +16,14 @@ const mainNavigation = [
 
 const roleNavigation = {
   compliance: [
-    { name: "Dashboard", to: "/compliance" },
-    { name: "Compliance Reports", to: "/compliance" },
-    { name: "Analytics", to: "/compliance" },
+    { name: "Dashboard", to: "/compliance-dashboard" },
+    { name: "Compliance Reports", to: "/compliance-reports" },
+    { name: "Analytics", to: "/compliance-analytics" },
   ],
   auditor: [
-    { name: "Dashboard", to: "/audit" },
-    { name: "Audit Reports", to: "/audit" },
-    { name: "Analytics", to: "/audit" },
+    { name: "Dashboard", to: "/audit-dashboard" },
+    { name: "Audit Reports", to: "/audit-reports" },
+    { name: "Analytics", to: "/audit-analytics" },
   ],
 };
 
@@ -31,57 +35,49 @@ const authNavigation = [
 const roleMeta = {
   compliance: {
     label: "Compliance Officer",
-    links: ["Dashboard", "Compliance Records", "Audits", "Reports"],
-    modules: ["Compliance Monitoring", "Issue Tracking", "Audit Logs"],
+    links: ["compliance-dashboard", "compliance-reports", "compliance-analytics"]
   },
   auditor: {
     label: "Government Auditor",
-    links: ["Dashboard", "Audits", "Reports", "Analytics"],
-    modules: ["Program Review", "Compliance Review", "KPI Dashboard"],
+    links: ["Dashboard", "Audits", "Reports", "Analytics"]
   },
 };
 
 const roleUsers = {
   compliance: {
     name: "Compliance Officer",
-    email: "compliance@healthgov.local",
   },
   auditor: {
-    name: "Government Auditor",
-    email: "auditor@healthgov.local",
+    name: "Government Auditor"
   },
 };
 
 const notificationsByRole = {
   compliance: [
-    { id: 1, title: "New audit assigned", subtitle: "2m ago" },
-    { id: 2, title: "Compliance report ready", subtitle: "10m ago" },
-    { id: 3, title: "Issue tracking updated", subtitle: "30m ago" },
+    { id: 1, title: "New compliance audit assigned", subtitle: "Health program review - 2m ago", type: "health" },
+    { id: 2, title: "Compliance report ready", subtitle: "Vaccination records updated - 10m ago", type: "health" },
+    { id: 3, title: "Issue tracking updated", subtitle: "Medical data privacy check - 30m ago", type: "health" },
   ],
   auditor: [
-    { id: 1, title: "Program review available", subtitle: "5m ago" },
-    { id: 2, title: "Analytics dashboard refreshed", subtitle: "15m ago" },
+    { id: 1, title: "Program review available", subtitle: "Healthcare funding audit - 5m ago", type: "health" },
+    { id: 2, title: "Analytics dashboard refreshed", subtitle: "Patient care metrics - 15m ago", type: "health" },
+  ],
+  admin: [
+    { id: 1, title: "System health check completed", subtitle: "All services operational - 1m ago", type: "system" },
+    { id: 2, title: "New user registration", subtitle: "Healthcare provider added - 5m ago", type: "user" },
+  ],
+  citizen: [
+    { id: 1, title: "Health record updated", subtitle: "Vaccination status confirmed - 3m ago", type: "health" },
+    { id: 2, title: "Appointment reminder", subtitle: "Doctor visit tomorrow - 1h ago", type: "health" },
   ],
 };
 
 export default function Navbar() {
-  const [userRole, setUserRole] = useState(
-    typeof window !== "undefined" ? localStorage.getItem("userRole") : null
-  );
-
+  const { user, logout } = useAuth();
+  const userRole = user?.role?.toString().toLowerCase() || null;
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const navRef = useRef(null);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const handleRoleChange = () => {
-      setUserRole(localStorage.getItem("userRole"));
-    };
-
-    window.addEventListener("roleChanged", handleRoleChange);
-    return () => window.removeEventListener("roleChanged", handleRoleChange);
-  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -91,36 +87,36 @@ export default function Navbar() {
       }
     };
 
-    window.addEventListener("click", handleClickOutside);
-    return () => window.removeEventListener("click", handleClickOutside);
-  }, []);
+    if (isNotifOpen || isProfileOpen) {
+      window.addEventListener("click", handleClickOutside);
+      return () => window.removeEventListener("click", handleClickOutside);
+    }
+  }, [isNotifOpen, isProfileOpen]);
 
   const metadata = userRole ? roleMeta[userRole] : null;
   const profile = userRole ? roleUsers[userRole] : null;
   const notifications = userRole ? notificationsByRole[userRole] : [];
-  const hasNotifications = notifications.length > 0? true : false;
   const navItems = userRole && roleNavigation[userRole] ? roleNavigation[userRole] : mainNavigation;
 
   const handleLogout = () => {
-    localStorage.removeItem("userRole");
-    setUserRole(null);
     setIsProfileOpen(false);
-    navigate("/login");
+    logout();
   };
 
   return (
-    <Disclosure
-      as="nav"
-      className="fixed top-0 left-0 z-40 w-full bg-[#009930] shadow-md"
-      ref={navRef}
-    >
+    <>
+      <Disclosure
+        as="nav"
+        className="fixed top-0 left-0 z-40 w-full bg-[#009930] shadow-md"
+        ref={navRef}
+      >
       <div className="mx-auto max-w-7xl px-4">
         
         {/* ✅ FLEX FIX */}
         <div className="flex h-16 items-center justify-between">
 
           {/* LEFT → LOGO */}
-          <div className="flex items-center gap-2 cursor-default">
+          <Link to="/" className="flex items-center gap-2">
             <img
               src="/images/web_Icon.png"
               alt="logo"
@@ -129,7 +125,7 @@ export default function Navbar() {
             <span className="text-lg font-bold text-white">
               HealthGov
             </span>
-          </div>
+          </Link>
 
           {/* CENTER → NAV LINKS */}
           <div className="hidden md:flex items-center gap-8">
@@ -152,43 +148,26 @@ export default function Navbar() {
                   <button
                     type="button"
                     onClick={() => {
-                      setIsNotifOpen((current) => !current);
+                      setIsNotifOpen(true);
                       setIsProfileOpen(false);
                     }}
                     className="relative inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
                     aria-label="Open notifications"
                   >
                     <BellIcon className="h-6 w-6" />
-                    {hasNotifications ? (
-                      <span className="absolute -right-0.5 -top-0.5 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-amber-400 px-1.5 text-[0.65rem] font-semibold text-slate-950">
-                        {notifications.length}
+                    
+                      <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-amber-400 px-1.5 text-[0.65rem] font-semibold text-slate-950">
+                        {/* {notifications.length} */}
                       </span>
-                    ) : null}
+                  
                   </button>
-                  {isNotifOpen ? (
-                    <div className="absolute right-0 z-50 mt-3 w-80 overflow-hidden rounded-3xl border border-white/10 bg-slate-950/95 p-4 shadow-2xl shadow-slate-950/30">
-                      <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Notifications</p>
-                      <div className="mt-3 space-y-3">
-                        {notifications.length > 0 ? (
-                          notifications.map((item) => (
-                            <div key={item.id} className="rounded-3xl border border-slate-800 bg-slate-900/90 p-3">
-                              <p className="font-semibold text-white">{item.title}</p>
-                              <p className="mt-1 text-xs text-slate-400">{item.subtitle}</p>
-                            </div>
-                          ))
-                        ) : (
-                          <p className="text-sm text-slate-400">No new notifications</p>
-                        )}
-                      </div>
-                    </div>
-                  ) : null}
                 </div>
 
                 <div className="relative">
                   <button
                     type="button"
                     onClick={() => {
-                      setIsProfileOpen((current) => !current);
+                      setIsProfileOpen(true);
                       setIsNotifOpen(false);
                     }}
                     className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
@@ -198,21 +177,6 @@ export default function Navbar() {
                     <span className="hidden sm:inline">{profile?.name ?? "Profile"}</span>
                     <ChevronDownIcon className="h-4 w-4" />
                   </button>
-                  {isProfileOpen ? (
-                    <div className="absolute right-0 z-50 mt-3 w-72 overflow-hidden rounded-3xl border border-white/10 bg-slate-950/95 p-4 shadow-2xl shadow-slate-950/30">
-                      <div className="mb-4 rounded-3xl bg-slate-900/90 p-4">
-                        <p className="text-sm font-semibold text-slate-200">{profile?.name}</p>
-                        <p className="mt-1 text-sm text-slate-400">{profile?.email}</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleLogout}
-                        className="w-full rounded-3xl bg-amber-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-amber-300"
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  ) : null}
                 </div>
               </>
             ) : (
@@ -270,23 +234,22 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={() => {
-                    setIsNotifOpen((current) => !current);
+                    setIsNotifOpen(true);
                     setIsProfileOpen(false);
                   }}
                   className="relative inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
                   aria-label="Open notifications"
                 >
                   <BellIcon className="h-6 w-6" />
-                  {hasNotifications ? (
+                 
                     <span className="absolute -right-0.5 -top-0.5 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-amber-400 px-1.5 text-[0.65rem] font-semibold text-slate-950">
-                      {notifications.length}
+              
                     </span>
-                  ) : null}
-                </button>
+                                  </button>
                 <button
                   type="button"
                   onClick={() => {
-                    setIsProfileOpen((current) => !current);
+                    setIsProfileOpen(true);
                     setIsNotifOpen(false);
                   }}
                   className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
@@ -297,42 +260,24 @@ export default function Navbar() {
                   <ChevronDownIcon className="h-4 w-4" />
                 </button>
               </div>
-              {isNotifOpen ? (
-                <div className="w-full overflow-hidden rounded-3xl border border-white/10 bg-slate-950/95 p-4 shadow-2xl shadow-slate-950/30">
-                  <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Notifications</p>
-                  <div className="mt-3 space-y-3">
-                    {notifications.length > 0 ? (
-                      notifications.map((item) => (
-                        <div key={item.id} className="rounded-3xl border border-slate-800 bg-slate-900/90 p-3">
-                          <p className="font-semibold text-white">{item.title}</p>
-                          <p className="mt-1 text-xs text-slate-400">{item.subtitle}</p>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-slate-400">No new notifications</p>
-                    )}
-                  </div>
-                </div>
-              ) : null}
-              {isProfileOpen ? (
-                <div className="w-full overflow-hidden rounded-3xl border border-white/10 bg-slate-950/95 p-4 shadow-2xl shadow-slate-950/30">
-                  <div className="mb-4 rounded-3xl bg-slate-900/90 p-4">
-                    <p className="text-sm font-semibold text-slate-200">{profile?.name}</p>
-                    <p className="mt-1 text-sm text-slate-400">{profile?.email}</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="w-full rounded-3xl bg-amber-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-amber-300"
-                  >
-                    Logout
-                  </button>
-                </div>
-              ) : null}
             </div>
           ) : null}
         </div>
       </DisclosurePanel>
     </Disclosure>
+
+    <Notifications
+      isOpen={isNotifOpen}
+      onClose={() => setIsNotifOpen(false)}
+      notifications={notifications}
+    />
+
+    <ProfileCard
+      isOpen={isProfileOpen}
+      onClose={() => setIsProfileOpen(false)}
+      email={user?.email || profile?.email}
+      onLogout={handleLogout}
+    />
+    </>
   );
 }
