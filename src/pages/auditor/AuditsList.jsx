@@ -12,7 +12,7 @@ const AuditList = ({ audits = [], handleSelectAudit }) => {
       case 'FOLLOW_UP_REQUIRED':
         return 'bg-orange-100 text-orange-800';
       case 'CANCELLED':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-red-100 text-orange-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }

@@ -1,19 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
-import SummaryCards from './SummaryCards.jsx';
-import AuditFilter from './AuditFilter.jsx';
-import AuditModal from './AuditModal.jsx';
-import AuditsList from './AuditsList.jsx';
+import SummaryCards from "./SummaryCards.jsx";
+import AuditFilter from "./AuditFilter.jsx";
+import AuditModal from "./AuditModal.jsx";
+import AuditsList from "./AuditsList.jsx";
+import AuditForm from "./AuditForm.jsx";
 
 import {
   getAllAudits,
   getAuditSummary,
-  updateAudit   // ✅ USE THIS (important)
+  updateAudit,
+  createAudit,              // ✅ IMPORTANT
 } from "../../api/auditsAPI.js";
 
-const AuditDashboard = () => {
+import { getAllComplianceRecords } from "../../api/complianceAPI.js";
 
+const AuditDashboard = () => {
   const [audits, setAudits] = useState([]);
   const [filteredAudits, setFilteredAudits] = useState([]);
 
@@ -21,29 +24,34 @@ const AuditDashboard = () => {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [scopeFilter, setScopeFilter] = useState("ALL");
 
+  const [complianceRecords, setComplianceRecords] = useState([]);
+
   const [summary, setSummary] = useState({
     totalAudits: 0,
-    byStatus: {}
+    byStatus: {},
   });
 
   const [selectedAudit, setSelectedAudit] = useState(null);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   // ✅ UNIQUE OFFICERS
-  const officers = [...new Map(
-    audits.map(a => [a.officer?.userId, a.officer])
-  ).values()];
+  const officers = [
+    ...new Map(audits.map((a) => [a.officer?.userId, a.officer])).values(),
+  ];
 
-  // ✅ FETCH INITIAL DATA
+  /* ================= FETCH DATA ================= */
+
   useEffect(() => {
     fetchAudits();
     fetchSummary();
+    fetchComplianceRecords();
   }, []);
 
   const fetchAudits = async () => {
     try {
       const res = await getAllAudits();
       setAudits(res.data);
-    } catch (err) {
+    } catch {
       toast.error("Failed to load audits");
     }
   };
@@ -57,9 +65,20 @@ const AuditDashboard = () => {
     }
   };
 
-  // ✅ FILTER LOGIC
-  useEffect(() => {
+  const fetchComplianceRecords = async () => {
+    try {
+      const res = await getAllComplianceRecords();
+      console.log("Compliance records ",res.data);
+      
+      setComplianceRecords(res.data);
+    } catch {
+      toast.error("Failed to load compliance records");
+    }
+  };
 
+  /* ================= FILTER LOGIC ================= */
+
+  useEffect(() => {
     const filtered = audits.filter((audit) => {
       const scopeType = audit.scope.split(":")[0];
 
@@ -77,48 +96,62 @@ const AuditDashboard = () => {
     });
 
     setFilteredAudits(filtered);
-
   }, [audits, statusFilter, scopeFilter, officerFilter]);
 
-  // ✅ SELECT AUDIT
+  /* ================= ACTIONS ================= */
+
   const handleSelectAudit = (audit) => {
     setSelectedAudit(audit);
   };
 
-  // ✅ ✅ ✅ FINAL FIXED UPDATE FUNCTION
+  const handleCreateAudit = async (payload) => {
+    try {
+      console.log("Creating audit with payload:", payload);
+      const today = new Date().toISOString().split("T")[0];
+
+      await createAudit({
+        ...payload,
+        date: today, // ✅ required by backend
+      });
+
+      toast.success(" Audit created successfully");
+
+      await fetchAudits();
+      await fetchSummary();
+
+      setIsCreateOpen(false);
+    } catch (error) {
+      console.error(error);
+      toast.error(" Failed to create audit");
+    }
+  };
+
   const handleUpdateStatus = async ({ findings, status }) => {
     try {
-
-      const payload = {
+      await updateAudit(selectedAudit.auditId, {
         findings: findings || "",
-        status: status,
-        date: selectedAudit.date   // ✅ REQUIRED (very important)
-      };
-
-      // ✅ SINGLE API CALL
-      await updateAudit(selectedAudit.auditId, payload);
+        status,
+        date: selectedAudit.date, // ✅ required
+      });
 
       toast.success("✅ Audit updated successfully");
 
-      // ✅ refresh UI
       await fetchAudits();
       await fetchSummary();
 
       setSelectedAudit(null);
-
-    } catch (err) {
-      console.error(err);
+    } catch {
       toast.error("❌ Update failed");
     }
   };
 
+  /* ================= RENDER ================= */
+
   return (
     <div className="space-y-6">
 
-      {/* ✅ SUMMARY */}
       <SummaryCards summary={summary} />
 
-      {/* ✅ FILTER */}
       <AuditFilter
         statusFilter={statusFilter}
         setStatusFilter={setStatusFilter}
@@ -132,15 +165,22 @@ const AuditDashboard = () => {
           setScopeFilter("ALL");
           setOfficerFilter("ALL");
         }}
+        onOpenCreate={() => setIsCreateOpen(true)}
       />
 
-      {/* ✅ LIST */}
+      {isCreateOpen && (
+        <AuditForm
+          officers={officers}
+          compliances={complianceRecords}
+          onCreate={handleCreateAudit}
+        />
+      )}
+
       <AuditsList
         audits={filteredAudits}
         handleSelectAudit={handleSelectAudit}
       />
 
-      {/* ✅ MODAL */}
       {selectedAudit && (
         <AuditModal
           audit={selectedAudit}
@@ -148,7 +188,6 @@ const AuditDashboard = () => {
           onUpdateStatus={handleUpdateStatus}
         />
       )}
-
     </div>
   );
 };
