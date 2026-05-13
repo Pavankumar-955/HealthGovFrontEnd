@@ -1,5 +1,6 @@
 import axios from "axios";
 
+// Create an Axios instance
 const API = axios.create({
   baseURL: "http://localhost:9091",
   headers: {
@@ -7,8 +8,8 @@ const API = axios.create({
   },
 });
 
-// ✅ Attach token automatically
-API.interceptors.request.use((config) => {
+// Attach token automatically
+API.interceptors.request.use((config) => { // Runs before every API request
   const token = localStorage.getItem("token");
 
   if (token) {
