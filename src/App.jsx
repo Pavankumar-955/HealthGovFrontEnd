@@ -1,3 +1,4 @@
+import { Toaster } from "react-hot-toast";
 import "./App.css";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
@@ -17,12 +18,35 @@ import CitizenDashboard from "./pages/dashboard/CitizenDashboard";
 import CitizenProfile from "./pages/citizen/CitizenProfile";
 import CitizenHealthRecords from "./pages/citizen/CitizenHealthRecords";
 import CitizenNotifications from "./pages/citizen/CitizenNotifications";
+import CitizenSetup from "./pages/citizen/CitizenSetup";
+import DocVerification from "./pages/provider/DocVerification";
 
 // ✅ Admin Pages
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import Users from "./pages/admin/Users";
 import AddUser from "./pages/admin/AddUser";
 import Analytics from "./pages/admin/Analytics";
+
+// Researcher Pages
+import ResearcherDashboard from "./pages/researcher/ResearcherDashboard";
+import ResearcherProjects from "./pages/researcher/ResearcherProjects";
+
+// Manager Pages
+import ManagerDashboard from "./pages/manager/ManagerDashboard";
+import ManagerApplications from "./pages/manager/Project/ManagerApplications";
+import HealthPrograms from "./pages/manager/HealthProgram/HealthPrograms";
+import ManagerProjectReport from "./pages/manager/Project/ManagerProjectReport";
+// ✅ Program Manager Page
+// import ProgramManagerDashboard from "./pages/programsdash/ProgramManagerDashboard";
+
+
+// ✅ HealthCare Provider Pages
+import ProviderDashboard from "./pages/dashboard/ProviderDashboard";
+import ProviderLayout from "./layouts/ProviderLayout";
+import ProgramsPage from "./pages/provider/ProgramsPage";
+import ProgramDetailsPage from "./pages/provider/ProgramDetailsPage";
+import ProviderHealthRecords from "./pages/provider/ProviderHealthRecords";
+
 
 // ✅ Layouts
 import CitizenLayout from "./layouts/CitizenLayout";
@@ -56,7 +80,7 @@ function App() {
   return (
     <>
       {/* ✅ Toast */}
-      <ToastContainer position="top-right" autoClose={3000} />
+      <Toaster position="top-right" />
 
       <Routes>
 
@@ -102,6 +126,7 @@ function App() {
           }
         >
           <Route path="dashboard" element={<CitizenDashboard />} />
+          <Route path="register" element={<CitizenSetup />} />
           <Route path="profile" element={<CitizenProfile />} />
           <Route path="health-records" element={<CitizenHealthRecords />} />
           <Route path="notifications" element={<CitizenNotifications />} />
@@ -122,6 +147,43 @@ function App() {
           <Route path="analytics" element={<Analytics />} />
         </Route>
 
+        {/* RESEARCHER ROUTES */}
+        <Route path="/researcher/dashboard" element={<ProtectedRoute requiredRole="RESEARCHER"><ResearcherDashboard /></ProtectedRoute>} />
+        <Route path="/researcher/projects" element={<ProtectedRoute requiredRole="RESEARCHER"><ResearcherProjects /></ProtectedRoute>} />
+
+        {/* MANAGER ROUTES */}
+        <Route path="/manager/dashboard" element={<ProtectedRoute requiredRole="MANAGER"><ManagerDashboard /></ProtectedRoute>} />
+        <Route path="/manager/applications" element={<ProtectedRoute requiredRole="MANAGER"><ManagerApplications /></ProtectedRoute>} />
+        <Route path="/manager/health-programs" element={<ProtectedRoute requiredRole="MANAGER"><HealthPrograms /></ProtectedRoute>} />
+        <Route path="/manager/reports/project" element={<ManagerProjectReport />} />
+
+
+        {/* HealthCare Provider */}
+
+        <Route
+          path="/provider"
+          element={
+            <ProtectedRoute requiredRole="PROVIDER">
+              <ProviderLayout />
+            </ProtectedRoute>
+          }
+        >
+          {/* ✅ Dashboard */}
+          <Route path="dashboard" element={<ProviderDashboard />} />
+
+          {/* ✅ Programs List */}
+          <Route path="programs" element={<ProgramsPage />} />
+
+          {/* ✅ Program Details (Infra + Resource inside tabs) */}
+          <Route path="programs/:id" element={<ProgramDetailsPage />} />
+
+          {/* ✅ Health Records */}
+          <Route path="HealthRecords" element={<ProviderHealthRecords />} />
+          <Route path="health-records" element={<ProviderHealthRecords />} />
+
+          <Route path="doc-verification" element={<DocVerification />} />
+        </Route>
+
         {/* ✅ ROLE REDIRECT */}
         <Route
           path="/dashboard"
@@ -133,6 +195,10 @@ function App() {
                 <Navigate to="/compliance-dashboard" replace />
               ) : user?.role === "AUDITOR" ? (
                 <Navigate to="/audit-dashboard" replace />
+              ) : user?.role === "RESEARCHER" ? (
+                <Navigate to="/researcher/dashboard" replace />
+              ) : user?.role === "MANAGER" ? (
+                <Navigate to="/manager/dashboard" replace />
               ) : (
                 <Navigate to="/citizen/dashboard" replace />
               )}

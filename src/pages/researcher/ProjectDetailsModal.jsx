@@ -13,11 +13,11 @@ const ProjectDetailsModal = ({ project, onClose }) => {
       />
 
       {/* MODAL */}
-      <div className="fixed inset-0 flex items-center justify-center z-[99999] pointer-events-none">
+      <div className="fixed inset-0 flex items-center justify-center z-[99999] pointer-events-none"> {/* Prevents background interaction */}
         
         <div
-          className="bg-white w-full max-w-lg rounded-xl shadow-2xl p-6 pointer-events-auto"
-          onClick={(e) => e.stopPropagation()}
+          className="bg-white w-full max-w-lg rounded-xl shadow-2xl p-6 pointer-events-auto" // Allows clicking inside modal
+          onClick={(e) => e.stopPropagation()} // Prevents modal click from closing it
         >
 
           {/* HEADER */}
@@ -77,7 +77,7 @@ const ProjectDetailsModal = ({ project, onClose }) => {
 
           </div>
 
-          {/* ✅ FOOTER WITH DOWNLOAD */}
+          {/* FOOTER */}
           <div className="flex justify-end gap-3 mt-6">
 
   <button
