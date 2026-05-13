@@ -10,7 +10,7 @@ import toast from "react-hot-toast";
 import {
   getNotificationsByUser,
   markNotificationAsRead,
-} from "../../api/notificationApi";
+} from "../../api/notificationApi.js";
 
 export default function ResearcherNavbar({ onOpenReport }) {
   const navigate = useNavigate();

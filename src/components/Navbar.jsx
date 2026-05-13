@@ -43,6 +43,13 @@ const roleNavigation = {
     { name: "Audit Reports", to: "/audit-reports" },
     { name: "Analytics", to: "/audit-analytics" },
   ],
+  
+  manager: [
+    { name: "Dashboard", to: "/manager/dashboard" },
+    { name: "Applications", to: "/manager/applications" },
+    { name: "Programs", to: "/manager/health-programs" },
+  ],
+
 };
 
 const authNavigation = [
@@ -68,6 +75,7 @@ export default function Navbar() {
 
   const [notifications, setNotifications] = useState([]);
   const [notifLoading, setNotifLoading] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
 
   /* -------------------- FETCH NOTIFICATIONS -------------------- */
 

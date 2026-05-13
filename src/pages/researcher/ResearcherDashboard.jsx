@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ResearcherNavbar from "./ResearcherNavbar";
 import { getProjects } from "../../api/researchApi";
-import Footer from "../../components/ui/Footer";
+import Footer from "../../components/Footer";
 
 import {
   PieChart,

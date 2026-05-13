@@ -8,7 +8,7 @@ import {
 import toast from "react-hot-toast";
 
 import { getNotificationsByUser, markNotificationAsRead }
-from "../../api/notificationApi.jsx";
+from "../../api/notificationApi.js";
 
 export default function ManagerNavbar({ onOpenProjectReport }) {
   const navigate = useNavigate();
