@@ -14,6 +14,7 @@ export default function ManagerNavbar({ onOpenProjectReport }) {
   const navigate = useNavigate();
   const location = useLocation();
   const navRef = useRef(null);
+  const [isReportOpen, setIsReportOpen] = useState(false);
 
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -57,14 +58,15 @@ export default function ManagerNavbar({ onOpenProjectReport }) {
       if (navRef.current && !navRef.current.contains(e.target)) {
         setIsNotifOpen(false);
         setIsProfileOpen(false);
+        setIsReportOpen(false);
       }
     };
 
-    if (isNotifOpen || isProfileOpen) {
+    if (isNotifOpen || isProfileOpen || isReportOpen) {
       window.addEventListener("click", handleClickOutside);
       return () => window.removeEventListener("click", handleClickOutside);
     }
-  }, [isNotifOpen, isProfileOpen]);
+  }, [isNotifOpen, isProfileOpen, isReportOpen]);
 
   /* ✅ Logout */
   const handleLogout = () => {
@@ -126,12 +128,45 @@ export default function ManagerNavbar({ onOpenProjectReport }) {
               Programs
             </button>
 
-            <button
-              onClick={onOpenProjectReport}
-              className="px-4 py-2 rounded-lg font-medium text-white hover:bg-white/10"
-            >
-              Reports 📊
-            </button>
+            <div className="relative">
+  <button
+    onClick={() => {
+      setIsReportOpen(!isReportOpen);
+      setIsNotifOpen(false);
+      setIsProfileOpen(false);
+    }}
+    className="px-4 py-2 rounded-lg font-medium text-white hover:bg-white/10"
+  >
+    Reports
+  </button>
+
+  {isReportOpen && (
+  <div className="absolute mt-3 w-72 bg-white rounded-2xl shadow-xl p-3 z-50">
+
+    {/* ✅ Option 1 */}
+    <button
+      onClick={() => {
+        setIsReportOpen(false);
+        onOpenProjectReport();
+      }}
+      className="flex items-center gap-3 w-full px-4 py-3 text-sm text-green-800 bg-green-50 rounded-xl hover:bg-green-100 transition"
+    >
+      <span className="font-medium">Overall Project Report</span>
+    </button>
+
+    {/* ✅ Option 2 */}
+    <button
+      onClick={() => {
+        setIsReportOpen(false);
+      }}
+      className="flex items-center gap-3 w-full px-4 py-3 text-sm text-green-800 bg-green-50 rounded-xl hover:bg-green-100 transition"
+    >
+      <span className="font-medium">Overall Health Program Report</span>
+    </button>
+
+  </div>
+)}
+</div>
           </div>
 
           {/* RIGHT → NOTIFICATION + MANAGER */}

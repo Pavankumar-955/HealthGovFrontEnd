@@ -111,7 +111,7 @@ const ManagerApplications = () => {
   // Search filter
   const filteredProjects = projects.filter((p) => {
     if (!searchId) return true;
-    return p.projectId.toString().includes(searchId);
+    return p.projectId.toString() === searchId;
   });
 
   return (
