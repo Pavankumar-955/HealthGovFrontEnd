@@ -42,13 +42,13 @@ import AuditAnalytics from "./pages/auditor/AuditAnalytics";
 
 // ✅ Components
 import ProtectedRoute from "./components/ProtectedRoute";
-import Navbar from "./components/ui/Navbar";
-import Footer from "./components/ui/Footer";
-import About from "./components/layout/About";
-import Program from "./components/layout/Program";
-import Research from "./components/layout/Research";
-import Contact from "./components/layout/Contact";
-import Body from "./components/ui/Body";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import About from "./components/About";
+import Program from "./components/Program";
+import Research from "./components/Research";
+import Contact from "./components/Contact";
+import Body from "./components/Body";
 
 function App() {
   const { user } = useAuth();

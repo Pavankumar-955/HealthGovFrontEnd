@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react";
 import { Bars3Icon, BellIcon, ChevronDownIcon, UserCircleIcon } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 import Notifications from "./Notifications";
 import ProfileCard from "./ProfileCard";
 
