@@ -4,17 +4,19 @@ import { getManagerProjects } from "../../../api/managerApi";
 
 const ManagerProjectReport = () => {
 
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState([]); // State to hold project data
 
   useEffect(() => {
     fetchProjects();
   }, []);
 
+  // fetch projects from API
   const fetchProjects = async () => {
     const res = await getManagerProjects("");
     setProjects(res.data);
   };
 
+  // Get user from token
   const handleDownload = () => {
     const token = localStorage.getItem("token");
     const user = JSON.parse(atob(token.split(".")[1]));

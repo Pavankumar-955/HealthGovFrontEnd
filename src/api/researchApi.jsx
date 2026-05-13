@@ -5,7 +5,7 @@ const BASE = "/research";
 // get userId dynamically
 const getUserId = () => localStorage.getItem("userId");
 
-// Ftech projects
+// Fetch projects
 export const getProjects = (status) => {
   // if status is empty OR "All" OR null → fetch all
   if (!status || status.trim() === "") {

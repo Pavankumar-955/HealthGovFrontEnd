@@ -20,6 +20,7 @@ export const AuthProvider = ({ children }) => {
         ...decoded,
         userId: decoded.userId || decoded.id || decoded.sub,
         name: decoded.name || decoded.fullName,
+        role: decoded.role?.toString()?.toUpperCase(),
         email: decoded.email,
         role: decoded.role
       };

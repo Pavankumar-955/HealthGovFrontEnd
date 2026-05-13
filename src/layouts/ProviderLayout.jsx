@@ -1,149 +1,138 @@
-import { useState } from "react";
-import { Outlet, useLocation, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useState } from 'react';
+import { Outlet, useLocation, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import {
   MdDashboard,
   MdFolder,
   MdLogout,
   MdMenu,
   MdClose,
-} from "react-icons/md";
+  MdKeyboardArrowDown,
+  MdPerson
+} from 'react-icons/md';
 
 const ProviderLayout = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
   const menuItems = [
-    {
-      path: "/provider/dashboard",
-      icon: MdDashboard,
-      label: "Dashboard",
-    },
-    {
-      path: "/provider/programs",
-      icon: MdFolder,
-      label: "Health Programs",
-    },
-    {
-      path: "/provider/HealthRecords",
-      icon: MdDashboard,
-      label: "Health Records",
-    },
-    {
-      path: "/provider/docverification",
-      icon: MdFolder,
-      label: "Doc Verification",
-    },
+    { path: "/provider/dashboard", label: "Dashboard" },
+    { path: "/provider/programs", label: "Health Programs" },
+    { path: "/provider/health-records", label: "Health Records" },
+    { path: "/provider/doc-verification", label: "Doc Verification" },
   ];
 
   return (
-    <div className="flex h-screen bg-[#eef3f8]">
-
-      {/* ✅ SIDEBAR */}
-      <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#011138] text-white shadow-lg
-        transform transition-transform duration-300
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:translate-x-0`}
-      >
-
-        {/* HEADER */}
-        <div className="flex justify-between items-center h-16 px-6 border-b border-white/20">
-          <h1 className="font-semibold text-lg">HealthGov</h1>
-
-          <button onClick={() => setSidebarOpen(false)} className="lg:hidden">
-            <MdClose size={22} />
-          </button>
-        </div>
-
-        {/* USER */}
-        <div className="p-5 border-b border-white/20">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center font-semibold">
-              {user?.email?.charAt(0)?.toUpperCase()}
+    <div className="min-h-screen bg-[#f8fafc] font-sans flex flex-col">
+      
+      {/* Navbar - Solid Green (#0f964a) */}
+      <nav className="bg-[#0f964a] text-white shadow-md sticky top-0 z-50">
+        <div className="max-w-[1440px] mx-auto px-4 lg:px-8">
+          <div className="flex items-center h-16">
+            
+            {/* LEFT: Logo Section */}
+            <div className="flex-shrink-0 w-48">
+              <Link to="/provider/dashboard" className="flex items-center gap-3 group">
+                <div className="bg-white p-1 rounded-md shadow-sm transition-transform group-hover:scale-105">
+                  <img 
+                    src="/images/web_Icon.png" 
+                    alt="HealthGov Logo" 
+                    className="h-8 w-auto object-contain" 
+                  />
+                </div>
+                <span className="text-xl font-bold tracking-tight">HealthGov</span>
+              </Link>
             </div>
-            <div>
-              <p className="text-sm font-medium truncate">
-                {user?.email}
-              </p>
-              <p className="text-green-400 text-xs">
-                Healthcare Provider
-              </p>
+
+            {/* CENTER: Navigation Links */}
+            <div className="hidden md:flex flex-1 justify-center items-center space-x-1">
+              {menuItems.map((item) => {
+                const isActive = location.pathname.startsWith(item.path);
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`px-4 py-2 rounded-md text-sm font-semibold transition-all ${
+                      isActive 
+                      ? 'bg-[#0a7a3b] text-white shadow-sm' 
+                      : 'text-white/90 hover:bg-white/10'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* RIGHT: Profile Pill (Notifications Removed) */}
+            <div className="flex-shrink-0 w-auto md:w-48 flex items-center justify-end">
+              <div className="relative">
+                <button 
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                  className="flex items-center gap-2 pl-2 pr-3 py-1.5 bg-white/10 border border-white/20 rounded-full hover:bg-white/20 transition-all"
+                >
+                  <div className="w-7 h-7 bg-green-600 rounded-full flex items-center justify-center border border-white/30 text-[10px] font-bold">
+                    {user?.email?.charAt(0)?.toUpperCase()}
+                  </div>
+                  <div className="text-left hidden lg:block leading-none">
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-70">Provider</p>
+                    <p className="text-xs font-bold mt-0.5">My Account</p>
+                  </div>
+                  <MdKeyboardArrowDown size={18} className={`transition-transform duration-200 ${profileDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {profileDropdownOpen && (
+                  <div className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 text-gray-800 animate-in fade-in zoom-in duration-150">
+                    <div className="px-4 py-2 border-b border-gray-50 mb-1">
+                      <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest leading-none">Medical Professional</p>
+                      <p className="text-sm font-bold truncate mt-1">{user?.email}</p>
+                    </div>
+                    <button
+                      onClick={logout}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <MdLogout size={18} />
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile menu toggle */}
+              <button className="md:hidden ml-4" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                {mobileMenuOpen ? <MdClose size={28} /> : <MdMenu size={28} />}
+              </button>
             </div>
           </div>
         </div>
 
-        {/* NAV */}
-        <nav className="p-4 space-y-3">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname.startsWith(item.path);
-
-            return (
+        {/* Mobile Navigation */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-[#0a7a3b] border-t border-white/10 pb-4 shadow-xl">
+            {menuItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
-                onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-4 py-2 rounded-lg transition font-medium
-                  ${
-                    isActive
-                      ? "bg-green-600"
-                      : "bg-white/10 hover:bg-white/20"
-                  }`}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-6 py-4 text-sm font-bold border-b border-white/5 ${
+                  location.pathname.startsWith(item.path) ? 'bg-[#086330]' : ''
+                }`}
               >
-                <Icon size={18} />
                 {item.label}
               </Link>
-            );
-          })}
-        </nav>
-
-        {/* LOGOUT */}
-        <div className="p-4 mt-auto">
-          <button
-            onClick={logout}
-            className="w-full bg-red-500 px-4 py-2 rounded-lg hover:bg-red-600 transition"
-          >
-            Logout
-          </button>
-        </div>
-
-      </div>
-
-      {/* ✅ OVERLAY */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 backdrop-blur-sm bg-black/30 z-[40] lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* ✅ MAIN CONTENT */}
-      <div className="flex-1 flex flex-col lg:pl-64">
-
-        {/* MOBILE HEADER */}
-        <header className="lg:hidden bg-white border-b">
-          <div className="flex justify-between items-center px-4 h-14">
-            <button onClick={() => setSidebarOpen(true)}>
-              <MdMenu size={22} />
-            </button>
-
-            <p className="text-sm font-medium">
-              Provider Portal
-            </p>
-
-            <div className="w-6" />
+            ))}
           </div>
-        </header>
+        )}
+      </nav>
 
-        {/* PAGE */}
-        <main className="flex-1 overflow-y-auto p-6">
+      {/* Main Content Area */}
+      <main className="flex-1 overflow-auto">
+        <div className="max-w-[1440px] mx-auto p-4 md:p-10">
           <Outlet />
-        </main>
-
-      </div>
-
+        </div>
+      </main>
     </div>
   );
 };

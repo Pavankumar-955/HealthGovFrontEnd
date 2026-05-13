@@ -33,7 +33,7 @@ export default function Login() {
 
       // ✅ Decode token safely
       const decodedToken = jwtDecode(token);
-      const userRole = decodedToken.role;
+      const userRole = decodedToken.role?.toString()?.toUpperCase();
 
       // ✅ Role-based redirect
       if (userRole === 'ADMIN') {
@@ -50,7 +50,9 @@ export default function Login() {
         navigate('/researcher/projects'); // ✅ FIXED HERE
       } else if (userRole === 'MANAGER') {
         navigate('/manager/dashboard');
-      } else if (userRole === 'CITIZEN') {
+      } else if (userRole === 'PROVIDER') {
+        navigate('/provider/dashboard');
+      }else if (userRole === 'CITIZEN') {
         navigate('/citizen/dashboard');
       } else {
         navigate('/');
