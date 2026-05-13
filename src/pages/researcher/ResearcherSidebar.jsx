@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 const ResearcherSidebar = ({ onOpenReport }) => {
 
     const navigate = useNavigate();
-    const location = useLocation();
+    const location = useLocation(); // Get current url
 
     const token = localStorage.getItem("token");
 
@@ -59,7 +59,6 @@ const ResearcherSidebar = ({ onOpenReport }) => {
                     Projects
                 </button>
 
-                {/* ✅ ONLY THIS */}
                 <button
                     onClick={onOpenReport}
                     className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-left"

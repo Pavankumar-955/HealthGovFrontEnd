@@ -96,7 +96,6 @@ export default function Navbar() {
   const metadata = userRole ? roleMeta[userRole] : null;
   const profile = userRole ? roleUsers[userRole] : null;
   const notifications = userRole ? notificationsByRole[userRole] : [];
-  const hasNotifications = notifications.length > 0? true : false;
   const navItems = userRole && roleNavigation[userRole] ? roleNavigation[userRole] : mainNavigation;
 
   const handleLogout = () => {
@@ -156,11 +155,11 @@ export default function Navbar() {
                     aria-label="Open notifications"
                   >
                     <BellIcon className="h-6 w-6" />
-                    {hasNotifications ? (
+                    
                       <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-amber-400 px-1.5 text-[0.65rem] font-semibold text-slate-950">
                         {/* {notifications.length} */}
                       </span>
-                    ) : null}
+                  
                   </button>
                 </div>
 
@@ -242,12 +241,11 @@ export default function Navbar() {
                   aria-label="Open notifications"
                 >
                   <BellIcon className="h-6 w-6" />
-                  {hasNotifications ? (
+                 
                     <span className="absolute -right-0.5 -top-0.5 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-amber-400 px-1.5 text-[0.65rem] font-semibold text-slate-950">
-                      {notifications.length}
+              
                     </span>
-                  ) : null}
-                </button>
+                                  </button>
                 <button
                   type="button"
                   onClick={() => {

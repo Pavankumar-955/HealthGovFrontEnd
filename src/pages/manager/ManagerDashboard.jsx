@@ -17,7 +17,7 @@ const ManagerDashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const res = await getManagerProjects();
+      const res = await getManagerProjects(); // Backend API call to fetch all projects
       const data = res.data;
 
       let approved = 0;
@@ -53,7 +53,7 @@ const ManagerDashboard = () => {
     fetchStats();
   }, []);
 
-  /* ✅ PIE DATA */
+  /* PIE DATA */
   const total = stats.total || 1;
 
   const pieData = [
@@ -67,13 +67,13 @@ const ManagerDashboard = () => {
   return (
     <div className="flex h-screen overflow-hidden bg-[#eef3f8]">
 
-      {/* ✅ SIDEBAR */}
+      {/* SIDEBAR */}
       <ManagerSidebar />
 
-      {/* ✅ MAIN WRAPPER */}
+      {/* MAIN WRAPPER */}
       <div className="flex flex-col flex-1 ml-64">
 
-        {/* ✅ CONTENT AREA (NO PAGE SCROLL) */}
+        {/* CONTENT AREA */}
         <main className="flex-1 overflow-y-auto p-6 pb-24">
 
           <h2 className="text-3xl font-semibold mb-6">
@@ -89,7 +89,7 @@ const ManagerDashboard = () => {
             <Card title="💰 Total Grants Approved" value={`₹ ${stats.totalGrants}`} type="blue" />
           </div>
 
-          {/* ✅ CHART */}
+          {/* CHART */}
           <div className="mt-8 max-w-md">
             <div className="bg-white p-5 rounded-xl shadow border">
 
@@ -122,7 +122,7 @@ const ManagerDashboard = () => {
 
         </main>
 
-        {/* ✅ FIXED FOOTER (SAME AS APPLICATIONS) */}
+        {/* FOOTER */}
         <div className="fixed bottom-0 right-0 left-64 bg-white border-t z-40">
           <Footer />
         </div>
@@ -135,7 +135,7 @@ const ManagerDashboard = () => {
 export default ManagerDashboard;
 
 
-/* ✅ CARD COMPONENT */
+/* CARD COMPONENT */
 const Card = ({ title, value, type }) => {
 
   let bg = "bg-white text-gray-800";

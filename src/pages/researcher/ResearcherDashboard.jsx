@@ -133,7 +133,7 @@ const ResearcherDashboard = () => {
 export default ResearcherDashboard;
 
 
-// ✅ CARD COMPONENT
+// CARD COMPONENT
 const Card = ({ title, value, type }) => {
 
   let bg = "bg-white text-gray-800";
