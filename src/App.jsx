@@ -32,7 +32,7 @@ import ManagerApplications from "./pages/manager/Project/ManagerApplications";
 import HealthPrograms from "./pages/manager/HealthProgram/HealthPrograms";
 import ManagerProjectReport from "./pages/manager/Project/ManagerProjectReport";
 // ✅ Program Manager Page
-import ProgramManagerDashboard from "./pages/programsdash/ProgramManagerDashboard";
+// import ProgramManagerDashboard from "./pages/programsdash/ProgramManagerDashboard";
 
 
 // ✅ HealthCare Provider Pages
@@ -40,6 +40,7 @@ import ProviderDashboard from "./pages/dashboard/ProviderDashboard";
 import ProviderLayout from "./layouts/ProviderLayout";
 import ProgramsPage from "./pages/provider/ProgramsPage";
 import ProgramDetailsPage from "./pages/provider/ProgramDetailsPage";
+import ProviderHealthRecords from "./pages/provider/ProviderHealthRecords";
 
 
 // Layouts
@@ -60,6 +61,7 @@ import ComplianceLayout from "./layouts/ComplianceLayout";
 import ComplianceList from "./pages/compliance/ComplianceList";
 import Dashboard from "./pages/compliance/Dasboard";
 import ErrorBoundary from './components/feedbacks/ErrorBoundary';
+import DocVerification from "./pages/provider/DocVerification";
 
 function App() {
   const { isAuthenticated, user } = useAuth();
@@ -119,7 +121,7 @@ function App() {
           path="/manager/dashboard"
           element={
             <ProtectedRoute requiredRole="MANAGER">
-              <ProgramManagerDashboard />
+              {/* <ProgramManagerDashboard /> */}
             </ProtectedRoute>
           }
         />
@@ -143,6 +145,12 @@ function App() {
 
           {/* ✅ Program Details (Infra + Resource inside tabs) */}
           <Route path="programs/:id" element={<ProgramDetailsPage />} />
+
+          {/* ✅ Health Records */}
+          <Route path="HealthRecords" element={<ProviderHealthRecords />} />
+          <Route path="health-records" element={<ProviderHealthRecords />} />
+
+          <Route path="doc-verification" element={<DocVerification/>} />  
         </Route>
 
         {/* ROLE-BASED REDIRECTION */}

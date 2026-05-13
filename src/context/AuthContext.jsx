@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
         ...decoded,
         userId: decoded.userId || decoded.id || decoded.sub,
         name: decoded.name || decoded.fullName,
-        role: decoded.role
+        role: decoded.role?.toString()?.toUpperCase()
       };
     } catch (err) {
       console.error('Token decoding failed:', err);
