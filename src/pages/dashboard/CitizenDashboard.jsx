@@ -1,199 +1,220 @@
 import React, { useEffect, useState } from "react";
-import Footer from "../../components/ui/Footer.jsx";
-import { getPrograms, registerForProgram } from "../../api/ProgramApi.js";
-import { getCitizenEnrollments } from "../../api/citizenApi.js";
+import { useLocation } from 'react-router-dom';
+import { getPrograms } from "../../api/ProgramApi.js";
+import { createEnrollment, getEnrollments } from "../../api/enrollmentApi.js";
+import { programEnrollment } from "../../api/citizenApi.js";
 import { toast } from "react-hot-toast";
+import { MdCalendarToday, MdPeople, MdCheckCircle, MdInfo, MdLocalHospital } from 'react-icons/md';
 
 const CitizenDashboard = () => {
-  const [availablePrograms, setAvailablePrograms] = useState([]);
-  const [myEnrollments, setMyEnrollments] = useState([]);
+  const [programs, setPrograms] = useState([]);
+  const [enrollments, setEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
-  // ✅ Decode citizenId from token
-  const token = localStorage.getItem("token");
-  let citizenId = null;
+  // ✅ Get citizen ID from token
+  const getCitizenIdFromToken = () => {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
 
-  if (token) {
     try {
       const decoded = JSON.parse(atob(token.split(".")[1]));
-      citizenId = decoded.userId; // ✅ adjust if backend uses different key
+      return decoded.userId || decoded.id || decoded.citizenId || decoded.citizenID;
     } catch {
       console.error("Invalid token");
+      return null;
     }
-  }
+  };
 
-  // ✅ Load Data
+  const citizenId = getCitizenIdFromToken();
+
+  // ✅ Load programs and enrollments
   const loadData = async () => {
     try {
       setLoading(true);
+
       const progRes = await getPrograms();
-      const enrollRes = await getCitizenEnrollments();
+      console.log("📍 Programs:", progRes.data);
 
-      setAvailablePrograms(
-        Array.isArray(progRes.data) ? progRes.data : progRes.data?.data || []
-      );
+      const allPrograms = Array.isArray(progRes.data)
+        ? progRes.data
+        : progRes.data?.data || [];
 
-      setMyEnrollments(
-        Array.isArray(enrollRes.data) ? enrollRes.data : enrollRes.data?.data || []
-      );
+      setPrograms(allPrograms);
+
+      const enrollRes = await getEnrollments();
+      console.log("📍 Enrollments:", enrollRes.data);
+
+      const allEnrollments = Array.isArray(enrollRes.data)
+        ? enrollRes.data
+        : enrollRes.data?.data || [];
+
+      const filteredEnrollments = citizenId
+        ? allEnrollments.filter(
+            (e) => Number(e.citizenId) === Number(citizenId)
+          )
+        : [];
+
+      setEnrollments(filteredEnrollments);
+
     } catch (err) {
-      console.error("Error loading dashboard:", err);
+      console.error(err);
+      toast.error("Failed to load data");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  // ✅ ✅ FIXED ENROLL FUNCTION
+  const handleEnroll = async (programId) => {
 
-  // ✅ REGISTER FUNCTION (FULL PAYLOAD)
-  const handleRegister = async (programId) => {
+    if (!citizenId) {
+      toast.error("Login required");
+      return;
+    }
+
+    // ✅ Prevent duplicate enrollment
+    if (isEnrolled(programId)) {
+      toast("Already enrolled");
+      return;
+    }
+
     try {
-      const payload = {
-        citizenId,
-        programId,
-        date: new Date().toISOString().split("T")[0], // ✅ today's date
-        status: "ACTIVE",
+      const enrollmentData = {
+        citizenId: 2,
+        programId: Number(programId),
+        date: new Date().toISOString(),
+        status:"ACTIVE"
       };
 
-      await registerForProgram(payload);
+      console.log("📤 Sending:", enrollmentData);
 
-      toast.success("✅ You are registered in this program!");
+      const response = await programEnrollment(enrollmentData);
+      console.log("📍 Enrollment response:", response);
 
-      loadData(); // refresh UI
+      if (response.status >= 200 && response.status < 300) {
+        toast.success("✅ Enrolled successfully!");
+        await loadData();
+      }
+
     } catch (err) {
-      toast.error(err.response?.data?.message || "Registration failed");
+      console.error(err);
+      toast.error(err.response?.data?.message || "Enrollment failed");
     }
   };
 
+  // ✅ ✅ FIXED type-safe check
+  const isEnrolled = (programId) => {
+    return enrollments.some(
+      (e) => Number(e.programId) === Number(programId)
+    );
+  };
+
+  useEffect(() => {
+    loadData();
+  }, [location.search]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        Loading...
+      </div>
+    );
+  }
+
   return (
-    <>
-      <div className="ml-64 p-8 min-h-screen bg-[#f3f7fa]">
-        <div className="max-w-6xl mx-auto">
+    <div className="max-w-7xl mx-auto p-6">
 
-          {/* HEADER */}
-          <div className="mb-10">
-            <h1 className="text-3xl font-bold text-slate-900">
-              Hello, Citizen 👋
-            </h1>
-            <p className="text-slate-500 mt-2">
-              Manage your health registrations and explore new initiatives.
-            </p>
-          </div>
+      <h1 className="text-3xl font-bold mb-6">
+        Citizen Dashboard
+      </h1>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* PROGRAMS */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-            {/* LEFT - PROGRAMS */}
-            <div className="lg:col-span-2 space-y-6">
-              <h2 className="text-xl font-bold text-slate-800">
-                Available Health Programs
-              </h2>
+        {programs.map((program) => {
+          const programId = program.id || program.programId || program._id;
+          const enrolled = isEnrolled(programId);
 
-              {loading ? (
-                <p className="text-slate-500">Loading...</p>
-              ) : availablePrograms.length === 0 ? (
-                <p className="text-slate-400">No programs available.</p>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {availablePrograms.map((prog) => {
-                    const programId =
-                      prog._id || prog.id || prog.programId;
+          return (
+            <ProgramCard
+              key={programId}
+              program={program}
+              enrolled={enrolled}
+              onEnroll={() => {
+                console.log("🟢 Clicked:", programId);
+                handleEnroll(programId);
+              }}
+            />
+          );
+        })}
 
-                    // ✅ Check if already registered
-                    const registered = myEnrollments.some(
-                      (e) => e.programId === programId
-                    );
-
-                    return (
-                      <ProgramCard
-                        key={programId}
-                        program={prog}
-                        onRegister={handleRegister}
-                        isRegistered={registered}
-                      />
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* RIGHT - MY ENROLLMENTS */}
-            <div className="bg-white rounded-2xl p-6 shadow border h-fit">
-              <h2 className="text-xl font-bold mb-6">
-                ✅ My Enrollments
-              </h2>
-
-              {myEnrollments.length === 0 ? (
-                <p className="text-gray-400">
-                  You haven’t enrolled in any programs yet.
-                </p>
-              ) : (
-                myEnrollments.map((item) => (
-                  <div
-                    key={item.programId}
-                    className="p-3 bg-green-50 rounded mb-2"
-                  >
-                    <p className="font-bold text-green-800">
-                      {item.program?.title || "Program"}
-                    </p>
-                    <p className="text-xs text-green-600">
-                      ✅ Registered
-                    </p>
-                  </div>
-                ))
-              )}
-            </div>
-
-          </div>
-        </div>
       </div>
 
-      <Footer />
-    </>
-  );
-};
+      {/* ENROLLMENTS */}
+      <div className="mt-10">
 
-// ✅ PROGRAM CARD COMPONENT
-const ProgramCard = ({ program, onRegister, isRegistered }) => {
-  const programId = program._id || program.id || program.programId;
+        <h2 className="text-xl font-bold mb-4">
+          My Enrollments
+        </h2>
 
-  return (
-    <div className="bg-white p-5 rounded-xl shadow border">
-
-      <h3 className="font-bold text-lg mb-2">{program.title}</h3>
-
-      <p className="text-sm text-gray-600 mb-4">
-        {program.description}
-      </p>
-
-      <div className="flex justify-between items-center">
-
-        {/* DATE */}
-        <span className="text-xs text-gray-400">
-          📅 {new Date().toLocaleDateString()}
-        </span>
-
-        {/* ✅ REGISTER BUTTON / STATUS */}
-        {isRegistered ? (
-          <div className="text-right">
-            <span className="text-green-600 font-bold text-xs">
-              ✅ Registered
-            </span>
-            <p className="text-[10px] text-gray-400">
-              Already enrolled
-            </p>
-          </div>
+        {enrollments.length === 0 ? (
+          <p>No enrollments yet</p>
         ) : (
-          <button
-            onClick={() => onRegister(programId)}
-            className="bg-blue-600 text-white px-4 py-2 text-xs rounded"
-          >
-            Register
-          </button>
+          <div className="grid md:grid-cols-2 gap-4">
+            {enrollments.map((e) => (
+              <div key={e.enrollmentId} className="p-4 border rounded">
+                <h3 className="font-semibold">
+                  Program ID: {e.programId}
+                </h3>
+                <p>Status: {e.status}</p>
+                <p>Date: {e.date}</p>
+              </div>
+            ))}
+          </div>
         )}
 
       </div>
+
+    </div>
+  );
+};
+
+// ✅ PROGRAM CARD
+const ProgramCard = ({ program, enrolled, onEnroll }) => {
+  return (
+    <div className="bg-white p-6 rounded-xl shadow border">
+
+      <span className={`text-xs px-2 py-1 rounded ${
+        enrolled ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+      }`}>
+        {enrolled ? "ENROLLED" : "AVAILABLE"}
+      </span>
+
+      <h3 className="font-bold text-lg mt-2">{program.title}</h3>
+
+      <p className="text-sm text-gray-600 mt-2">
+        {program.description}
+      </p>
+
+      <div className="mt-4">
+        {enrolled ? (
+          <span className="text-green-600 flex items-center">
+            <MdCheckCircle className="mr-1" /> Enrolled
+          </span>
+        ) : (
+          <button
+            onClick={() => {
+              console.log("🟢 Button clicked:", program.id);
+              onEnroll();
+            }}
+            className="bg-blue-600 text-white px-4 py-2 rounded mt-2"
+          >
+            Enroll Now
+          </button>
+        )}
+      </div>
+
     </div>
   );
 };

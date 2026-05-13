@@ -90,7 +90,7 @@ const ManagerSidebar = () => {
 
         {/* ✅ NEW: Resource and Infrastructure */}
         <button
-  onClick={() => navigate("/manager/infrastructure")}
+  onClick={() => navigate("/manager/enrollments")}
   className={`px-4 py-2 rounded-lg text-left transition font-medium
     ${
       location.pathname.includes("/manager/infrastructure")
@@ -98,7 +98,7 @@ const ManagerSidebar = () => {
         : "bg-white/10 text-white hover:bg-white/20"
     }`}
 >
-  Infrastructure & Resources
+  Enrollments
 </button>
 
       </div>

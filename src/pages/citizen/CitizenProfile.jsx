@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import API from '../../api/axios';
 import toast from 'react-hot-toast';
-import { MdSave, MdCloudUpload, MdVerified, MdPending } from 'react-icons/md';
+import { MdSave, MdCloudUpload, MdVerified, MdPending, MdLocalHospital, MdArrowForward } from 'react-icons/md';
 
 const CitizenProfile = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -183,6 +185,62 @@ const CitizenProfile = () => {
                 placeholder="House No, Street, City, ZIP"
               />
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* AVAILABLE PROGRAMS SECTION */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h2 className="text-lg font-bold text-gray-800">Available Health Programs</h2>
+            <p className="text-sm text-gray-600 mt-1">Explore and enroll in health programs available to you</p>
+          </div>
+          <button
+            onClick={() => navigate('/citizen/dashboard?view=all')}
+            className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-blue-700 transition-all shadow-md active:scale-95"
+          >
+            <MdLocalHospital size={20} />
+            View All Programs
+            <MdArrowForward size={16} />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200 hover:shadow-md transition-all cursor-pointer"
+            onClick={() => navigate('/citizen/dashboard?view=all')}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="bg-blue-500 text-white p-2 rounded-lg">
+                <MdLocalHospital size={20} />
+              </div>
+              <MdArrowForward className="text-blue-600" size={16} />
+            </div>
+            <h3 className="font-bold text-gray-800 mb-1">Health Programs</h3>
+            <p className="text-sm text-gray-600">Browse available health initiatives and enroll</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl border border-green-200 hover:shadow-md transition-all cursor-pointer"
+               onClick={() => navigate('/citizen/dashboard')}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="bg-green-500 text-white p-2 rounded-lg">
+                <MdVerified size={20} />
+              </div>
+              <MdArrowForward className="text-green-600" size={16} />
+            </div>
+            <h3 className="font-bold text-gray-800 mb-1">My Enrollments</h3>
+            <p className="text-sm text-gray-600">View programs you're currently enrolled in</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-xl border border-purple-200 hover:shadow-md transition-all cursor-pointer"
+               onClick={() => navigate('/citizen/dashboard')}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="bg-purple-500 text-white p-2 rounded-lg">
+                <MdPending size={20} />
+              </div>
+              <MdArrowForward className="text-purple-600" size={16} />
+            </div>
+            <h3 className="font-bold text-gray-800 mb-1">Quick Enrollment</h3>
+            <p className="text-sm text-gray-600">Enroll in programs with just one click</p>
           </div>
         </div>
       </div>
