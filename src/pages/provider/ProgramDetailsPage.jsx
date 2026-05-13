@@ -6,10 +6,9 @@ import ResourceTab from "./resource/ResourceTab";
 const ProgramDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
-const location = useLocation();
-const programTitle = location.state?.title;
 
+  const location = useLocation();
+  const programTitle = location.state?.title;
 
   const [activeTab, setActiveTab] = useState("infra");
   const [program, setProgram] = useState(null);
@@ -18,32 +17,30 @@ const programTitle = location.state?.title;
   useEffect(() => {
     setProgram({
       programId: id,
-      title: programTitle || "Program", // replace with API
+      title: programTitle || "Program",
     });
-  }, [id]);
+  }, [id, programTitle]);
 
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <div className="flex flex-col h-screen overflow-hidden">
 
-      <main className="flex-1 overflow-hidden p-6 flex flex-col gap-5">
+      <main className="flex-1 overflow-hidden p-3 pb-10 flex flex-col gap-5">
 
         {/* ✅ HEADER */}
         <div className="flex items-center gap-4">
 
-          {/* BACK BUTTON */}
+          {/* ✅ BACK BUTTON (LIGHT ✅) */}
           <button
             onClick={() => navigate(-1)}
-            className="bg-gray-200 px-3 py-2 rounded hover:bg-gray-300 text-sm"
+            className="bg-gray-100 text-gray-700 px-3 py-2 rounded hover:bg-gray-200 text-sm transition cursor-pointer"
           >
             ← Back
           </button>
 
-          {/* ✅ TITLE FIXED */}
-          <div>
-            <h2 className="text-lg font-semibold">
-              📘 Program #{program?.programId} -  {program?.title}
-            </h2>
-          </div>
+          {/* ✅ TITLE */}
+          <h2 className="text-lg font-semibold text-gray-800">
+            Program #{program?.programId} - {program?.title}
+          </h2>
 
         </div>
 
@@ -54,27 +51,27 @@ const programTitle = location.state?.title;
             onClick={() => setActiveTab("infra")}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
               activeTab === "infra"
-                ? "bg-green-600 text-white"
-                : "bg-white border text-gray-700 hover:bg-gray-100"
+                ? "bg-indigo-100 text-indigo-700 "
+                : "bg-white border text-gray-700 hover:bg-gray-100 cursor-pointer"
             }`}
           >
-            🏥 Infrastructure
+            Infrastructure
           </button>
 
           <button
             onClick={() => setActiveTab("resource")}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
               activeTab === "resource"
-                ? "bg-green-600 text-white"
-                : "bg-white border text-gray-700 hover:bg-gray-100"
+                ? "bg-indigo-100 text-indigo-700"
+                : "bg-white border text-gray-700 hover:bg-gray-100 cursor-pointer"
             }`}
           >
-            📦 Resources
+            Resources
           </button>
 
         </div>
 
-        {/* ✅ CONTENT (NO GAP FIX ✅) */}
+        {/* ✅ CONTENT */}
         <div className="flex-1 bg-white rounded-xl shadow overflow-hidden min-h-0">
 
           {activeTab === "infra" && (

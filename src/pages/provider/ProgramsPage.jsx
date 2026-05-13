@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import  { useNavigate } from "react-router-dom";
 import { getPrograms } from "../../api/ProgramApi";
 import toast from "react-hot-toast";
 import Footer from "../../components/ui/Footer";
@@ -40,14 +40,14 @@ const ProgramsPage = () => {
     <div className="flex flex-col h-screen">
 
       {/* MAIN */}
-      <main className="flex-1 overflow-hidden p-6 pb-24">
+      <main className="flex-1 overflow-hidden p-6 pb-10 pt-1">
 
         <div className="w-full flex flex-col h-full">
 
           {/* HEADER */}
           <div className="mb-6">
             <h2 className="text-2xl font-semibold">
-              🏥 Health Programs
+              Health Programs
             </h2>
             <p className="text-sm text-gray-500 mt-1">
               Manage infrastructure and resources
@@ -67,6 +67,12 @@ const ProgramsPage = () => {
                   <tr>
                     <th className="px-4 py-3 text-left w-[80px]">ID</th>
                     <th className="px-4 py-3 text-left">Title</th>
+
+                    {/* ✅ NEW BUDGET COLUMN */}
+                    <th className="px-4 py-3 text-right w-[160px]">
+                      Budget
+                    </th>
+
                     <th className="px-4 py-3 text-center w-[140px]">Start</th>
                     <th className="px-4 py-3 text-center w-[140px]">End</th>
                     <th className="px-4 py-3 text-center w-[120px]">Status</th>
@@ -81,17 +87,27 @@ const ProgramsPage = () => {
                         key={p.programId}
                         onClick={() =>
                           navigate(`/provider/programs/${p.programId}`, {
-                            state: { title: p.title },
+                            state: {
+                              title: p.title,
+                              budget: p.budget, // ✅ PASS BUDGET
+                            },
                           })
                         }
                         className="border-t hover:bg-gray-50 cursor-pointer"
                       >
 
-                        <td className="px-4 py-3">{p.programId}</td>
+                        <td className="px-4 py-3">
+                          {p.programId}
+                        </td>
 
                         {/* TITLE */}
                         <td className="px-4 py-3 font-medium text-gray-800 truncate">
                           {p.title}
+                        </td>
+
+                        {/* ✅ BUDGET */}
+                        <td className="px-4 py-3 text-right text-gray-700 font-medium">
+                          ₹{p.budget?.toLocaleString()}
                         </td>
 
                         <td className="px-4 py-3 text-center">
@@ -121,7 +137,10 @@ const ProgramsPage = () => {
                           <button
                             onClick={() =>
                               navigate(`/provider/programs/${p.programId}`, {
-                                state: { title: p.title },
+                                state: {
+                                  title: p.title,
+                                  budget: p.budget, // ✅ PASS BUDGET
+                                },
                               })
                             }
                             className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded text-xs hover:bg-indigo-200"
@@ -135,7 +154,7 @@ const ProgramsPage = () => {
                   ) : (
                     <tr>
                       <td
-                        colSpan="6"
+                        colSpan="7"
                         className="text-center py-6 text-gray-500"
                       >
                         No Programs Available

@@ -125,29 +125,46 @@ const InfraTab = ({ programId: propProgramId }) => {
     }
   };
 
+  const mapBackendError = (err) => {
+  if (!err) return "Something went wrong";
+
+  if (err.includes("program with status")) {
+    return "Infrastructure can be assigned only for active programs";
+  }
+
+  if (err.includes("not found")) {
+    return "Selected program does not exist";
+  }
+
+  if (err.includes("capacity")) {
+    return "Infrastructure capacity is invalid";
+  }
+
+  return err; // fallback
+};
   // ✅ CREATE
   const handleCreate = async (data) => {
-    if (data.capacity < 0) {
-      toast.error("Capacity must be ≥ 0 ❌");
-      return;
-    }
+  if (data.capacity < 0) {
+    toast.error("Capacity must be ≥ 0 ❌");
+    return;
+  }
 
-    try {
-      await createInfra({ ...data, programId });
-      toast.success("Created ✅");
-      setShowAddModal(false);
-      loadInfra();
-    } catch {
-      toast.error("Create failed ❌");
-    }
-  };
+  try {
+    await createInfra({ ...data, programId });
+    toast.success("Infrastructure Assigned ✅");
+    setShowAddModal(false);
+    loadInfra();
+  } catch (err) {
+    toast.error(mapBackendError(err)); // ✅ customized message
+  }
+};
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
 
       {/* ✅ HEADER */}
       <div className="flex justify-between items-center mb-2 pl-6 pt-4 pr-6">
-        <h2 className="text-lg font-semibold ">🏗 Infrastructure</h2>
+        <h2 className="text-lg font-semibold ">Infrastructure</h2>
 
         <button
   onClick={() => setShowAddModal(true)}

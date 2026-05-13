@@ -50,7 +50,7 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
     <>
       {/* ✅ BLUR BACKGROUND */}
       <div
-        className="fixed inset-0 backdrop-blur-sm bg-black/30 z-[9998]"
+        className="fixed inset-0 backdrop-blur-sm bg-black/10 z-[9998]"
         onClick={onClose}
       />
 
