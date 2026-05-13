@@ -7,7 +7,7 @@ import {
 
 import { getManagerProjects, decideProject } from "../../../api/managerApi";
 
-import ManagerSidebar from "../ManagerSidebar.jsx";
+import ManagerNavbar from "../ManagerNavbar";
 import Footer from "../../../components/ui/Footer";
 import ProjectDetailsModal from "./ProjectDetailsModal";
 import DecisionModal from "./DecisionModal";
@@ -117,10 +117,10 @@ const ManagerApplications = () => {
   return (
     <div className="flex h-screen overflow-hidden bg-[#eef3f8]">
       {/* Sidebar */}
-      <ManagerSidebar onOpenProjectReport={() => setShowProjectReport(true)} />
+      <ManagerNavbar onOpenProjectReport={() => setShowProjectReport(true)} />
 
       {/* Main */}
-      <div className="flex flex-col flex-1 ml-64 relative h-full">
+      <div className="flex flex-col flex-1 relative h-full pt-20">
 
         <main className="flex-1 overflow-hidden pt-10 px-6 pb-24">
           <div className="max-w-7xl mx-auto flex justify-between items-center mb-6">
@@ -244,7 +244,7 @@ const ManagerApplications = () => {
         </main>
 
         {/* 4. FIXED FOOTER - This is now locked to the bottom of the screen, horizontally aligned after the sidebar */}
-        <div className="fixed bottom-0 right-0 left-64 bg-white border-t z-40">
+        <div className="fixed bottom-0 right-0 left-0 bg-white border-t z-40">
           <Footer />
         </div>
       </div>

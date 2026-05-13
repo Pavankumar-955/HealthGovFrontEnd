@@ -155,6 +155,10 @@ function App() {
                 <Navigate to="/compliance-dashboard" replace />
               ) : user?.role === "AUDITOR" ? (
                 <Navigate to="/audit-dashboard" replace />
+              ) : user?.role === "RESEARCHER" ? (
+                <Navigate to="/researcher/dashboard" replace />
+              ) : user?.role === "MANAGER" ? (
+                <Navigate to="/manager/dashboard" replace />
               ) : (
                 <Navigate to="/citizen/dashboard" replace />
               )}

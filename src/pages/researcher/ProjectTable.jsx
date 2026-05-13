@@ -4,7 +4,7 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 const ProjectTable = ({ projects, onEdit, onDelete, onRowClick }) => {
   return (
     /* Wrapper added to ensure the table stays in one line and scrolls horizontally if needed */
-    <div className="w-full overflow-x-auto bg-white rounded-xl shadow">
+    <div className="w-full max-h-[420px] overflow-y-auto overflow-x-auto bg-white rounded-xl shadow">
       <table className="w-full text-left border-collapse">
         <thead className="bg-gray-100 sticky top-0 z-10">
           <tr>
