@@ -12,7 +12,7 @@ import {
     deleteProject,
 } from "../../api/researchApi";
 
-import ResearcherSidebar from "./ResearcherSidebar";
+import ResearcherNavbar from "./ResearcherNavbar";
 import Footer from "../../components/ui/Footer";
 
 import ProjectTable from "./ProjectTable";
@@ -174,10 +174,10 @@ const ResearcherProjects = () => {
 
     return (
         <>
-            <ResearcherSidebar onOpenReport={openReport} />
+            <ResearcherNavbar onOpenReport={() => setShowReportModal(true)} />
 
-            <div className="ml-64 flex flex-col min-h-screen">
-                <div className="pt-10 bg-[#eef3f8] px-6 flex-grow">
+            <div className="flex flex-col h-screen overflow-hidden">
+                <div className="pt-20 bg-[#eef3f8] px-6 flex-grow">
 
                     {/* HEADER */}
                     <div className="max-w-7xl mx-auto flex justify-between items-center mb-6">
@@ -185,54 +185,6 @@ const ResearcherProjects = () => {
                         <h2 className="text-2xl font-semibold">📁 My Projects</h2>
 
                         <div className="flex items-center gap-4">
-
-                            {/* NOTIFICATIONS */}
-                            <div className="relative" ref={dropdownRef}>
-                                <button
-                                    onClick={() =>
-                                        setShowNotifications(!showNotifications)
-                                    }
-                                    className="text-xl"
-                                >
-                                    🔔
-                                </button>
-
-                                {notifications.length > 0 && (
-                                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 rounded-full">
-                                        {notifications.length}
-                                    </span>
-                                )}
-
-                                {showNotifications && (
-                                    <div className="absolute right-0 mt-2 w-72 bg-white shadow-lg rounded-lg p-3 z-50">
-                                        {notifications.length === 0 ? (
-                                            <p>No notifications</p>
-                                        ) : (
-                                            notifications.map((n) => (
-                                                <div
-                                                    key={n.notificationId}
-                                                    className="flex justify-between items-center border-b py-2 text-sm"
-                                                >
-                                                    <span>{n.message}</span>
-                                                    <button
-                                                        onClick={async () => {
-                                                            await markNotificationAsRead(n.notificationId);
-                                                            setNotifications((prev) =>
-                                                                prev.filter(item =>
-                                                                    item.notificationId !== n.notificationId
-                                                                )
-                                                            );
-                                                        }}
-                                                        className="text-green-600 text-xs"
-                                                    >
-                                                        Mark read
-                                                    </button>
-                                                </div>
-                                            ))
-                                        )}
-                                    </div>
-                                )}
-                            </div>
 
                             <button
                                 onClick={() => setShow(true)}
@@ -267,7 +219,7 @@ const ResearcherProjects = () => {
                     </div>
 
                     {/* TABLE */}
-                    <div className="max-w-7xl mx-auto bg-white rounded-xl shadow max-h-[420px] overflow-y-auto">
+                    <div className="max-w-7xl mx-auto bg-white rounded-xl shadow max-h-[calc(100vh-295px)] overflow-y-auto overflow-x-auto">
                         <ProjectTable
                             projects={filteredProjects}
                             onEdit={(p) => {
@@ -359,10 +311,11 @@ const ResearcherProjects = () => {
                     </>
                 )}
 
-                <Footer />
+                <div className="mt-auto">
+                    <Footer />
+                </div>
             </div>
         </>
     );
 };
-
 export default ResearcherProjects;

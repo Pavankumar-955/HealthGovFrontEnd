@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 
-import ManagerSidebar from "./ManagerSidebar.jsx";
+import ManagerNavbar from "./ManagerNavbar";
 import Footer from "../../components/ui/Footer";
 import { getManagerProjects } from "../../api/managerApi";
 
@@ -68,10 +68,10 @@ const ManagerDashboard = () => {
     <div className="flex h-screen overflow-hidden bg-[#eef3f8]">
 
       {/* SIDEBAR */}
-      <ManagerSidebar />
+      <ManagerNavbar />
 
       {/* MAIN WRAPPER */}
-      <div className="flex flex-col flex-1 ml-64">
+      <div className="flex flex-col flex-1 pt-20">
 
         {/* CONTENT AREA */}
         <main className="flex-1 overflow-y-auto p-6 pb-24">
@@ -80,19 +80,28 @@ const ManagerDashboard = () => {
             📊 Manager Dashboard
           </h2>
 
-          {/* CARDS */}
-          <div className="grid grid-cols-5 gap-6">
+          {/* ROW 1: TOP CARDS */}
+          <div className="grid grid-cols-4 gap-6 mb-8">
             <Card title="Total Applications" value={stats.total} />
             <Card title="✅ Approved Applications" value={stats.approved} type="green" />
             <Card title="⏳ Pending Applications" value={stats.pending} type="yellow" />
             <Card title="❌ Rejected Applications" value={stats.rejected} type="red" />
-            <Card title="💰 Total Grants Approved" value={`₹ ${stats.totalGrants}`} type="blue" />
           </div>
 
-          {/* CHART */}
-          <div className="mt-8 max-w-md">
-            <div className="bg-white p-5 rounded-xl shadow border">
+          {/* ROW 2: TOTAL GRANTS + PIE CHART (HORIZONTAL ✅) */}
+          <div className="grid grid-cols-4 gap-6 items-start">
 
+            {/* TOTAL GRANTS — SAME SIZE AS PENDING */}
+            <div className="col-span-1">
+              <Card
+                title="💰 Total Grants Approved"
+                value={`₹ ${stats.totalGrants}`}
+                type="blue"
+              />
+            </div>
+
+            {/* PIE CHART — SAME ROW */}
+            <div className="col-span-3 bg-white p-5 rounded-xl shadow border max-w-md">
               <h3 className="text-lg font-semibold mb-3">
                 📊 Application Status Distribution
               </h3>
@@ -112,18 +121,16 @@ const ManagerDashboard = () => {
                     <Cell key={i} fill={COLORS[i]} />
                   ))}
                 </Pie>
-
                 <Tooltip />
                 <Legend />
               </PieChart>
-
             </div>
-          </div>
 
+          </div>
         </main>
 
         {/* FOOTER */}
-        <div className="fixed bottom-0 right-0 left-64 bg-white border-t z-40">
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t z-40">
           <Footer />
         </div>
 
