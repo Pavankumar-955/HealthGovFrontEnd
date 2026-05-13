@@ -12,7 +12,7 @@ import ProgramFormModal from "./ProgramFormModal";
 import ProgramDetailsModal from "./ProgramDetailsModal";
  
 import toast from "react-hot-toast";
-import ManagerSidebar from "../ManagerSidebar";
+import ManagerNavbar from "../ManagerNavbar";
  
 const HealthPrograms = () => {
   const [programs, setPrograms] = useState([]);
@@ -82,10 +82,10 @@ const HealthPrograms = () => {
   <div className="flex h-screen overflow-hidden bg-[#eef3f8]">
 
     {/* ✅ SIDEBAR */}
-    <ManagerSidebar />
+    <ManagerNavbar />
 
     {/* ✅ MAIN CONTENT AREA */}
-    <div className="flex flex-col flex-1 ml-64">
+    <div className="flex flex-col flex-1 pt-20">
 
       {/* ✅ SCROLLABLE BODY */}
       <main className="flex-1 overflow-y-auto pt-10 px-6 pb-24">
@@ -142,7 +142,7 @@ const HealthPrograms = () => {
       </main>
 
       {/* ✅ FIXED FOOTER */}
-      <div className="fixed bottom-0 right-0 left-64 bg-white border-t z-40">
+      <div className="fixed bottom-0 right-0 left-0 bg-white border-t z-40">
         {/* If you have Footer component, include here */}
       </div>
     </div>

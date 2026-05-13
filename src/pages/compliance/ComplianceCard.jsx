@@ -39,7 +39,7 @@ const ComplianceCard = ({ record, onClose, onSave }) => {
           </span>
         </div>
         <span
-          className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${resultTagClass}`}
+          className={`px-3 py-1 rounded-full mr-10 text-xs font-semibold text-white ${resultTagClass}`}
         >
           {record.result.replace("_", " ")}
         </span>
