@@ -50,7 +50,7 @@ const ProgramsPage = () => {
               Health Programs
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              Manage infrastructure and resources
+              Select a program to manage infrastructure and resources
             </p>
           </div>
 
