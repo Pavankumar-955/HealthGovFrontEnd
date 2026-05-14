@@ -20,7 +20,7 @@ const AuditFilter = ({
         <div className="flex items-center gap-4 overflow-x-auto">
 
           {/* Officer */}
-          <select
+          {/* <select
             value={officerFilter}
             onChange={(e) => setOfficerFilter(e.target.value)}
             
@@ -38,7 +38,7 @@ className="
                 {o.name}
               </option>
             ))}
-          </select>
+          </select> */}
 
           {/* Status */}
           <select

@@ -50,9 +50,9 @@ export default function Login() {
         navigate('/researcher/projects'); // ✅ FIXED HERE
       } else if (userRole === 'MANAGER') {
         navigate('/manager/dashboard');
-      } else if (userRole === 'PROVIDER') {
+      }  else if (userRole === 'PROVIDER') {
         navigate('/provider/dashboard');
-      }else if (userRole === 'CITIZEN') {
+      } else if (userRole === 'CITIZEN') {
         navigate('/citizen/dashboard');
       } else {
         navigate('/');
@@ -130,6 +130,8 @@ export default function Login() {
                 Forgot password?
               </Link>
             </div>
+
+
 
             {/* Button */}
             <button

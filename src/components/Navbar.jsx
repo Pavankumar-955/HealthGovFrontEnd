@@ -173,20 +173,22 @@ export default function Navbar() {
 
             {/* ✅ RIGHT CONTROLS */}
             <div className="hidden md:flex items-center gap-4">
-              {userRole ? (
+              {userRole? (
                 <>
                   {/* 🔔 Notifications */}
-                  <button
-                    onClick={() => {
-                      setIsNotifOpen(true);
-                      setIsProfileOpen(false);
-                    }}
-                    className="relative inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
-                  >
-                    <BellIcon className="h-6 w-6" />
-                    
-                   
-                  </button>
+                 
+{userRole !== "auditor" && (
+        <button
+          onClick={() => {
+            setIsNotifOpen(true);
+            setIsProfileOpen(false);
+          }}
+          className="relative inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+        >
+          <BellIcon className="h-6 w-6" />
+        </button>
+      )}
+
 
                   {/* 👤 Profile */}
                   <button

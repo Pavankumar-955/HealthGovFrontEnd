@@ -1,74 +1,249 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import Footer from "../../components/Footer";
+
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  CartesianGrid,
+} from "recharts";
+
+import { getInfraReport } from "../../api/infraApi";
+import { getResourceReport } from "../../api/resourceApi";
+import { getPrograms } from "../../api/ProgramApi"; // ✅ correct casing
+
+// ✅ COLORS – MATCHES YOUR TABLE BADGES & THEME
+const COLORS = {
+  // Infrastructure
+  operational: "#22C55E",        // green
+  maintenance: "#FACC15",        // yellow
+  tempClosed: "#a5abb8ff",         // gray
+  decommissioned: "#EF4444",     // red
+
+  // Resources
+  allocated: "#3B82F6",          // blue
+  active: "#22C55E",             // green
+  inactive: "#c3c7cfff",           // gray
+  completed: "#8B5CF6",          // purple
+};
 
 const ProviderDashboard = () => {
+  const [infraData, setInfraData] = useState(null);
+  const [resourceData, setResourceData] = useState(null);
   const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // ✅ LOAD DASHBOARD DATA
   useEffect(() => {
-    try {
-      const data = [
-        { id: 1, title: "Medicine Camp", status: "ACTIVE" },
-        { id: 2, title: "Covid Vaccine", status: "PENDING" },
-        { id: 3, title: "Blood Camp", status: "COMPLETED" },
-      ];
+    const loadDashboard = async () => {
+      try {
+        const [infraRes, resourceRes, programRes] = await Promise.all([
+          getInfraReport(),
+          getResourceReport(),
+          getPrograms(),
+        ]);
 
-      setPrograms(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+        setInfraData(infraRes?.data || null);
+        setResourceData(resourceRes?.data || null);
+        setPrograms(programRes?.data || []);
+      } catch {
+        toast.error("Failed to load dashboard ❌");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDashboard();
   }, []);
 
+  // ✅ LOADING STATE
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin h-10 w-10 border-4 border-green-600 border-t-transparent rounded-full"></div>
+        <div className="animate-spin h-10 w-10 border-4 border-green-500 border-t-transparent rounded-full" />
       </div>
     );
   }
 
+  // ✅ TOP KPI VALUES
+  const totalPrograms = programs.length;
+  const activePrograms = programs.filter(p => p.status === "ACTIVE").length;
+  const totalInfras = infraData?.summary?.totalInfrastructure ?? 0;
+  const totalResources =
+    resourceData?.physicalResourcesReport?.reduce(
+      (sum, r) => sum + (r.totalResources || 0),
+      0
+    ) ?? 0;
+
+  // ✅ INFRA CHART DATA
+  const infraBarData =
+    infraData?.infrastructureAvailability?.map(i => {
+      const total = i.total || 1;
+      return {
+        type: i.type,
+        operational: (i.operational / total) * 100,
+        maintenance: (i.underMaintenance / total) * 100,
+        tempClosed: (i.temporarilyClosed / total) * 100,
+        decommissioned: (i.decommissioned / total) * 100,
+
+        operationalCount: i.operational,
+        maintenanceCount: i.underMaintenance,
+        tempClosedCount: i.temporarilyClosed,
+        decommissionedCount: i.decommissioned,
+        total,
+      };
+    }) || [];
+
+  // ✅ RESOURCE CHART DATA
+  const resourceBarData =
+    resourceData?.physicalResourcesReport?.map(r => {
+      const total = r.totalResources || 1;
+      return {
+        type: r.type,
+        allocated: (r.allocated / total) * 100,
+        active: (r.active / total) * 100,
+        inactive: (r.inactive / total) * 100,
+        completed: (r.completed / total) * 100,
+
+        allocatedCount: r.allocated,
+        activeCount: r.active,
+        inactiveCount: r.inactive,
+        completedCount: r.completed,
+        total,
+      };
+    }) || [];
+
+  // ✅ CLEAN TOOLTIP (NO GRAY BACKGROUND)
+  const CustomTooltip = ({ active, payload }) => {
+    if (!active || !payload?.length) return null;
+    const d = payload[0].payload;
+
+    return (
+      <div className="bg-white border border-gray-200 rounded-lg p-3 shadow text-sm">
+        <p className="font-semibold mb-2">{d.type}</p>
+
+        {d.operational !== undefined && (
+          <>
+            <p>Operational: {d.operationalCount}</p>
+            <p>Maintenance: {d.maintenanceCount}</p>
+            <p>Temp Closed: {d.tempClosedCount}</p>
+            <p>Decommissioned: {d.decommissionedCount}</p>
+          </>
+        )}
+
+        {d.allocated !== undefined && (
+          <>
+            <p>Allocated: {d.allocatedCount}</p>
+            <p>Active: {d.activeCount}</p>
+            <p>Inactive: {d.inactiveCount}</p>
+            <p>Completed: {d.completedCount}</p>
+          </>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <div className="w-full">
 
-      {/* HEADER */}
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold">
-          📊 Provider Dashboard
-        </h2>
-        <p className="text-sm text-gray-500 mt-1">
-          Overview of your health programs
-        </p>
-      </div>
+    <div className="w-full flex flex-col gap-4">
 
-      {/* CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* ✅ HEADER */}
+      <h2 className="text-xl font-semibold">Provider Dashboard</h2>
 
-        <div className="bg-white p-6 rounded-xl shadow border">
-          <p className="text-sm text-gray-500">Total Programs</p>
-          <h3 className="text-2xl font-semibold mt-2">
-            {programs.length}
-          </h3>
+      {/* ✅ KPI CARDS – ONE LINE */}
+      {/* ✅ KPI CARDS – ONE LINE */}
+      {/* ✅ KPI CARDS – RESPONSIVE */}
+      <div className="flex flex-wrap gap-4 w-full">
+
+        <div className="flex-1 min-w-[220px]">
+          <Card title="Total Programs" value={totalPrograms} />
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow border">
-          <p className="text-sm text-gray-500">Active</p>
-          <h3 className="text-2xl text-green-600 mt-2">
-            {programs.filter(p => p.status === "ACTIVE").length}
-          </h3>
+        <div className="flex-1 min-w-[220px]">
+          <Card
+            title="Active Programs"
+            value={activePrograms}
+            color="text-green-600"
+          />
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow border">
-          <p className="text-sm text-gray-500">Pending</p>
-          <h3 className="text-2xl text-yellow-500 mt-2">
-            {programs.filter(p => p.status === "PENDING").length}
-          </h3>
+        <div className="flex-1 min-w-[220px]">
+          <Card title="Total Infrastructure" value={totalInfras} />
+        </div>
+
+        <div className="flex-1 min-w-[220px]">
+          <Card title="Total Resources" value={totalResources} />
         </div>
 
       </div>
 
+      <div className="flex flex-col md:flex-row gap-6 w-full">
+        <div className="flex-1 min-w-[220px]">
+          <ChartCard title="Infrastructure Status">
+            <BarChart data={infraBarData} barSize={100} >
+              <CartesianGrid stroke="#f1f5f9" />
+              <XAxis dataKey="type" />
+              <YAxis domain={[0, 100]} tickFormatter={v => `${v}%`} />
+              <Tooltip
+                content={<CustomTooltip />}
+                wrapperStyle={{ backgroundColor: "transparent", border: "none" }}
+                cursor={{ fill: "transparent" }}
+              />
+              <Legend />
+
+              <Bar dataKey="operational" name="Operational" fill={COLORS.operational} stackId="a" />
+              <Bar dataKey="maintenance" name="Main." fill={COLORS.maintenance} stackId="a" />
+              <Bar dataKey="tempClosed" name="TempClosed" fill={COLORS.tempClosed} stackId="a" />
+              <Bar dataKey="decommissioned" name="Decom." fill={COLORS.decommissioned} stackId="a" />
+            </BarChart>
+          </ChartCard>
+        </div>
+
+        <div className="flex-1 min-w-[220px]">
+          <ChartCard title="Resource Status">
+            <BarChart data={resourceBarData} barSize={100}>
+              <CartesianGrid stroke="#f1f5f9" />
+              <XAxis dataKey="type" />
+              <YAxis domain={[0, 100]} tickFormatter={v => `${v}%`} />
+              <Tooltip
+                content={<CustomTooltip />}
+                wrapperStyle={{ backgroundColor: "transparent", border: "none" }}
+                cursor={{ fill: "transparent" }}
+              />
+              <Legend />
+              <Bar dataKey="allocated" stackId="a" fill={COLORS.allocated} />
+              <Bar dataKey="active" stackId="a" fill={COLORS.active} />
+              <Bar dataKey="inactive" stackId="a" fill={COLORS.inactive} />
+              <Bar dataKey="completed" stackId="a" fill={COLORS.completed} />
+            </BarChart>
+          </ChartCard>
+        </div>
+      </div>
     </div>
   );
 };
+
+// ✅ KPI CARD
+const Card = ({ title, value, color }) => (
+  <div className="bg-white p-3 rounded-xl shadow text-sm">
+    <p className="text-gray-500">{title}</p>
+    <h3 className={`text-xl font-semibold ${color || ""}`}>{value}</h3>
+  </div>
+);
+
+// ✅ CHART CONTAINER
+const ChartCard = ({ title, children }) => (
+  <div className="bg-white p-3 rounded-xl shadow">
+    <h3 className="text-sm font-semibold mb-2">{title}</h3>
+    <ResponsiveContainer width="100%" height={375}>
+      {children}
+    </ResponsiveContainer>
+  </div>
+);
 
 export default ProviderDashboard;

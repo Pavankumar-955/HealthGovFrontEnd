@@ -251,20 +251,16 @@ const AuditReports = () => {
           <div className="mb-6 flex gap-4 flex-wrap">
 
             <select
-              value={officerFilter}
-              onChange={(e) => setOfficerFilter(e.target.value)}
-              className="px-4 py-2 rounded-full border border-orange-200 bg-orange-50"
-            >
-              <option value="ALL">All Officers</option>
-              {uniqueOfficers.map((o,i)=>(
-                <option key={i} value={o}>{o}</option>
-              ))}
-            </select>
-
-            <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 rounded-full border border-orange-200 bg-orange-50"
+              className="
+    min-w-[160px] px-3 py-2 text-sm
+    border border-gray-300 rounded-lg
+    bg-gray-50
+    focus:outline-none
+    focus:border-blue-500
+    focus:ring-2 focus:ring-blue-200
+  " 
             >
               <option value="ALL">All Status</option>
               <option value="SCHEDULED">Scheduled</option>
@@ -279,7 +275,7 @@ const AuditReports = () => {
                 setOfficerFilter("ALL");
                 setStatusFilter("ALL");
               }}
-              className="rounded-full bg-orange-100 px-4 py-2 text-orange-600 hover:bg-orange-200"
+              className="rounded-xl bg-orange-100 px-4 py-2 text-orange-600 hover:bg-orange-200"
             >
               Clear
             </button>
@@ -296,7 +292,7 @@ const AuditReports = () => {
 
               <button
                 onClick={toggleAll}
-                className="rounded-full bg-orange-100 px-4 py-2 text-sm text-orange-600"
+                className="rounded-full bg-green-200 px-4 py-2 text-sm text-black-600"
               >
                 {selectedAudits.length === filteredAudits.length
                   ? "Deselect All"
@@ -352,12 +348,6 @@ const AuditReports = () => {
                         </div>
                       </div>
 
-                      <div className="text-right">
-                        <p className="text-xl font-bold">
-                          {a.completionRate}%
-                        </p>
-                      </div>
-
                     </div>
                   </div>
                 ))
@@ -380,7 +370,7 @@ const AuditReports = () => {
 
             <button
               onClick={()=>setSelectedAudits([])}
-              className="rounded-3xl border-2 border-orange-300 px-8 py-4 text-orange-600"
+              className="rounded-xl border-2 border-orange-300 px-8 py-4 text-orange-600"
             >
               Reset
             </button>

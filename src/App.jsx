@@ -5,7 +5,6 @@ import { useAuth } from "./context/AuthContext";
 
 // ✅ Toast (use ONLY react-toastify)
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 // ✅ Auth Pages
 import Login from "./pages/auth/Login";
@@ -13,13 +12,6 @@ import Register from "./pages/auth/Register";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
 
-// ✅ Citizen Pages
-import CitizenDashboard from "./pages/dashboard/CitizenDashboard";
-import CitizenProfile from "./pages/citizen/CitizenProfile";
-import CitizenHealthRecords from "./pages/citizen/CitizenHealthRecords";
-import CitizenNotifications from "./pages/citizen/CitizenNotifications";
-import CitizenSetup from "./pages/citizen/CitizenSetup";
-import DocVerification from "./pages/provider/DocVerification";
 
 // ✅ Admin Pages
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
@@ -73,6 +65,12 @@ import Program from "./components/Program";
 import Research from "./components/Research";
 import Contact from "./components/Contact";
 import Body from "./components/Body";
+import CitizenDashboard from "./pages/dashboard/CitizenDashboard";
+import CitizenSetup from "./pages/citizen/CitizenSetup";
+import CitizenProfile from "./pages/citizen/CitizenProfile";
+import CitizenHealthRecords from "./pages/citizen/CitizenHealthRecords";
+import CitizenNotifications from "./pages/citizen/CitizenNotifications";
+import DocVerification from "./pages/provider/DocVerification";
 
 function App() {
   const { user } = useAuth();
@@ -156,6 +154,16 @@ function App() {
         <Route path="/manager/applications" element={<ProtectedRoute requiredRole="MANAGER"><ManagerApplications /></ProtectedRoute>} />
         <Route path="/manager/health-programs" element={<ProtectedRoute requiredRole="MANAGER"><HealthPrograms /></ProtectedRoute>} />
         <Route path="/manager/reports/project" element={<ManagerProjectReport />} />
+
+        {/* ================= PROGRAM MANAGER ROUTES ================= */}
+        <Route
+          path="/manager/dashboard"
+          element={
+            <ProtectedRoute requiredRole="MANAGER">
+              {/* <ProgramManagerDashboard /> */}
+            </ProtectedRoute>
+          }
+        />
 
 
         {/* HealthCare Provider */}
