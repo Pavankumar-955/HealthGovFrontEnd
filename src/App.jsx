@@ -71,12 +71,6 @@ import Program from "./components/layout/Program";
 import Research from "./components/layout/Research";
 import Contact from "./components/layout/Contact";
 import Body from "./components/ui/Body";
-import CitizenDashboard from "./pages/dashboard/CitizenDashboard";
-import CitizenSetup from "./pages/citizen/CitizenSetup";
-import CitizenProfile from "./pages/citizen/CitizenProfile";
-import CitizenHealthRecords from "./pages/citizen/CitizenHealthRecords";
-import CitizenNotifications from "./pages/citizen/CitizenNotifications";
-import DocVerification from "./pages/provider/DocVerification";
 
 function App() {
   const { user } = useAuth();
