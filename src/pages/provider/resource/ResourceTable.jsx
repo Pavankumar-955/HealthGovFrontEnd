@@ -47,7 +47,7 @@ const ResourceTable = ({ data = [], onEdit, onDelete }) => {
   return (
     <div className="h-full">
 
-      <table className="w-full text-sm">
+      <table className="w-full text-sm  table-auto overflow-x-auto min-w-[600px]">
 
         {/* ✅ HEADER */}
         <thead className="bg-gray-100 sticky top-0 z-10">

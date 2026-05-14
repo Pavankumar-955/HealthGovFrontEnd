@@ -181,7 +181,7 @@ const handleCreate = async (data) => {
 };
 
   return (
-    <div className="flex flex-col flex-1 min-h-0">
+    <div className="flex flex-col flex-1 min-h-0 ">
 
       {/* ✅ HEADER (matched infra) */}
       <div className="flex justify-between items-center mb-2 pl-6 pt-4 pr-6">
@@ -210,10 +210,11 @@ const handleCreate = async (data) => {
       {/* ✅ TABLE (same scroll structure as infra) */}
       <div className="flex-1 min-h-0 flex flex-col">
 
-        <div className="flex-1 min-h-0 bg-white rounded-xl shadow overflow-hidden flex flex-col">
+        <div className="flex-1 min-h-0 bg-white rounded-xl shadow overflow-auto flex flex-col">
 
           {/* ✅ ONLY THIS SCROLLS */}
-          <div className="flex-1 min-h-0 overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-auto">
+    
             <ResourceTable
               data={resourceList}
               page={page}
