@@ -36,6 +36,13 @@ import AdminLayout from "./layouts/AdminLayout";
 import ComplianceLayout from "./layouts/ComplianceLayout";
 import AuditLayout from "./layouts/AuditLayout";
 
+// ✅ Provider Pages
+import ProviderLayout from "./layouts/ProviderLayout";
+import ProviderDashboard from "./pages/dashboard/ProviderDashboard";
+import ProgramsPage from "./pages/provider/ProgramsPage";
+import ProgramDetailsPage from "./pages/provider/ProgramDetailsPage";
+import ProviderHealthRecords from "./pages/provider/ProviderHealthRecords";
+
 // ✅ Compliance
 import ComplianceDashboard from "./pages/compliance/ComplianceDasboard";
 import ComplianceReports from "./pages/compliance/ComplianceReports";
@@ -142,8 +149,28 @@ function App() {
         <Route path="/manager/dashboard" element={<ProtectedRoute requiredRole="MANAGER"><ManagerDashboard /></ProtectedRoute>} />
         <Route path="/manager/applications" element={<ProtectedRoute requiredRole="MANAGER"><ManagerApplications /></ProtectedRoute>} />
         <Route path="/manager/health-programs" element={<ProtectedRoute requiredRole="MANAGER"><HealthPrograms /></ProtectedRoute>} />
-        <Route path="/manager/reports/project" element={<ProtectedRoute requiredRole="MANAGER"><ManagerProjectReport /></ProtectedRoute>}/>
-        <Route path="/manager/enrollments" element={<ProtectedRoute requiredRole="MANAGER"><Enrollments /></ProtectedRoute>}/>
+        <Route path="/manager/reports/project" element={<ProtectedRoute requiredRole="MANAGER"><ManagerProjectReport /></ProtectedRoute>} />
+        <Route path="/manager/enrollments" element={<ProtectedRoute requiredRole="MANAGER"><Enrollments /></ProtectedRoute>} />
+
+        {/* PROVIDER ROUTES */}
+        <Route path="/provider"
+          element={
+            <ProtectedRoute requiredRole="PROVIDER">
+              <ProviderLayout />
+            </ProtectedRoute>
+          }
+        >
+          {/* ✅ Dashboard */}
+          <Route path="dashboard" element={<ProviderDashboard />} />
+          {/* ✅ Programs List */}
+          <Route path="programs" element={<ProgramsPage />} />
+          {/* ✅ Program Details (Infra + Resource inside tabs) */}
+          <Route path="programs/:id" element={<ProgramDetailsPage />} />
+          {/* ✅ Health Records */}
+          {/* <Route path="HealthRecords" element={<ProviderHealthRecords />} /> */}
+          <Route path="health-records" element={<ProviderHealthRecords />} />
+          <Route path="doc-verification" element={<DocVerification />} />
+        </Route>
 
         {/* ✅ ROLE REDIRECT */}
         <Route
@@ -160,6 +187,8 @@ function App() {
                 <Navigate to="/researcher/dashboard" replace />
               ) : user?.role === "MANAGER" ? (
                 <Navigate to="/manager/dashboard" replace />
+              ) : user?.role === "PROVIDER" ? (
+                <Navigate to="/provider/dashboard" replace />
               ) : (
                 <Navigate to="/citizen/dashboard" replace />
               )}
