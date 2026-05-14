@@ -12,6 +12,12 @@ import Register from "./pages/auth/Register";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
 
+// ✅ Citizen Pages
+import CitizenDashboard from "./pages/dashboard/CitizenDashboard";
+import CitizenProfile from "./pages/citizen/CitizenProfile";
+import CitizenHealthRecords from "./pages/citizen/CitizenHealthRecords";
+import CitizenSetup from "./pages/citizen/CitizenSetup";
+import DocVerification from "./pages/provider/DocVerification";
 
 // ✅ Admin Pages
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
@@ -62,12 +68,6 @@ import Program from "./components/layout/Program";
 import Research from "./components/layout/Research";
 import Contact from "./components/layout/Contact";
 import Body from "./components/ui/Body";
-import CitizenDashboard from "./pages/dashboard/CitizenDashboard";
-import CitizenSetup from "./pages/citizen/CitizenSetup";
-import CitizenProfile from "./pages/citizen/CitizenProfile";
-import CitizenHealthRecords from "./pages/citizen/CitizenHealthRecords";
-import CitizenNotifications from "./pages/citizen/CitizenNotifications";
-import DocVerification from "./pages/provider/DocVerification";
 
 function App() {
   const { user } = useAuth();
@@ -123,7 +123,6 @@ function App() {
           <Route path="dashboard" element={<CitizenDashboard />} />
           <Route path="profile" element={<CitizenProfile />} />
           <Route path="health-records" element={<CitizenHealthRecords />} />
-          <Route path="notifications" element={<CitizenNotifications />} />
         </Route>
 
         {/* ✅ ADMIN */}
