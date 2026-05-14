@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import {
   BellIcon,
   UserCircleIcon,
@@ -15,23 +16,15 @@ import {
 export default function ResearcherNavbar({ onOpenReport }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, logout } = useAuth();
   const navRef = useRef(null);
 
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
-  const token = localStorage.getItem("token");
-  let email = "";
-  let userId = null;
-
-  if (token) {
-    try {
-      const decoded = JSON.parse(atob(token.split(".")[1]));
-      email = decoded.sub || "";
-      userId = decoded.userId;
-    } catch {}
-  }
+  const email = user?.email || "";
+  const userId = user?.userId;
 
   // ✅ Fetch notifications
   useEffect(() => {
@@ -47,7 +40,7 @@ export default function ResearcherNavbar({ onOpenReport }) {
         );
 
         setNotifications(unread);
-      } catch {}
+      } catch { }
     };
 
     fetchNotifications();
@@ -71,8 +64,7 @@ export default function ResearcherNavbar({ onOpenReport }) {
   // ✅ Logout
   const handleLogout = () => {
     toast.success("Logged out ✅");
-    localStorage.clear();
-    setTimeout(() => navigate("/"), 500);
+    logout();  // ✅ uses AuthContext
   };
 
   const isDashboard = location.pathname.includes("/researcher/dashboard");
@@ -96,22 +88,20 @@ export default function ResearcherNavbar({ onOpenReport }) {
           <div className="flex items-center gap-6">
             <button
               onClick={() => navigate("/researcher/dashboard")}
-              className={`px-4 py-2 rounded-lg font-medium ${
-                isDashboard
-                  ? "bg-green-700 text-white"
-                  : "text-white hover:bg-white/10"
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium ${isDashboard
+                ? "bg-green-700 text-white"
+                : "text-white hover:bg-white/10"
+                }`}
             >
               Dashboard
             </button>
 
             <button
               onClick={() => navigate("/researcher/projects")}
-              className={`px-4 py-2 rounded-lg font-medium ${
-                isProjects
-                  ? "bg-green-700 text-white"
-                  : "text-white hover:bg-white/10"
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium ${isProjects
+                ? "bg-green-700 text-white"
+                : "text-white hover:bg-white/10"
+                }`}
             >
               Projects
             </button>
@@ -125,89 +115,91 @@ export default function ResearcherNavbar({ onOpenReport }) {
           </div>
 
           {/* RIGHT → NOTIFICATION + RESEARCHER */}
-          <div className="flex items-center gap-4">
+          {user && (
+            <div className="flex items-center gap-4">
 
-            {/* 🔔 NOTIFICATIONS */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setIsNotifOpen(!isNotifOpen);
-                  setIsProfileOpen(false);
-                }}
-                className="relative inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
-              >
-                <BellIcon className="h-6 w-6" />
-                {notifications.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-yellow-400 text-xs font-bold text-black rounded-full px-1">
-                    {notifications.length}
-                  </span>
-                )}
-              </button>
-
-              {isNotifOpen && (
-                <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg p-3 z-50">
-                  {notifications.length === 0 ? (
-                    <p className="text-sm text-gray-500">No notifications</p>
-                  ) : (
-                    notifications.map((n) => (
-                      <div
-                        key={n.notificationId}
-                        className="flex justify-between items-center border-b py-2 text-sm"
-                      >
-                        <span>{n.message}</span>
-                        <button
-                          onClick={async () => {
-                            await markNotificationAsRead(n.notificationId);
-                            setNotifications((prev) =>
-                              prev.filter(
-                                (item) =>
-                                  item.notificationId !== n.notificationId
-                              )
-                            );
-                          }}
-                          className="text-green-600 text-xs"
-                        >
-                          Mark read
-                        </button>
-                      </div>
-                    ))
+              {/* 🔔 NOTIFICATIONS */}
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setIsNotifOpen(!isNotifOpen);
+                    setIsProfileOpen(false);
+                  }}
+                  className="relative inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                >
+                  <BellIcon className="h-6 w-6" />
+                  {notifications.length > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-yellow-400 text-xs font-bold text-black rounded-full px-1">
+                      {notifications.length}
+                    </span>
                   )}
-                </div>
-              )}
-            </div>
+                </button>
 
-            {/* 👤 RESEARCHER BUTTON */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setIsProfileOpen(!isProfileOpen);
-                  setIsNotifOpen(false);
-                }}
-                className="flex items-center gap-2 rounded-full bg-green-700 px-4 py-2 text-sm font-semibold text-white hover:bg-green-800"
-              >
-                <UserCircleIcon className="h-6 w-6" />
-                Researcher
-                <ChevronDownIcon className="h-4 w-4" />
-              </button>
-
-              {isProfileOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl p-4 z-50">
-
-                  <div className="bg-green-50 text-green-800 text-sm rounded-xl px-4 py-3 mb-4 text-center">
-                    {email}
+                {isNotifOpen && (
+                  <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg p-3 z-50">
+                    {notifications.length === 0 ? (
+                      <p className="text-sm text-gray-500">No notifications</p>
+                    ) : (
+                      notifications.map((n) => (
+                        <div
+                          key={n.notificationId}
+                          className="flex justify-between items-center border-b py-2 text-sm"
+                        >
+                          <span>{n.message}</span>
+                          <button
+                            onClick={async () => {
+                              await markNotificationAsRead(n.notificationId);
+                              setNotifications((prev) =>
+                                prev.filter(
+                                  (item) =>
+                                    item.notificationId !== n.notificationId
+                                )
+                              );
+                            }}
+                            className="text-green-600 text-xs"
+                          >
+                            Mark read
+                          </button>
+                        </div>
+                      ))
+                    )}
                   </div>
+                )}
+              </div>
 
-                  <button
-                    onClick={handleLogout}
-                    className="w-full bg-green-500 text-white py-3 rounded-xl hover:bg-green-600 font-semibold"
-                  >
-                    Logout
-                  </button>
-                </div>
-              )}
+              {/* 👤 RESEARCHER BUTTON */}
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setIsProfileOpen(!isProfileOpen);
+                    setIsNotifOpen(false);
+                  }}
+                  className="flex items-center gap-2 rounded-full bg-green-700 px-4 py-2 text-sm font-semibold text-white hover:bg-green-800"
+                >
+                  <UserCircleIcon className="h-6 w-6" />
+                  Researcher
+                  <ChevronDownIcon className="h-4 w-4" />
+                </button>
+
+                {isProfileOpen && (
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl p-4 z-50">
+
+                    <div className="bg-green-50 text-green-800 text-sm rounded-xl px-4 py-3 mb-4 text-center">
+                      {email}
+                    </div>
+
+                    <button
+                      onClick={handleLogout}
+                      className="w-full bg-green-500 text-white py-3 rounded-xl hover:bg-green-600 font-semibold"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+
             </div>
-
-          </div>
+          )}
         </div>
       </div>
     </nav>

@@ -14,7 +14,7 @@ import {
   MdFilePresent 
 } from 'react-icons/md';
 
-export default function CitizenProfile() {
+const CitizenProfile = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   
@@ -44,21 +44,15 @@ export default function CitizenProfile() {
 
   // Document states
   const [documents, setDocuments] = useState([]);
-  const [uploadForm, setUploadForm] = useState({
-    documentName: '',
-    documentType: '',
-    file: null
+  // const [loading, setLoading] = useState(true);
+  
+  const [formData, setFormData] = useState({
+    Name: '',
+    DOB: '',
+    Gender: '',
+    Address: '',
+    ContactInfo: ''
   });
-  const [uploading, setUploading] = useState(false);
-
-  const formatBackendDate = (dateVal) => {
-    if (!dateVal) return '';
-    if (Array.isArray(dateVal)) {
-      const [year, month, day] = dateVal;
-      return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    }
-    return dateVal;
-  };
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -98,7 +92,7 @@ export default function CitizenProfile() {
     if (citizenId) fetchDocuments();
   }, [citizenId]);
 
-  const fetchDocuments = async () => {
+  const fetchProfileData = async () => {
     try {
       const response = await API.get(`/document/${citizenId}`);
       setDocuments(response.data);
@@ -233,9 +227,9 @@ export default function CitizenProfile() {
               <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Gender</label>
               <select name="gender" value={form.gender} onChange={handleChange} disabled={!isEditing || genderLocked} className={getInputStyle(!isEditing || genderLocked)}>
                 <option value="">Select Gender</option>
-                <option value="MALE">Male</option>
-                <option value="FEMALE">Female</option>
-                <option value="OTHER">Other</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
               </select>
             </div>
             <div>
@@ -296,6 +290,33 @@ export default function CitizenProfile() {
 
         </div>
       </div>
+
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-lg font-bold text-gray-800">Verified Documents</h2>
+          <button className="bg-gray-100 text-gray-500 px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-bold hover:bg-gray-200 transition-colors">
+            <MdCloudUpload /> Upload New
+          </button>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {documents.length > 0 ? documents.map(doc => (
+            <div key={doc.DocumentID || Math.random()} className="flex justify-between items-center p-4 bg-gray-50 rounded-2xl border border-gray-100">
+              <div>
+                <p className="font-bold text-gray-800 text-sm">{doc.DocType || 'Document'}</p>
+                <p className="text-[10px] text-gray-400 font-mono uppercase">{doc.VerificationStatus || 'PENDING'}</p>
+              </div>
+              {doc.VerificationStatus === 'VERIFIED' ? <MdVerified className="text-green-500" /> : <MdPending className="text-amber-500" />}
+            </div>
+          )) : (
+            <div className="md:col-span-2 text-center py-6 text-gray-400 italic text-sm bg-gray-50 rounded-xl border-2 border-dashed border-gray-100">
+              No documents uploaded yet.
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default CitizenProfile;

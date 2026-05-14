@@ -122,45 +122,11 @@ const ManagerApplications = () => {
       {/* Main */}
       <div className="flex flex-col flex-1 relative h-full pt-20">
 
-        <main className="flex-1 overflow-hidden pt-10 px-6 pb-24">
+        <main className="flex-1 overflow-hidden pt-4 px-6 pb-24">
           <div className="max-w-7xl mx-auto flex justify-between items-center mb-6">
             <h2 className="text-2xl font-semibold">📋 Project Applications</h2>
 
             <div className="flex items-center gap-3">
-              {/* Notification & Filters UI */}
-              <div className="relative" ref={dropdownRef}>
-                <button onClick={() => setShowNotifications(!showNotifications)} className="text-xl">🔔</button>
-                {notifications.length > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 rounded-full">
-                    {notifications.length}
-                  </span>
-                )}
-                {showNotifications && (
-                  <div className="absolute right-0 mt-2 w-72 bg-white shadow-lg rounded-lg p-3 z-50">
-                    {notifications.length === 0 ? (
-                      <p className="text-sm text-gray-500">No notifications</p>
-                    ) : (
-                      notifications.map((n) => (
-                        <div key={n.notificationId} className="flex justify-between items-center border-b py-2 text-sm">
-                          <span>{n.message}</span>
-                          <button
-                            onClick={async () => {
-                              try {
-                                await markNotificationAsRead(n.notificationId);
-                                setNotifications((prev) => prev.filter(item => item.notificationId !== n.notificationId));
-                              } catch (err) { console.error(err); }
-                            }}
-                            className="text-green-600 text-xs"
-                          >
-                            Mark read
-                          </button>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                )}
-              </div>
-
               <input
                 type="number"
                 placeholder="Search by ID"
@@ -184,7 +150,7 @@ const ManagerApplications = () => {
 
           {/* Table */}
           {/* Table Section */}
-          <div className="max-w-7xl mx-auto bg-white rounded-xl shadow max-h-[500px] overflow-auto">
+          <div className="max-w-7xl mx-auto bg-white rounded-xl shadow max-h-[calc(100vh-230px)] overflow-auto">
             <table className="w-full text-left border-collapse">
               <thead className="bg-gray-100 sticky top-0 z-10">
                 <tr>

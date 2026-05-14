@@ -19,10 +19,26 @@ const ProviderLayout = () => {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
  
   const menuItems = [
-    { path: "/provider/dashboard", label: "Dashboard" },
-    { path: "/provider/programs", label: "Health Programs" },
-    { path: "/provider/health-records", label: "Health Records" },
-    { path: "/provider/doc-verification", label: "Doc Verification" },
+    {
+      path: "/provider/dashboard",
+      icon: MdDashboard,
+      label: "Dashboard",
+    },
+    {
+      path: "/provider/programs",
+      icon: MdFolder,
+      label: "Health Programs",
+    },
+    {
+      path: "/provider/HealthRecords",
+      icon: MdDashboard,
+      label: "Health Records",
+    },
+    {
+      path: "/provider/docverification",
+      icon: MdFolder,
+      label: "Doc Verification",
+    },
   ];
  
   return (
@@ -115,11 +131,15 @@ const ProviderLayout = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`block px-6 py-4 text-sm font-bold border-b border-white/5 ${
-                  location.pathname.startsWith(item.path) ? 'bg-[#086330]' : ''
-                }`}
+                onClick={() => setSidebarOpen(false)}
+                className={`flex items-center gap-3 px-4 py-2 rounded-lg transition font-medium
+                  ${
+                    isActive
+                      ? "bg-green-600"
+                      : "bg-white/10 hover:bg-white/20"
+                  }`}
               >
+                <Icon size={18} />
                 {item.label}
               </Link>
             ))}
