@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useLocation } from 'react-router-dom';
 import { getPrograms } from "../../api/ProgramApi.js";
 import { createEnrollment, getEnrollments } from "../../api/enrollmentApi.js";
 import { programEnrollment } from "../../api/citizenApi.js";
 import { toast } from "react-hot-toast";
 import { MdCalendarToday, MdPeople, MdCheckCircle, MdInfo, MdLocalHospital } from 'react-icons/md';
-
+import { useAuth } from "../../context/AuthContext.jsx";
 const CitizenDashboard = () => {
   const [programs, setPrograms] = useState([]);
   const [enrollments, setEnrollments] = useState([]);
@@ -65,6 +65,7 @@ const CitizenDashboard = () => {
     }
   };
 
+  const { user } = useAuth();
   // ✅ ✅ FIXED ENROLL FUNCTION
   const handleEnroll = async (programId) => {
 
@@ -81,7 +82,7 @@ const CitizenDashboard = () => {
 
     try {
       const enrollmentData = {
-        citizenId: 2,
+        citizenId: Number(citizenId),
         programId: Number(programId),
         date: new Date().toISOString(),
         status:"ACTIVE"
@@ -90,7 +91,7 @@ const CitizenDashboard = () => {
       console.log("📤 Sending:", enrollmentData);
 
       const response = await programEnrollment(enrollmentData);
-      console.log("📍 Enrollment response:", response);
+      console.log("📍 Enrollment response:", response.data);
 
       if (response.status >= 200 && response.status < 300) {
         toast.success("✅ Enrolled successfully!");
@@ -112,6 +113,8 @@ const CitizenDashboard = () => {
 
   useEffect(() => {
     loadData();
+    console.log("User Data",user.userId,user.name,user.email);
+    
   }, [location.search]);
 
   if (loading) {

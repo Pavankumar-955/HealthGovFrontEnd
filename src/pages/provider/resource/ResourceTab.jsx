@@ -15,10 +15,9 @@ import ResourceTable from "./ResourceTable";
 import AddResourceModal from "./AddResourceModal";
 import EditResourceModal from "./EditResourceModal";
 import DeleteResourceModal from "./DeleteResourceModal";
+
 const ResourceTab = ({ programId: propProgramId }) => {
   const { id } = useParams();
-
-  // ✅ SAME fallback logic as Infra
   const programId = propProgramId || id;
 
   const [resourceList, setResourceList] = useState([]);
@@ -35,12 +34,11 @@ const ResourceTab = ({ programId: propProgramId }) => {
   const [editData, setEditData] = useState(null);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-const [deleteData, setDeleteData] = useState(null);
+  const [deleteData, setDeleteData] = useState(null);
 
   // ✅ LOAD DATA
   const loadResources = async () => {
     if (!programId) return;
-
     try {
       const res = await getResourcesByProgram(programId);
       setResourceList(res.data || []);
@@ -83,11 +81,7 @@ const [deleteData, setDeleteData] = useState(null);
       return;
     }
 
-    setSearch({
-      type: "",
-      status: "",
-    });
-
+    setSearch({ type: "", status: "" });
     setResourceList(originalData);
     setPage(1);
 
@@ -95,25 +89,25 @@ const [deleteData, setDeleteData] = useState(null);
   };
 
   // ✅ DELETE
-const handleDelete = (id) => {
-  const fullResource = originalData.find(
-    (item) => item.resourceId === id
-  );
+  const handleDelete = (id) => {
+    const fullResource = originalData.find(
+      (item) => item.resourceId === id
+    );
 
-  setDeleteData(fullResource);
-  setShowDeleteModal(true);
-};
+    setDeleteData(fullResource);
+    setShowDeleteModal(true);
+  };
 
-const confirmDelete = async (id) => {
-  try {
-    await deleteResource(id);
-    toast.success("Deleted ✅");
-    setShowDeleteModal(false);
-    loadResources();
-  } catch (err) {
-    toast.error("Delete failed ❌");
-  }
-};
+  const confirmDelete = async (id) => {
+    try {
+      await deleteResource(id);
+      toast.success("Deleted ✅");
+      setShowDeleteModal(false);
+      loadResources();
+    } catch {
+      toast.error("Delete failed ❌");
+    }
+  };
 
   // ✅ EDIT
   const handleEdit = (resource) => {
@@ -138,42 +132,73 @@ const confirmDelete = async (id) => {
     }
   };
 
-  // ✅ CREATE
-  const handleCreate = async (data) => {
-    if (data.quantity < 0) {
-      toast.error("Quantity must be ≥ 0 ❌");
-      return;
-    }
+const mapBackendErrorForResource = (err) => {
+  if (!err) return "Something went wrong";
 
-    try {
-      await createResource({ ...data, programId });
-      toast.success("Created ✅");
-      setShowAddModal(false);
-      loadResources();
-    } catch (err) {
-      toast.error(err);
-    }
-  };
+  const message = err.toString().toLowerCase();
+
+  if (message.includes("program") && message.includes("status")) {
+    return "Resources can be assigned only for active programs";
+  }
+
+  if (message.includes("program") && message.includes("not found")) {
+    return "Selected program does not exist";
+  }
+
+  if (message.includes("quantity")) {
+    return "Resource quantity is invalid";
+  }
+
+  if (message.includes("funds") && message.includes("inactive")) {
+    return "Inactive funds cannot be allocated";
+  }
+
+  if (message.includes("completed")) {
+    return "Completed resources cannot be modified or reused";
+  }
+
+  if (message.includes("duplicate")) {
+    return "This resource already exists for the program";
+  }
+
+  return err; // ✅ fallback (backend message)
+};
+ // ✅ CREATE RESOURCE (WITH CUSTOM ERROR HANDLING)
+const handleCreate = async (data) => {
+  if (data.quantity < 0) {
+    toast.error("Quantity must be ≥ 0 ❌");
+    return;
+  }
+
+  try {
+    await createResource({ ...data, programId });
+    toast.success("Resource Assigned ✅");
+    setShowAddModal(false);
+    loadResources();
+  } catch (err) {
+    toast.error(mapBackendErrorForResource(err));
+  }
+};
 
   return (
-    <div className="pt-10 min-h-screen bg-[#eef3f8] px-6">
+    <div className="flex flex-col flex-1 min-h-0">
 
-      {/* ✅ HEADER */}
-      <div className="max-w-7xl mx-auto flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold">
-          📦 Resources
+      {/* ✅ HEADER (matched infra) */}
+      <div className="flex justify-between items-center mb-2 pl-6 pt-4 pr-6">
+        <h2 className="text-lg font-semibold">
+          Resources
         </h2>
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="bg-green-600 text-white px-5 py-2 rounded-lg shadow hover:bg-green-700 cursor-pointer text-sm"
+          className="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-sm hover:bg-green-200 cursor-pointer transition"
         >
           + Add Resource
         </button>
       </div>
 
       {/* ✅ SEARCH */}
-      <div className="max-w-7xl mx-auto bg-white p-4 rounded-xl shadow mb-4">
+      <div className="bg-white p-4 rounded-xl shadow mb-3">
         <ResourceSearch
           search={search}
           setSearch={setSearch}
@@ -182,15 +207,24 @@ const confirmDelete = async (id) => {
         />
       </div>
 
-      {/* ✅ TABLE */}
-      <div className="max-w-7xl mx-auto">
-        <ResourceTable
-          data={resourceList}
-          page={page}
-          setPage={setPage}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+      {/* ✅ TABLE (same scroll structure as infra) */}
+      <div className="flex-1 min-h-0 flex flex-col">
+
+        <div className="flex-1 min-h-0 bg-white rounded-xl shadow overflow-hidden flex flex-col">
+
+          {/* ✅ ONLY THIS SCROLLS */}
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <ResourceTable
+              data={resourceList}
+              page={page}
+              setPage={setPage}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          </div>
+
+        </div>
+
       </div>
 
       {/* ✅ MODALS */}
@@ -207,12 +241,12 @@ const confirmDelete = async (id) => {
         onUpdate={handleUpdate}
       />
 
-    <DeleteResourceModal
-  show={showDeleteModal}
-  data={deleteData}
-  onConfirm={confirmDelete}
-  onCancel={() => setShowDeleteModal(false)}
-/>
+      <DeleteResourceModal
+        show={showDeleteModal}
+        data={deleteData}
+        onConfirm={confirmDelete}
+        onCancel={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 };
