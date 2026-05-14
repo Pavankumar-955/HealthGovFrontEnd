@@ -5,9 +5,9 @@ const ResourceSearch = ({ search, setSearch, onSearch, onClear }) => {
   const isEmpty = !search.type && !search.status;
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
 
-      {/* ✅ ROW 1: INPUTS */}
+      {/* ✅ FILTER ROW */}
       <div className="flex flex-wrap items-center gap-3">
 
         {/* TYPE */}
@@ -16,7 +16,7 @@ const ResourceSearch = ({ search, setSearch, onSearch, onClear }) => {
           onChange={(e) =>
             setSearch({ ...search, type: e.target.value })
           }
-          className="border px-3 py-2 rounded text-sm bg-white"
+          className="border border-gray-300 px-3 py-2 rounded text-sm bg-white"
         >
           <option value="">Type</option>
           <option value="FUNDS">FUNDS</option>
@@ -30,7 +30,7 @@ const ResourceSearch = ({ search, setSearch, onSearch, onClear }) => {
           onChange={(e) =>
             setSearch({ ...search, status: e.target.value })
           }
-          className="border px-3 py-2 rounded text-sm bg-white"
+          className="border border-gray-300 px-3 py-2 rounded text-sm bg-white"
         >
           <option value="">Status</option>
           <option value="PENDING">PENDING</option>
@@ -40,30 +40,23 @@ const ResourceSearch = ({ search, setSearch, onSearch, onClear }) => {
           <option value="COMPLETED">COMPLETED</option>
         </select>
 
-        {/* ✅ SEARCH BUTTON (WITH TOOLTIP) */}
-        <div title={isEmpty ? "No filters selected" : "Search"}>
-          <button
-            onClick={onSearch}
-            disabled={isEmpty}
-            className={`px-5 py-2 rounded-lg shadow text-sm text-white ${
-              isEmpty
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 cursor-pointer"
-            }`}
-          >
-            Search
-          </button>
-        </div>
+        {/* ✅ SEARCH (match infra: always enabled) */}
+        <button
+          onClick={onSearch}
+          className="px-4 py-2 rounded-lg text-sm bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition cursor-pointer"
+        >
+          Search
+        </button>
 
-        {/* ✅ RESET BUTTON (WITH TOOLTIP) */}
-        <div title={isEmpty ? "Nothing to reset" : "Reset filters"}>
+        {/* ✅ RESET (same infra behavior) */}
+        <div title={isEmpty ? "No filters to reset" : "Reset filters"}>
           <button
             onClick={onClear}
             disabled={isEmpty}
-            className={`px-5 py-2 rounded-lg shadow text-sm text-white ${
+            className={`px-4 py-2 rounded-lg text-sm transition ${
               isEmpty
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-gray-500 hover:bg-gray-600 cursor-pointer"
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                : "bg-yellow-50 text-yellow-600 hover:bg-yellow-100 cursor-pointer"
             }`}
           >
             Reset
@@ -72,30 +65,23 @@ const ResourceSearch = ({ search, setSearch, onSearch, onClear }) => {
 
       </div>
 
-      {/* ✅ ROW 2: FILTER TAGS */}
+      {/* ✅ FILTER TAGS (matched style) */}
       {!isEmpty && (
-        <div className="flex flex-wrap items-center gap-2 text-sm">
+        <div className="flex flex-wrap gap-2 text-xs items-center">
 
-          <span className="text-gray-600">Filters:</span>
+          <span className="text-gray-500">Filters:</span>
 
           {search.type && (
-            <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs">
+            <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full">
               {search.type}
             </span>
           )}
 
           {search.status && (
-            <span className="bg-green-600 text-white px-3 py-1 rounded-full text-xs">
+            <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full">
               {search.status}
             </span>
           )}
-
-          {/* <button
-            onClick={onClear}
-            className="text-red-600 hover:underline ml-2 cursor-pointer"
-          >
-            Clear
-          </button> */}
 
         </div>
       )}

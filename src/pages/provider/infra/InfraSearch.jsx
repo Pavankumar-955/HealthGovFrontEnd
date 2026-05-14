@@ -1,14 +1,13 @@
 import React from "react";
 
 const InfraSearch = ({ search, setSearch, onSearch, onClear }) => {
-
   const isEmpty =
     !search.type && !search.location && !search.status;
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
 
-      {/* ✅ ROW 1: INPUTS */}
+      {/* ✅ FILTER ROW */}
       <div className="flex flex-wrap items-center gap-3">
 
         {/* TYPE */}
@@ -17,7 +16,7 @@ const InfraSearch = ({ search, setSearch, onSearch, onClear }) => {
           onChange={(e) =>
             setSearch({ ...search, type: e.target.value })
           }
-          className="border px-3 py-2 rounded text-sm bg-white"
+          className="border border-gray-300 px-3 py-2 rounded text-sm bg-white"
         >
           <option value="">Type</option>
           <option value="HOSPITAL">HOSPITAL</option>
@@ -33,7 +32,7 @@ const InfraSearch = ({ search, setSearch, onSearch, onClear }) => {
           onChange={(e) =>
             setSearch({ ...search, location: e.target.value })
           }
-          className="border px-3 py-2 rounded text-sm"
+          className="border border-gray-300 px-3 py-2 rounded text-sm"
         />
 
         {/* STATUS */}
@@ -42,7 +41,7 @@ const InfraSearch = ({ search, setSearch, onSearch, onClear }) => {
           onChange={(e) =>
             setSearch({ ...search, status: e.target.value })
           }
-          className="border px-3 py-2 rounded text-sm bg-white"
+          className="border border-gray-300 px-3 py-2 rounded text-sm bg-white"
         >
           <option value="">Status</option>
           <option value="OPERATIONAL">OPERATIONAL</option>
@@ -51,71 +50,65 @@ const InfraSearch = ({ search, setSearch, onSearch, onClear }) => {
           <option value="DECOMMISSIONED">DECOMMISSIONED</option>
         </select>
 
-        {/* ✅ SEARCH BUTTON WITH TOOLTIP */}
-        <div title={isEmpty ? "No filters selected" : "Search"}>
-          <button
-            onClick={onSearch}
-            disabled={isEmpty}
-            className={`px-5 py-2 rounded-lg shadow text-sm text-white ${
-              isEmpty
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 cursor-pointer"
-            }`}
-          >
-            Search
-          </button>
-        </div>
+        {/* ✅ SEARCH (always enabled) */}
+        
+<button
+  onClick={onSearch}
+  className="px-4 py-2 rounded-lg text-sm bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition cursor-pointer"
+>
+  Search
+</button>
 
-        {/* ✅ RESET BUTTON WITH TOOLTIP */}
-        <div title={isEmpty ? "Nothing to reset" : "Reset filters"}>
-          <button
-            onClick={onClear}
-            disabled={isEmpty}
-            className={`px-5 py-2 rounded-lg shadow text-sm text-white ${
-              isEmpty
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-gray-500 hover:bg-gray-600 cursor-pointer"
-            }`}
-          >
-            Reset
-          </button>
-        </div>
+
+        {/* ✅ RESET */}
+
+<div title={isEmpty ? "No filters to reset" : "Reset filters"}>
+  <button
+    onClick={onClear}
+    disabled={isEmpty}
+    className={`px-4 py-2 rounded-lg text-sm transition ${
+      isEmpty
+        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+        : "bg-yellow-50 text-yellow-600 hover:bg-yellow-100 cursor-pointer"
+    }`}
+  >
+    Reset
+  </button>
+</div>
+
 
       </div>
 
-      {/* ✅ ROW 2: FILTER TAGS */}
-      {!isEmpty && (
-        <div className="flex flex-wrap items-center gap-2 text-sm">
+      {/* ✅ FILTER TAGS */}
+      {/* ✅ FILTER TAGS */}
+{!isEmpty && (
+  <div className="flex flex-wrap gap-2 text-xs items-center">
 
-          <span className="text-gray-600">Filters:</span>
+    <span className="text-gray-500">Filters:</span>
 
-          {search.type && (
-            <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs">
-              {search.type}
-            </span>
-          )}
+    {/* TYPE */}
+    {search.type && (
+      <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full">
+        {search.type}
+      </span>
+    )}
 
-          {search.location && (
-            <span className="bg-gray-600 text-white px-3 py-1 rounded-full text-xs">
-              {search.location}
-            </span>
-          )}
+    {/* LOCATION */}
+    {search.location && (
+      <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full">
+        {search.location}
+      </span>
+    )}
 
-          {search.status && (
-            <span className="bg-green-600 text-white px-3 py-1 rounded-full text-xs">
-              {search.status}
-            </span>
-          )}
+    {/* STATUS */}
+    {search.status && (
+      <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full">
+        {search.status}
+      </span>
+    )}
 
-          {/* <button
-            onClick={onClear}
-            className="text-red-600 hover:underline ml-2 cursor-pointer"
-          >
-            Clear
-          </button> */}
-
-        </div>
-      )}
+  </div>
+)}
 
     </div>
   );
