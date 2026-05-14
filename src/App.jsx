@@ -122,6 +122,7 @@ function App() {
         >
           <Route path="dashboard" element={<CitizenDashboard />} />
           <Route path="profile" element={<CitizenProfile />} />
+          <Route path="register" element={<CitizenSetup />} />
           <Route path="health-records" element={<CitizenHealthRecords />} />
         </Route>
 
