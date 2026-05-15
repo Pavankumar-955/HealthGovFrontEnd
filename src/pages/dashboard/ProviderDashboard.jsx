@@ -214,7 +214,7 @@ const ProviderDashboard = () => {
       <div className="flex flex-col md:flex-row gap-6 w-full">
         <div className="flex-1 min-w-[220px]">
           <ChartCard title="Infrastructure Status">
-            <BarChart data={infraBarData} barSize={100} >
+            <BarChart data={infraBarData} barSize={50} >
               <CartesianGrid stroke="#f1f5f9" />
               <XAxis dataKey="type" />
               <YAxis domain={[0, 100]} tickFormatter={v => `${v}%`} />
@@ -235,7 +235,7 @@ const ProviderDashboard = () => {
 
         <div className="flex-1 min-w-[220px]">
           <ChartCard title="Resource Status">
-            <BarChart data={resourceBarData} barSize={100}>
+            <BarChart data={resourceBarData} barSize={50}>
               <CartesianGrid stroke="#f1f5f9" />
               <XAxis dataKey="type" />
               <YAxis domain={[0, 100]} tickFormatter={v => `${v}%`} />
