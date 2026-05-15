@@ -16,7 +16,7 @@ const ComplianceFilter = ({
 }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm p-4">
-      
+
       {/* ✅ SINGLE ROW CONTAINER */}
       <div className="flex items-center gap-4 whitespace-nowrap overflow-x-auto">
 
@@ -36,8 +36,8 @@ const ComplianceFilter = ({
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          
-className="
+
+          className="
     min-w-[160px] px-3 py-2 text-sm
     border border-gray-300 rounded-lg
     focus:outline-none
@@ -46,18 +46,18 @@ className="
   "
         >
           <option value="ALL">All Status</option>
-          <option value="COMPLIANT">Compliant</option>
-          <option value="PARTIALLY_COMPLIANT">Partial</option>
-          <option value="NON_COMPLIANT">Non Compliant</option>
-          <option value="UNDER_REVIEW">Review</option>
+          <option value="COMPLIANT">Compliance</option>
+          <option value="PARTIALLY_COMPLIANT">Partially Compliance</option>
+          <option value="NON_COMPLIANT">Non Compliance</option>
+          <option value="UNDER_REVIEW">Under Review</option>
         </select>
 
         {/* ✅ TYPE */}
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value)}
-          
-className="
+
+          className="
     min-w-[160px] px-3 py-2 text-sm
     border border-gray-300 rounded-lg
     focus:outline-none

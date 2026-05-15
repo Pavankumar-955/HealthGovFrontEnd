@@ -13,7 +13,7 @@ export default function Notifications({ isOpen, onClose, notifications }) {
       />
 
       {/* Side Panel (25% width) */}
-      <div className="relative ml-auto h-full w-[28%] min-w-[300px] bg-white shadow-2xl rounded-l-xl">
+      <div className="relative ml-auto h-full w-[35%] min-w-[300px] bg-white shadow-2xl rounded-l-xl">
 
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-blue-200">
@@ -23,7 +23,7 @@ export default function Notifications({ isOpen, onClose, notifications }) {
 
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-blue-50 transition"
+            className="p-2 rounded-full hover:bg-green-50 transition"
           >
             <XMarkIcon className="h-6 w-6 text-blue-600" />
           </button>
@@ -37,15 +37,15 @@ export default function Notifications({ isOpen, onClose, notifications }) {
 
               <div
                 key={item.notificationId}
-                className="w-full rounded-xl border border-blue-200 bg-blue-50 p-3 hover:bg-blue-100 transition"
+                className="w-full rounded-xl border border-green-200 bg-green-50 p-3 hover:bg-orange-100 transition"
               >
                 {/* Message */}
-                <p className="font-medium text-sm text-blue-800 leading-snug">
+                <p className="font-medium text-sm text-green-800 leading-snug">
                   {item.message}
                 </p>
 
                 {/* Category */}
-                <p className="mt-1 text-xs text-blue-600">
+                <p className="mt-1 text-xs text-orange-600 font-bold">
                   {item.category}
                 </p>
 
@@ -65,7 +65,7 @@ export default function Notifications({ isOpen, onClose, notifications }) {
 
             ))
           ) : (
-            <p className="text-center text-blue-500 py-8">
+            <p className="text-center text-black-500 py-8">
               No new notifications
             </p>
           )}

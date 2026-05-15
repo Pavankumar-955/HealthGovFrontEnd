@@ -40,6 +40,7 @@ const ComplianceDashboard = () => {
   /* ================= FETCH ================= */
 
   useEffect(() => {
+    console.log("User ID for compliance dashboard:", user?.userId);
     fetchAll();
   }, []);
 
@@ -112,6 +113,7 @@ const ComplianceDashboard = () => {
   };
 
   const handleSaveCompliance = async (editData, record) => {
+    console.log("Officer Id : ", user?.userId);
     try {
       await officerUpdateCompliance(record.type, record.entityId, {
         result: editData.result,

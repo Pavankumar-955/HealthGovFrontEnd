@@ -44,8 +44,8 @@ className="
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-           
-className="
+
+            className="
     min-w-[160px] px-3 py-2 text-sm
     border border-gray-300 rounded-lg
     bg-gray-50
@@ -65,8 +65,8 @@ className="
           <select
             value={scopeFilter}
             onChange={(e) => setScopeFilter(e.target.value)}
-           
-className="
+
+            className="
     min-w-[160px] px-3 py-2 text-sm
     border border-gray-300 rounded-lg
     bg-gray-50

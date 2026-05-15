@@ -3,6 +3,7 @@ import { DocumentArrowDownIcon } from '@heroicons/react/24/outline';
 import jsPDF from 'jspdf';
 import autoTable from "jspdf-autotable"
 import { getAllAudits } from "../../api/auditsAPI.js";
+import { generatePDFReport } from "../../services/pdfReportService";
 
 const getCompletion = (status) => {
   switch (status) {
@@ -22,7 +23,7 @@ const AuditReports = () => {
   const [audits, setAudits] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ FILTERS
+  // FILTERS
   const [officerFilter, setOfficerFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [filteredAudits, setFilteredAudits] = useState([]);
@@ -68,7 +69,6 @@ const AuditReports = () => {
     setFilteredAudits(data);
   }, [audits, officerFilter, statusFilter]);
 
-  const uniqueOfficers = [...new Set(audits.map(a => a.officer))];
 
   const toggleSelect = (id) => {
     setSelectedAudits(prev =>
@@ -86,156 +86,52 @@ const AuditReports = () => {
     }
   };
 
-  // ✅ PDF
- const generatePDF = async () => {
-  if (selectedAudits.length === 0) {
-    alert("Select at least one audit");
-    return;
-  }
+  // PDF
+  const handleGenerateAuditReport = async () => {
+    if (selectedAudits.length === 0) {
+      alert("Select at least one audit");
+      return;
+    }
 
-  setIsGenerating(true);
+    setIsGenerating(true);
 
-  try {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
+    try {
+      const selectedData = filteredAudits.filter(a =>
+        selectedAudits.includes(a.id)
+      );
 
-    // ✅ LOAD LOGO
-    const img = new Image();
-    img.src = "/images/web_Icon.png";
+      await generatePDFReport({
+        title: "Audit Report",
+        data: selectedData,
 
-    await new Promise((resolve) => (img.onload = resolve));
+        requiredFields: ["id", "status"],
 
-    const selectedData = filteredAudits.filter(a =>
-      selectedAudits.includes(a.id)
-    );
+        fields: [
+          { label: "Audit ID", key: "id" },
+          { label: "Findings", key: "name" },
+          { label: "Scope", key: "scope" },
+          { label: "Officer", key: "officer" },
+          { label: "Status", key: "status" },
+          { label: "Completion", key: "completionRate" },
+          { label: "Date", key: "date" },
+        ],
 
-    selectedData.forEach((a, index) => {
-
-      if (index !== 0) doc.addPage();
-
-      let y = 15;
-
-      /* ✅ HEADER */
-      doc.addImage(img, "PNG", pageWidth / 2 - 15, y, 30, 15);
-
-      y += 20;
-
-      doc.setFontSize(18);
-      doc.setTextColor(0, 102, 153);
-      doc.text("HealthGov", pageWidth / 2, y, { align: "center" });
-
-      y += 6;
-
-      doc.setFontSize(11);
-      doc.setTextColor(120);
-      doc.text("Audit Report", pageWidth / 2, y, { align: "center" });
-
-      y += 12;
-
-      doc.setDrawColor(200);
-      doc.line(20, y, pageWidth - 20, y);
-
-      y += 10;
-
-      /* ✅ TITLE */
-      doc.setFontSize(14);
-      doc.setTextColor(0);
-      doc.text("AUDIT DETAILS", 20, y);
-
-      y += 8;
-
-      doc.setFontSize(12);
-      doc.text(a.name ?? "N/A", 20, y);
-
-      y += 10;
-
-      /* ✅ ✅ TABLE STRUCTURE (LIKE COMPLIANCE ✅) */
-
-      let tableBody = [
-        ["Audit ID", String(a.id ?? "-")],
-        ["Findings", a.name ?? "-"],
-        ["Scope", a.scope ?? "-"],
-        ["Officer", a.officer ?? "-"],
-        ["Status", a.status?.replaceAll("_", " ") ?? "-"],
-        ["Completion", `${a.completionRate ?? 0}%`],
-        ["Date", a.date ?? "-"],
-      ];
-
-      autoTable(doc, {
-        startY: y,
-
-        head: [["Field", "Value"]],
-        body: tableBody,
-
-        styles: {
-          fontSize: 10,
-          cellPadding: 4,
-          lineWidth: 0.5, // ✅ borders
-          lineColor: [200, 200, 200],
-        },
-
-        headStyles: {
-          fillColor: [34, 197, 94], // ✅ GREEN HEADER
-          textColor: 255,
-          fontStyle: "bold",
-        },
-
-        alternateRowStyles: {
-          fillColor: [245, 247, 250],
-        },
-
-        columnStyles: {
-          0: { cellWidth: 60, fontStyle: "bold" },
-          1: { cellWidth: 110 },
-        },
-
-        theme: "grid", // ✅ full table grid
+        formatField: (value, key) => {
+          if (key === "status") return value?.replaceAll("_", " ");
+          if (key === "completionRate") return `${value}%`;
+          return value ?? "-";
+        }
       });
 
-      // ✅ MOVE BELOW TABLE
-      y = doc.lastAutoTable.finalY + 10;
+      setSelectedAudits([]);
 
-      /* ✅ STATUS COLOR TEXT */
-      let statusColor = [0, 150, 0];
-      if (a.status === "CANCELLED") statusColor = [200, 0, 0];
-      if (a.status === "IN_REVIEW") statusColor = [200, 150, 0];
-      if (a.status === "FOLLOW_UP_REQUIRED") statusColor = [0, 100, 200];
-
-      doc.setTextColor(...statusColor);
-      doc.setFontSize(12);
-      doc.text(
-        `Audit Status: ${a.status?.replaceAll("_", " ")}`,
-        20,
-        y
-      );
-
-      /* ✅ FOOTER */
-      const pageHeight = doc.internal.pageSize.getHeight();
-
-      doc.setDrawColor(200);
-      doc.line(20, pageHeight - 15, pageWidth - 20, pageHeight - 15);
-
-      doc.setFontSize(9);
-      doc.setTextColor(120);
-      doc.text(
-        "Generated by HealthGov System",
-        pageWidth / 2,
-        pageHeight - 8,
-        { align: "center" }
-      );
-
-    });
-
-    doc.save(`audit-report-${Date.now()}.pdf`);
-    setSelectedAudits([]);
-
-  } catch (err) {
-    console.error(err);
-    alert("Error generating report");
-  } finally {
-    setIsGenerating(false);
-  }
-};
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Error generating report");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br p-8">
@@ -260,7 +156,7 @@ const AuditReports = () => {
     focus:outline-none
     focus:border-blue-500
     focus:ring-2 focus:ring-blue-200
-  " 
+  "
             >
               <option value="ALL">All Status</option>
               <option value="SCHEDULED">Scheduled</option>
@@ -271,7 +167,7 @@ const AuditReports = () => {
             </select>
 
             <button
-              onClick={()=>{
+              onClick={() => {
                 setOfficerFilter("ALL");
                 setStatusFilter("ALL");
               }}
@@ -310,12 +206,11 @@ const AuditReports = () => {
                 filteredAudits.map(a => (
                   <div
                     key={a.id}
-                    onClick={()=>toggleSelect(a.id)}
-                    className={`cursor-pointer rounded-2xl border-2 p-4 transition ${
-                      selectedAudits.includes(a.id)
+                    onClick={() => toggleSelect(a.id)}
+                    className={`cursor-pointer rounded-2xl border-2 p-4 transition ${selectedAudits.includes(a.id)
                         ? "border-orange-600 bg-orange-50"
                         : "border-orange-100 hover:border-orange-300"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-4">
 
@@ -337,10 +232,6 @@ const AuditReports = () => {
                             {a.scope}
                           </span>
 
-                          <span className="bg-gray-100 px-3 py-1 rounded-full text-xs">
-                            {a.officer}
-                          </span>
-
                           <span className="bg-slate-200 px-3 py-1 rounded-full text-xs">
                             {a.status.replaceAll("_", " ")}
                           </span>
@@ -360,16 +251,16 @@ const AuditReports = () => {
           <div className="flex gap-4">
 
             <button
-              onClick={generatePDF}
+              onClick={handleGenerateAuditReport}
               disabled={isGenerating || selectedAudits.length === 0}
               className="flex items-center gap-2 rounded-3xl bg-orange-600 px-8 py-4 text-white hover:bg-orange-700 disabled:opacity-50"
             >
-              <DocumentArrowDownIcon className="h-6 w-6"/>
+              <DocumentArrowDownIcon className="h-6 w-6" />
               {isGenerating ? "Generating..." : "Generate & Download Report"}
             </button>
 
             <button
-              onClick={()=>setSelectedAudits([])}
+              onClick={() => setSelectedAudits([])}
               className="rounded-xl border-2 border-orange-300 px-8 py-4 text-orange-600"
             >
               Reset

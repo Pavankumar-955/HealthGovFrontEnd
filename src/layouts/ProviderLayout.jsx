@@ -19,10 +19,26 @@ const ProviderLayout = () => {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
  
   const menuItems = [
-    { path: "/provider/dashboard", label: "Dashboard" },
-    { path: "/provider/programs", label: "Health Programs" },
-    { path: "/provider/health-records", label: "Health Records" },
-    { path: "/provider/doc-verification", label: "Doc Verification" },
+    {
+      path: "/provider/dashboard",
+      icon: MdDashboard,
+      label: "Dashboard",
+    },
+    {
+      path: "/provider/programs",
+      icon: MdFolder,
+      label: "Health Programs",
+    },
+    {
+      path: "/provider/health-records",
+      icon: MdDashboard,
+      label: "Health Records",
+    },
+    {
+      path: "/provider/doc-verification",
+      icon: MdFolder,
+      label: "Doc Verification",
+    },
   ];
  
   return (
@@ -110,21 +126,29 @@ const ProviderLayout = () => {
  
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-[#0a7a3b] border-t border-white/10 pb-4 shadow-xl">
-            {menuItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`block px-6 py-4 text-sm font-bold border-b border-white/5 ${
-                  location.pathname.startsWith(item.path) ? 'bg-[#086330]' : ''
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
-        )}
+  <div className="md:hidden bg-[#0a7a3b] border-t border-white/10 pb-4 shadow-xl">
+    {menuItems.map((item) => {
+      const isActive = location.pathname.startsWith(item.path);
+      const Icon = item.icon;
+
+      return (
+        <Link
+          key={item.path}
+          to={item.path}
+          onClick={() => setMobileMenuOpen(false)}
+          className={`flex items-center gap-3 px-4 py-2 rounded-lg transition font-medium ${
+            isActive
+              ? "bg-green-600 text-white"
+              : "text-white bg-white/10 hover:bg-white/20"
+          }`}
+        >
+          <Icon size={18} />
+          {item.label}
+        </Link>
+      );
+    })}
+  </div>
+)}
       </nav>
  
       {/* Main Content Area */}
@@ -133,7 +157,7 @@ const ProviderLayout = () => {
           <Outlet />
         </div>
       </main>
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t z-40">
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t z-40 ">
             <Footer />
           </div>
     </div>
