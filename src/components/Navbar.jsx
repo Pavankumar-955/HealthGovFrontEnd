@@ -16,8 +16,8 @@ import { useAuth } from "../context/AuthContext";
 import Notifications from "./Notifications";
 import ProfileCard from "./ProfileCard";
 
-// ✅ NOTIFICATION API
 import {
+  getAllNotifications,
   getNotificationsByUser,
   markNotificationAsRead,
 } from "../api/notificationApi.js";
@@ -35,27 +35,20 @@ const mainNavigation = [
 const roleNavigation = {
   compliance: [
     { name: "Dashboard", to: "/compliance-dashboard" },
-    { name: "Compliance Reports", to: "/compliance-reports" },
+    { name: "Reports", to: "/compliance-reports" },
     { name: "Analytics", to: "/compliance-analytics" },
   ],
   auditor: [
     { name: "Dashboard", to: "/audit-dashboard" },
-    { name: "Audit Reports", to: "/audit-reports" },
+    { name: "Reports", to: "/audit-reports" },
     { name: "Analytics", to: "/audit-analytics" },
   ],
-  
   manager: [
     { name: "Dashboard", to: "/manager/dashboard" },
-    { name: "Applications", to: "/manager/applications" },
+    { name: "Apps", to: "/manager/applications" },
     { name: "Programs", to: "/manager/health-programs" },
   ],
-
 };
-
-const authNavigation = [
-  { name: "Login", to: "/login" },
-  { name: "Register", to: "/signup" },
-];
 
 const roleUsers = {
   compliance: { name: "Compliance Officer" },
@@ -75,38 +68,60 @@ export default function Navbar() {
 
   const [notifications, setNotifications] = useState([]);
   const [notifLoading, setNotifLoading] = useState(false);
-  const [isReportOpen, setIsReportOpen] = useState(false);
 
-  /* -------------------- FETCH NOTIFICATIONS -------------------- */
+  /* ================= FETCH NOTIFICATIONS ================= */
 
   useEffect(() => {
     if (!user?.userId) return;
     fetchNotifications();
+    
+ const interval = setInterval(() => {
+    fetchNotifications(); // 🔁 refresh every 10 seconds
+  }, 5000); 
+
   }, [user?.userId]);
 
-  const fetchNotifications = async () => {
-    try {
-      setNotifLoading(true);
-      const res = await getNotificationsByUser(user.userId);
-      setNotifications(res.data);
-    } catch (error) {
-      console.error("Failed to fetch notifications", error);
-    } finally {
-      setNotifLoading(false);
-    }
-  };
+ const fetchNotifications = async () => {
+  try {
+    setNotifLoading(true);
+    const res = await getAllNotifications();
+    console.log("Fetched notifications:", res.data);
 
-  /* -------------------- MARK AS READ ON OPEN -------------------- */
+    const data = Array.isArray(res.data) ? res.data : [];
+
+    // ✅ filter by logged-in user
+    let filtered = data.filter((n) => n.userId === user.userId);
+
+    // ✅ role-specific filter
+    if (userRole === "compliance") {
+      filtered = data.filter((n) => n.category === "COMPLIANCE");
+    }
+
+    setNotifications(filtered);
+
+  } catch (err) {
+    console.error("Notification fetch error:", err);
+    setNotifications([]);
+  } finally {
+    setNotifLoading(false);
+  }
+};
+
+  /* ================= MARK AS READ ================= */
 
   useEffect(() => {
     if (!isNotifOpen) return;
 
-    notifications
-      .filter((n) => !n.isRead)
-      .forEach((n) => markNotificationAsRead(n.id));
+    const unread = notifications.filter((n) => !n.isRead);
+
+    unread.forEach((n) => markNotificationAsRead(n.id));
+
+    setNotifications((prev) =>
+      prev.map((n) => ({ ...n, isRead: true }))
+    );
   }, [isNotifOpen]);
 
-  /* -------------------- CLICK OUTSIDE HANDLER -------------------- */
+  /* ================= CLICK OUTSIDE ================= */
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -123,8 +138,7 @@ export default function Navbar() {
     }
   }, [isNotifOpen, isProfileOpen]);
 
-  /* -------------------- COMPUTED DATA -------------------- */
-
+  /* ================= DATA ================= */
 
   const navItems =
     userRole && roleNavigation[userRole]
@@ -133,109 +147,100 @@ export default function Navbar() {
 
   const profile = userRole ? roleUsers[userRole] : null;
 
-  const handleLogout = () => {
-    setIsProfileOpen(false);
-    logout();
-  };
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
-  /* -------------------- RENDER -------------------- */
+  /* ================= UI ================= */
 
   return (
     <>
       <Disclosure
         as="nav"
-        className="fixed top-0 left-0 z-40 w-full bg-[#009930] shadow-md"
         ref={navRef}
+        className="fixed top-0 left-0 w-full bg-[#009930] shadow-md z-40"
       >
-        <div className="mx-auto max-w-7xl px-4">
+        <div className="max-w-7xl mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
 
             {/* ✅ LOGO */}
             <Link to="/" className="flex items-center gap-2">
-              <img src="/images/web_Icon.png" alt="logo" className="h-9" />
-              <span className="text-lg font-bold text-white">
+              <img src="/images/web_Icon.png" className="h-8" />
+              <span className="text-white font-bold text-lg hidden sm:block">
                 HealthGov
               </span>
             </Link>
 
             {/* ✅ NAV LINKS */}
-            <div className="hidden md:flex items-center gap-8">
+            <div className="hidden md:flex gap-6 lg:gap-8">
               {navItems.map((item) => (
                 <Link
                   key={item.name}
                   to={item.to}
-                  className="text-lg font-medium text-white hover:text-gray-200"
+                  className="text-white font-medium hover:text-gray-200"
                 >
                   {item.name}
                 </Link>
               ))}
             </div>
 
-            {/* ✅ RIGHT CONTROLS */}
-            <div className="hidden md:flex items-center gap-4">
-              {userRole? (
-                <>
-                  {/* 🔔 Notifications */}
-                 
-{userRole !== "auditor" && (
-        <button
-          onClick={() => {
-            setIsNotifOpen(true);
-            setIsProfileOpen(false);
-          }}
-          className="relative inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
-        >
-          <BellIcon className="h-6 w-6" />
-        </button>
-      )}
+            {/* ✅ RIGHT SIDE */}
+            <div className="flex items-center gap-2 md:gap-4">
 
+              {/* 🔔 NOTIFICATION */}
+              {userRole && userRole !== "auditor" && (
+                <button
+                  onClick={() => {
+                    setIsNotifOpen(true);
+                    setIsProfileOpen(false);
+                  }}
+                  className="relative flex items-center justify-center h-10 w-10 md:h-11 md:w-11 bg-white/10 rounded-full"
+                >
+                  <BellIcon className="h-5 w-5 md:h-6 md:w-6 text-white" />
 
-                  {/* 👤 Profile */}
-                  <button
-                    onClick={() => {
-                      setIsProfileOpen(true);
-                      setIsNotifOpen(false);
-                    }}
-                    className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20"
-                  >
-                    <UserCircleIcon className="h-6 w-6" />
-                    <span>{profile?.name ?? "Profile"}</span>
-                    <ChevronDownIcon className="h-4 w-4" />
-                  </button>
-                </>
-              ) : (
-                authNavigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.to}
-                    className={`px-4 py-2 rounded-lg text-sm font-semibold ${
-                      item.name === "Register"
-                        ? "bg-white text-green-700"
-                        : "text-white hover:bg-white/10"
-                    }`}
-                  >
-                    {item.name}
-                  </Link>
-                ))
+                  {/* ✅ BADGE 
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full">
+                      
+                    </span>
+                  )}
+                    */}
+                </button>
               )}
-            </div>
 
-            {/* 📱 MOBILE MENU */}
-            <div className="md:hidden">
-              <DisclosureButton className="text-white">
-                <Bars3Icon className="h-6 w-6" />
-              </DisclosureButton>
+              {/* 👤 PROFILE */}
+              {userRole && (
+                <button
+                  onClick={() => {
+                    setIsProfileOpen(true);
+                    setIsNotifOpen(false);
+                  }}
+                  className="flex items-center gap-1 md:gap-2 bg-white/10 px-2 md:px-4 py-2 rounded-full text-white"
+                >
+                  <UserCircleIcon className="h-5 w-5 md:h-6 md:w-6" />
+                  <span className="hidden md:inline">
+                    {profile?.name}
+                  </span>
+                  <ChevronDownIcon className="h-4 w-4 hidden md:block" />
+                </button>
+              )}
+
+              {/* 📱 MOBILE MENU */}
+              <div className="md:hidden ml-2">
+                <DisclosureButton>
+                  <Bars3Icon className="h-6 w-6 text-white" />
+                </DisclosureButton>
+              </div>
+
             </div>
           </div>
         </div>
 
-        {/* 📱 MOBILE PANEL */}
+        {/* ✅ MOBILE MENU */}
         <DisclosurePanel className="md:hidden bg-[#009933] px-4 py-3 space-y-3">
           {navItems.map((item) => (
             <Link
               key={item.name}
               to={item.to}
-              className="block text-white text-base font-medium"
+              className="block text-white"
             >
               {item.name}
             </Link>
@@ -243,7 +248,7 @@ export default function Navbar() {
         </DisclosurePanel>
       </Disclosure>
 
-      {/* ✅ Notifications Panel */}
+      {/* ✅ PANELS */}
       <Notifications
         isOpen={isNotifOpen}
         onClose={() => setIsNotifOpen(false)}
@@ -251,12 +256,11 @@ export default function Navbar() {
         loading={notifLoading}
       />
 
-      {/* ✅ Profile Panel */}
       <ProfileCard
         isOpen={isProfileOpen}
         onClose={() => setIsProfileOpen(false)}
         email={user?.email}
-        onLogout={handleLogout}
+        onLogout={logout}
       />
     </>
   );

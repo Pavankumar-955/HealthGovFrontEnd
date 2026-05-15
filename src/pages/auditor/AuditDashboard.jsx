@@ -11,7 +11,7 @@ import {
   getAllAudits,
   getAuditSummary,
   updateAudit,
-  createAudit,              // ✅ IMPORTANT
+  createAudit,
 } from "../../api/auditsAPI.js";
 
 import { getAllComplianceRecords } from "../../api/complianceAPI.js";
@@ -19,11 +19,6 @@ import { getAllComplianceRecords } from "../../api/complianceAPI.js";
 const AuditDashboard = () => {
   const [audits, setAudits] = useState([]);
   const [filteredAudits, setFilteredAudits] = useState([]);
-
-  const [officerFilter, setOfficerFilter] = useState("ALL");
-  const [statusFilter, setStatusFilter] = useState("ALL");
-  const [scopeFilter, setScopeFilter] = useState("ALL");
-
   const [complianceRecords, setComplianceRecords] = useState([]);
 
   const [summary, setSummary] = useState({
@@ -31,52 +26,46 @@ const AuditDashboard = () => {
     byStatus: {},
   });
 
+  const [loading, setLoading] = useState(true);   // ✅ NEW
+  const [error, setError] = useState(null);       // ✅ NEW
+
+  const [officerFilter, setOfficerFilter] = useState("ALL");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [scopeFilter, setScopeFilter] = useState("ALL");
+
   const [selectedAudit, setSelectedAudit] = useState(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-  // ✅ UNIQUE OFFICERS
-  const officers = [
-    ...new Map(audits.map((a) => [a.officer?.userId, a.officer])).values(),
-  ];
-
-  /* ================= FETCH DATA ================= */
+  /* ================= FETCH ALL ================= */
 
   useEffect(() => {
-    fetchAudits();
-    fetchSummary();
-    fetchComplianceRecords();
+    fetchAll();
   }, []);
 
-  const fetchAudits = async () => {
+  const fetchAll = async () => {
     try {
-      const res = await getAllAudits();
-      setAudits(res.data);
-    } catch {
-      toast.error("Failed to load audits");
+      setLoading(true);
+      setError(null);
+
+      const [auditRes, summaryRes, complianceRes] = await Promise.all([
+        getAllAudits(),
+        getAuditSummary(),
+        getAllComplianceRecords(),
+      ]);
+
+      setAudits(auditRes.data);
+      setSummary(summaryRes.data);
+      setComplianceRecords(complianceRes.data);
+    } catch (err) {
+      console.error(err);
+      setError("⚠️ Server is down or unable to load data");
+      toast.error("Server is not responding");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const fetchSummary = async () => {
-    try {
-      const res = await getAuditSummary();
-      setSummary(res.data);
-    } catch {
-      toast.error("Failed to load summary");
-    }
-  };
-
-  const fetchComplianceRecords = async () => {
-    try {
-      const res = await getAllComplianceRecords();
-      console.log("Compliance records ",res.data);
-      
-      setComplianceRecords(res.data);
-    } catch {
-      toast.error("Failed to load compliance records");
-    }
-  };
-
-  /* ================= FILTER LOGIC ================= */
+  /* ================= FILTER ================= */
 
   useEffect(() => {
     const filtered = audits.filter((audit) => {
@@ -98,6 +87,12 @@ const AuditDashboard = () => {
     setFilteredAudits(filtered);
   }, [audits, statusFilter, scopeFilter, officerFilter]);
 
+  /* ================= UNIQUE OFFICERS ================= */
+
+  const officers = [
+    ...new Map(audits.map((a) => [a.officer?.userId, a.officer])).values(),
+  ];
+
   /* ================= ACTIONS ================= */
 
   const handleSelectAudit = (audit) => {
@@ -106,23 +101,21 @@ const AuditDashboard = () => {
 
   const handleCreateAudit = async (payload) => {
     try {
-      console.log("Creating audit with payload:", payload);
       const today = new Date().toISOString().split("T")[0];
 
       await createAudit({
         ...payload,
-        date: today, // ✅ required by backend
+        date: today,
       });
 
-      toast.success(" Audit created successfully");
+      toast.success("✅ Audit created successfully");
 
-      await fetchAudits();
-      await fetchSummary();
-
+      await fetchAll();  // ✅ refresh all
       setIsCreateOpen(false);
+
     } catch (error) {
       console.error(error);
-      toast.error(" Failed to create audit");
+      toast.error("❌ Failed to create audit");
     }
   };
 
@@ -131,27 +124,57 @@ const AuditDashboard = () => {
       await updateAudit(selectedAudit.auditId, {
         findings: findings || "",
         status,
-        date: selectedAudit.date, // ✅ required
+        date: selectedAudit.date,
       });
 
       toast.success("✅ Audit updated successfully");
 
-      await fetchAudits();
-      await fetchSummary();
-
+      await fetchAll();  // ✅ refresh all
       setSelectedAudit(null);
+
     } catch {
       toast.error("❌ Update failed");
     }
   };
 
-  /* ================= RENDER ================= */
+  /* ================= UI STATES ================= */
+
+  // ✅ LOADING UI
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64 text-gray-600 text-lg">
+        ⏳ Loading audits...
+      </div>
+    );
+  }
+
+  // ✅ ERROR UI
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64">
+        <p className="text-red-600 text-lg font-semibold">
+          {error}
+        </p>
+
+        <button
+          onClick={fetchAll}
+          className="mt-4 px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+        >
+          🔄 Retry
+        </button>
+      </div>
+    );
+  }
+
+  /* ================= MAIN UI ================= */
 
   return (
     <div className="space-y-6">
 
+      {/* ✅ SUMMARY */}
       <SummaryCards summary={summary} />
 
+      {/* ✅ FILTER */}
       <AuditFilter
         statusFilter={statusFilter}
         setStatusFilter={setStatusFilter}
@@ -168,6 +191,7 @@ const AuditDashboard = () => {
         onOpenCreate={() => setIsCreateOpen(true)}
       />
 
+      {/* ✅ CREATE FORM */}
       {isCreateOpen && (
         <AuditForm
           officers={officers}
@@ -176,11 +200,13 @@ const AuditDashboard = () => {
         />
       )}
 
+      {/* ✅ LIST */}
       <AuditsList
         audits={filteredAudits}
         handleSelectAudit={handleSelectAudit}
       />
 
+      {/* ✅ MODAL */}
       {selectedAudit && (
         <AuditModal
           audit={selectedAudit}
@@ -188,6 +214,7 @@ const AuditDashboard = () => {
           onUpdateStatus={handleUpdateStatus}
         />
       )}
+
     </div>
   );
 };

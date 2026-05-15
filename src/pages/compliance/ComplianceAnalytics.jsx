@@ -12,8 +12,8 @@ const ComplianceAnalytics = () => {
 
   useEffect(() => {
     const loadSummary = async () => {
-      setLoading(true);
       try {
+        setLoading(true);
         const res = await getComplianceSummary();
         setSummary(res.data || summary);
       } catch (error) {
