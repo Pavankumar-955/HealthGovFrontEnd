@@ -35,17 +35,29 @@ const InfraTab = ({ programId: propProgramId }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteData, setDeleteData] = useState(null);
 
+  const [loading, setLoading] = useState(true);
+const [error, setError] = useState(false);
+
   // ✅ LOAD DATA
-  const loadInfra = async () => {
-    if (!programId) return;
-    try {
-      const res = await getInfraByProgram(programId);
-      setInfraList(res.data || []);
-      setOriginalData(res.data || []);
-    } catch {
-      toast.error("Failed to load infrastructure ❌");
-    }
-  };
+const loadInfra = async () => {
+  if (!programId) return;
+
+  try {
+    setLoading(true);   // ✅ start loading
+    setError(false);    // ✅ reset error
+
+    const res = await getInfraByProgram(programId);
+    setInfraList(res.data || []);
+    setOriginalData(res.data || []);
+
+  } catch {
+    setError(true);     // ✅ mark error
+    toast.error("Failed to load infrastructure ❌");
+
+  } finally {
+    setLoading(false);  // ✅ stop loading
+  }
+};
 
   useEffect(() => {
     loadInfra();
@@ -159,6 +171,36 @@ const InfraTab = ({ programId: propProgramId }) => {
   }
 };
 
+if (loading) {
+  return (
+    <div className="flex justify-center items-center h-64 text-center pl-[50%]">
+      <div className="animate-spin h-10 w-10 border-4 border-green-500 border-t-transparent rounded-full" />
+    </div>
+  );
+}
+
+if (error) {
+  return (
+    <div className="flex flex-col justify-center items-center h-[60vh] text-center pl-[35%]">
+
+      <h2 className="text-lg font-semibold text-red-600 mb-2">
+        Infrastructure Server Unavailable 🚫
+      </h2>
+
+      <p className="text-gray-500 mb-4">
+        Unable to load infrastructure data for this program.
+      </p>
+
+      <button
+        onClick={loadInfra}   // ✅ retry without reload
+        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 cursor-pointer transition"
+      >
+        Retry
+      </button>
+
+    </div>
+  );
+}
   return (
     <div className="flex flex-col flex-1 min-h-0">
 

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import Footer from "../../components/ui/Footer";
 
 import {
   ResponsiveContainer,
@@ -37,11 +36,15 @@ const ProviderDashboard = () => {
   const [resourceData, setResourceData] = useState(null);
   const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false); // ✅ ADD
 
   // ✅ LOAD DASHBOARD DATA
   useEffect(() => {
     const loadDashboard = async () => {
       try {
+        setLoading(true);   // ✅ start loading
+        setError(false);    // ✅ reset error
+
         const [infraRes, resourceRes, programRes] = await Promise.all([
           getInfraReport(),
           getResourceReport(),
@@ -51,10 +54,13 @@ const ProviderDashboard = () => {
         setInfraData(infraRes?.data || null);
         setResourceData(resourceRes?.data || null);
         setPrograms(programRes?.data || []);
-      } catch {
+
+      } catch (err) {
+        setError(true);     // ✅ mark error
         toast.error("Failed to load dashboard ❌");
+
       } finally {
-        setLoading(false);
+        setLoading(false);  // ✅ stop loading
       }
     };
 
@@ -66,6 +72,29 @@ const ProviderDashboard = () => {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin h-10 w-10 border-4 border-green-500 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col justify-center items-center h-[60vh] text-center">
+
+        <h2 className="text-xl font-semibold text-red-600 mb-2">
+          Server Unavailable 🚫
+        </h2>
+
+        <p className="text-gray-500 mb-4">
+          Unable to load dashboard data. Please try again later.
+        </p>
+
+        <button
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 cursor-pointer transition"
+        >
+          Retry
+        </button>
+
       </div>
     );
   }
@@ -118,7 +147,7 @@ const ProviderDashboard = () => {
       };
     }) || [];
 
-  // ✅ CLEAN TOOLTIP (NO GRAY BACKGROUND)
+  // ✅ CLEAN TOOLTIP
   const CustomTooltip = ({ active, payload }) => {
     if (!active || !payload?.length) return null;
     const d = payload[0].payload;

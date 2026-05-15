@@ -36,17 +36,30 @@ const ResourceTab = ({ programId: propProgramId }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteData, setDeleteData] = useState(null);
 
+  const [loading, setLoading] = useState(true);
+const [error, setError] = useState(false);
+
   // ✅ LOAD DATA
-  const loadResources = async () => {
-    if (!programId) return;
-    try {
-      const res = await getResourcesByProgram(programId);
-      setResourceList(res.data || []);
-      setOriginalData(res.data || []);
-    } catch (err) {
-      toast.error(err);
-    }
-  };
+const loadResources = async () => {
+  if (!programId) return;
+
+  try {
+    setLoading(true);   // ✅ start loading
+    setError(false);    // ✅ reset error
+
+    const res = await getResourcesByProgram(programId);
+
+    setResourceList(res.data || []);
+    setOriginalData(res.data || []);
+
+  } catch (err) {
+    setError(true);     // ✅ error state
+    toast.error("Failed to load resources ❌");
+
+  } finally {
+    setLoading(false);  // ✅ stop loading
+  }
+};
 
   useEffect(() => {
     loadResources();
@@ -180,6 +193,35 @@ const handleCreate = async (data) => {
   }
 };
 
+if (loading) {
+  return (
+    <div className="flex justify-center items-center h-64 pl-[50%]">
+      <div className="animate-spin h-10 w-10 border-4 border-green-500 border-t-transparent rounded-full" />
+    </div>
+  );
+}
+if (error) {
+  return (
+    <div className="flex flex-col justify-center items-center h-[60vh] text-center pl-[35%]">
+
+      <h2 className="text-lg font-semibold text-red-600 mb-2">
+        Resources Server Unavailable 🚫
+      </h2>
+
+      <p className="text-gray-500 mb-4">
+        Unable to load resources for this program.
+      </p>
+
+      <button
+        onClick={loadResources}  // ✅ better retry
+        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700  cursor-pointer transition"
+      >
+        Retry
+      </button>
+
+    </div>
+  );
+}
   return (
     <div className="flex flex-col flex-1 min-h-0 ">
 
