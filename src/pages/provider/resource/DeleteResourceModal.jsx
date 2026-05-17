@@ -22,13 +22,13 @@ const DeleteResourceModal = ({ show, data, onConfirm, onCancel }) => {
 
     return (
         <>
-            {/* ✅ BLUR BACKGROUND (same as infra) */}
+            {/*  BLUR BACKGROUND (same as infra) */}
             <div
                 className="fixed inset-0 backdrop-blur-sm bg-black/10 z-[9998]"
                 onClick={onCancel}
             />
 
-            {/* ✅ MODAL */}
+            {/*  MODAL */}
             <div className="fixed inset-0 flex items-center justify-center z-[9999]">
 
                 <div
@@ -36,7 +36,7 @@ const DeleteResourceModal = ({ show, data, onConfirm, onCancel }) => {
                     onClick={(e) => e.stopPropagation()}
                 >
 
-                    {/* ✅ HEADER (matched) */}
+                    {/*  HEADER */}
                     <div className="flex justify-between items-center mb-4">
                         <div className="flex items-center gap-2">
                             <span className="text-lg text-red-500">⚠️</span>
@@ -53,12 +53,12 @@ const DeleteResourceModal = ({ show, data, onConfirm, onCancel }) => {
                         </button>
                     </div>
 
-                    {/* ✅ MESSAGE */}
+                    {/*  MESSAGE */}
                     <p className="text-sm text-gray-600 mb-4">
                         Are you sure you want to delete this resource?
                     </p>
 
-                    {/* ✅ INFO CARD (matched spacing/borders) */}
+                    {/*  INFO CARD */}
                     <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-5 space-y-2 text-sm">
 
                         <p>
@@ -89,7 +89,7 @@ const DeleteResourceModal = ({ show, data, onConfirm, onCancel }) => {
 
                     </div>
 
-                    {/* ✅ WARNING BOX (infra style) */}
+                    {/*  WARNING BOX (infra style) */}
                     <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-600 text-sm p-3 rounded-lg mb-5">
 
                         <span className="text-lg leading-none">⚠️</span>
@@ -105,7 +105,7 @@ const DeleteResourceModal = ({ show, data, onConfirm, onCancel }) => {
 
                     </div>
 
-                    {/* ✅ BUTTONS (matched style) */}
+                    {/*  BUTTONS */}
                     <div className="flex justify-end gap-3">
 
                         <button
