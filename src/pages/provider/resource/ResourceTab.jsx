@@ -144,13 +144,18 @@ const ResourceTab = ({ programId: propProgramId }) => {
       return;
     }
 
+    const updatePayload = {
+      quantity: data.quantity,
+      status: data.status,
+    };
+
     try {
-      await updateResource(data.resourceId, data);
+      await updateResource(data.resourceId, updatePayload);
       toast.success("Updated ✅");
       setShowEditModal(false);
       loadResources();
     } catch (err) {
-      toast.error(err);
+      toast.error(mapBackendErrorForResource(err));
     }
   };
 
@@ -164,6 +169,19 @@ const ResourceTab = ({ programId: propProgramId }) => {
     if (message.includes("program") && message.includes("not found")) {
       return "Selected program does not exist";
     }
+
+
+    if (message.includes("available budget")) {
+
+      // Extract number using regex
+      const match = message.match(/available\s*budget:\s*(\d+(\.\d+)?)/i);
+
+      const available = match ? match[1] : "0";
+
+      return `Only ₹${available} available. Reduce quantity or change status to PENDING.`;
+    }
+
+
     if (message.includes("quantity")) {
       return "Resource quantity is invalid";
     }
@@ -175,7 +193,7 @@ const ResourceTab = ({ programId: propProgramId }) => {
     }
     return err; //  fallback (backend message)
   };
-  
+
   //  CREATE RESOURCE (WITH CUSTOM ERROR HANDLING)
   const handleCreate = async (data) => {
     if (data.quantity < 0) {

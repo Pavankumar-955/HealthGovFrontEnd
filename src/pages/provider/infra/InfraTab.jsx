@@ -144,9 +144,13 @@ const InfraTab = ({ programId: propProgramId }) => {
       toast.error("Capacity must be ≥ 0 ❌");
       return;
     }
+    const payload = {
+      capacity: data.capacity,
+      status: data.status
+    };
 
     try {
-      await updateInfra(data.infraId, data);
+      await updateInfra(editData.infraId, payload);
       toast.success("Updated ✅");
       setShowEditModal(false);
       loadInfra();
