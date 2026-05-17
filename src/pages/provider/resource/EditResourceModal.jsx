@@ -6,7 +6,7 @@ const EditResourceModal = ({ show, data, onClose, onUpdate }) => {
   const [form, setForm] = useState({});
   const [touched, setTouched] = useState({});
 
-  // ✅ Sync form
+  //  Sync form
   useEffect(() => {
     setForm(data || {});
     setTouched({});
@@ -14,11 +14,11 @@ const EditResourceModal = ({ show, data, onClose, onUpdate }) => {
 
   if (!show || !form) return null;
 
-  // ✅ BLOCK IF COMPLETED (only styled)
+  //  BLOCK IF COMPLETED (only styled)
   if (data?.status === "COMPLETED") {
     return (
       <>
-        {/* ✅ BLUR BACKGROUND */}
+        {/*  BLUR BACKGROUND */}
         <div
           className="fixed inset-0 backdrop-blur-sm bg-black/10 z-[9998]"
           onClick={onClose}
@@ -52,7 +52,7 @@ const EditResourceModal = ({ show, data, onClose, onUpdate }) => {
     );
   }
 
-  // ✅ VALIDATION
+  //  VALIDATION
   const errors = {
     quantity:
       form.quantity === "" ||
@@ -65,7 +65,7 @@ const EditResourceModal = ({ show, data, onClose, onUpdate }) => {
 
   const isInvalid = (field) => touched[field] && errors[field];
 
-  // ✅ SUBMIT
+  //  SUBMIT
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -79,7 +79,7 @@ const EditResourceModal = ({ show, data, onClose, onUpdate }) => {
       return;
     }
 
-    // ✅ STRICT RULE (unchanged)
+    //  STRICT RULE (unchanged)
     if (
       form.status === "COMPLETED" &&
       data?.status !== "ACTIVE"
@@ -96,13 +96,13 @@ const EditResourceModal = ({ show, data, onClose, onUpdate }) => {
 
   return (
     <>
-      {/* ✅ BLUR BACKGROUND */}
+      {/*  BLUR BACKGROUND */}
       <div
         className="fixed inset-0 backdrop-blur-sm bg-black/10 z-[9998]"
         onClick={onClose}
       />
 
-      {/* ✅ MODAL */}
+      {/*  MODAL */}
       <div className="fixed inset-0 flex items-center justify-center z-[9999]">
 
         <div
@@ -110,7 +110,7 @@ const EditResourceModal = ({ show, data, onClose, onUpdate }) => {
           onClick={(e) => e.stopPropagation()}
         >
 
-          {/* ✅ HEADER */}
+          {/*  HEADER */}
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-800">
               Edit Resource
@@ -124,10 +124,10 @@ const EditResourceModal = ({ show, data, onClose, onUpdate }) => {
             </button>
           </div>
 
-          {/* ✅ FORM */}
+          {/*  FORM */}
           <form onSubmit={handleSubmit} className="space-y-3">
 
-            {/* ✅ TYPE */}
+            {/*  TYPE */}
             <div>
               <label className="text-sm text-gray-600">Type</label>
               <input
@@ -137,7 +137,7 @@ const EditResourceModal = ({ show, data, onClose, onUpdate }) => {
               />
             </div>
 
-            {/* ✅ QUANTITY */}
+            {/*  QUANTITY */}
             <div>
               <label className="text-sm text-gray-600">Quantity *</label>
               <input
@@ -173,7 +173,7 @@ const EditResourceModal = ({ show, data, onClose, onUpdate }) => {
               )}
             </div>
 
-            {/* ✅ STATUS */}
+            {/*  STATUS */}
             <div>
               <label className="text-sm text-gray-600">Status *</label>
               <select
@@ -222,7 +222,7 @@ const EditResourceModal = ({ show, data, onClose, onUpdate }) => {
               )}
             </div>
 
-            {/* ✅ BUTTON */}
+            {/*  BUTTON */}
             <button
               type="submit"
               className="w-full bg-indigo-100 text-indigo-700 py-2 rounded-lg hover:bg-indigo-200 cursor-pointer transition"

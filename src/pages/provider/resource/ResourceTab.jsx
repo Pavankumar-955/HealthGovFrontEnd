@@ -22,7 +22,6 @@ const ResourceTab = ({ programId: propProgramId }) => {
 
   const [resourceList, setResourceList] = useState([]);
   const [originalData, setOriginalData] = useState([]);
-  const [page, setPage] = useState(1);
 
   const [search, setSearch] = useState({
     type: "",
@@ -94,7 +93,6 @@ const ResourceTab = ({ programId: propProgramId }) => {
       );
 
       setResourceList(res.data || []);
-      setPage(1);
     } catch (err) {
       toast.error(err);
     }
@@ -109,8 +107,6 @@ const ResourceTab = ({ programId: propProgramId }) => {
 
     setSearch({ type: "", status: "" });
     setResourceList(originalData);
-    setPage(1);
-
     toast.success("Filters cleared ✅");
   };
 
@@ -162,33 +158,24 @@ const ResourceTab = ({ programId: propProgramId }) => {
     if (!err) return "Something went wrong";
 
     const message = err.toString().toLowerCase();
-
     if (message.includes("program") && message.includes("status")) {
       return "Resources can be assigned only for active programs";
     }
-
     if (message.includes("program") && message.includes("not found")) {
       return "Selected program does not exist";
     }
-
     if (message.includes("quantity")) {
       return "Resource quantity is invalid";
     }
-
     if (message.includes("funds") && message.includes("inactive")) {
       return "Inactive funds cannot be allocated";
     }
-
     if (message.includes("completed")) {
       return "Completed resources cannot be modified or reused";
     }
-
-    if (message.includes("duplicate")) {
-      return "This resource already exists for the program";
-    }
-
     return err; //  fallback (backend message)
   };
+  
   //  CREATE RESOURCE (WITH CUSTOM ERROR HANDLING)
   const handleCreate = async (data) => {
     if (data.quantity < 0) {
@@ -296,8 +283,8 @@ const ResourceTab = ({ programId: propProgramId }) => {
 
             <ResourceTable
               data={resourceList}
-              page={page}
-              setPage={setPage}
+              // page={page}
+              // setPage={setPage}
               onEdit={handleEdit}
               onDelete={handleDelete}
             />

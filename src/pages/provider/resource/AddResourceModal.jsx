@@ -11,7 +11,7 @@ const AddResourceModal = ({ show, onClose, onCreate }) => {
 
   const [touched, setTouched] = useState({});
 
-  // ✅ RESET FORM
+  //  RESET FORM
   useEffect(() => {
     if (!show) {
       setForm({
@@ -25,7 +25,7 @@ const AddResourceModal = ({ show, onClose, onCreate }) => {
 
   if (!show) return null;
 
-  // ✅ VALIDATION
+  //  VALIDATION
   const errors = {
     type: form.type === "",
     quantity:
@@ -38,7 +38,7 @@ const AddResourceModal = ({ show, onClose, onCreate }) => {
 
   const isInvalid = (field) => touched[field] && errors[field];
 
-  // ✅ SUBMIT
+  //  SUBMIT
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -53,7 +53,7 @@ const AddResourceModal = ({ show, onClose, onCreate }) => {
       return;
     }
 
-    // ✅ BUSINESS RULE VALIDATION (UNCHANGED)
+    //  BUSINESS RULE VALIDATION (UNCHANGED)
     if (form.type !== "FUNDS" && form.status === "PENDING") {
       toast.error("PENDING is allowed only for FUNDS ❌");
       return;
@@ -72,13 +72,13 @@ const AddResourceModal = ({ show, onClose, onCreate }) => {
 
   return (
     <>
-      {/* ✅ BLUR BACKGROUND (same as infra) */}
+      {/*  BLUR BACKGROUND (same as infra) */}
       <div
         className="fixed inset-0 backdrop-blur-sm bg-black/10 z-[9998]"
         onClick={onClose}
       />
 
-      {/* ✅ MODAL */}
+      {/*  MODAL */}
       <div className="fixed inset-0 flex items-center justify-center z-[9999]">
 
         <div
@@ -86,7 +86,7 @@ const AddResourceModal = ({ show, onClose, onCreate }) => {
           onClick={(e) => e.stopPropagation()}
         >
 
-          {/* ✅ HEADER (matched) */}
+          {/*  HEADER (matched) */}
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold">
               Add Resource
@@ -100,10 +100,10 @@ const AddResourceModal = ({ show, onClose, onCreate }) => {
             </button>
           </div>
 
-          {/* ✅ FORM */}
+          {/*  FORM */}
           <form onSubmit={handleSubmit} className="space-y-3">
 
-            {/* ✅ TYPE */}
+            {/*  TYPE */}
             <div>
               <label className="text-sm text-gray-600">Type *</label>
               <select
@@ -131,7 +131,7 @@ const AddResourceModal = ({ show, onClose, onCreate }) => {
               )}
             </div>
 
-            {/* ✅ QUANTITY */}
+            {/*  QUANTITY */}
             <div>
               <label className="text-sm text-gray-600">Quantity *</label>
               <input
@@ -169,7 +169,7 @@ const AddResourceModal = ({ show, onClose, onCreate }) => {
               )}
             </div>
 
-            {/* ✅ STATUS */}
+            {/*  STATUS */}
             <div>
               <label className="text-sm text-gray-600">Status *</label>
               <select
@@ -187,7 +187,7 @@ const AddResourceModal = ({ show, onClose, onCreate }) => {
               >
                 <option value="">Select Status</option>
 
-                {/* ✅ SAME LOGIC */}
+                {/*  SAME LOGIC */}
                 {form.type === "FUNDS" && (
                   <>
                     <option value="PENDING">PENDING</option>
@@ -212,7 +212,7 @@ const AddResourceModal = ({ show, onClose, onCreate }) => {
               )}
             </div>
 
-            {/* ✅ BUTTON (matched infra style) */}
+            {/*  BUTTON (matched infra style) */}
             <button
               type="submit"
               className="w-full bg-indigo-100 text-indigo-700 py-2 rounded-lg hover:bg-indigo-200 cursor-pointer transition"
