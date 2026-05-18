@@ -17,7 +17,7 @@ const CitizenHealthRecords = () => {
         const storageKey = `citizenId_${user.userId}`;
         const storedCitizenId = localStorage.getItem(storageKey);
         const tokenCitizenId = user?.citizenId;
-
+ 
         let cId = tokenCitizenId || storedCitizenId;
         if (!cId) {
           const citizenRes = await API.get(`/citizen/user/${user.userId}`);
@@ -26,11 +26,11 @@ const CitizenHealthRecords = () => {
             localStorage.setItem(storageKey, cId);
           }
         }
-
+ 
         if (!cId) {
           throw new Error('Unable to resolve citizen ID');
         }
-
+ 
         setResolvedCitizenId(cId);
  
         // Fetch Health Profile
@@ -130,4 +130,5 @@ const CitizenHealthRecords = () => {
 };
  
 export default CitizenHealthRecords;
+ 
  

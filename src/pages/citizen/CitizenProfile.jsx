@@ -1,32 +1,32 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext'; 
+import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
-import API from '../../api/axios'; 
+import API from '../../api/axios';
 import toast from 'react-hot-toast';
-import { 
-  MdSave, 
-  MdCheckCircle, 
-  MdEdit, 
-  MdCancel, 
-  MdUpload, 
-  MdDelete, 
-  MdFilePresent 
+import {
+  MdSave,
+  MdCheckCircle,
+  MdEdit,
+  MdCancel,
+  MdUpload,
+  MdDelete,
+  MdFilePresent
 } from 'react-icons/md';
-
+ 
 export default function CitizenProfile() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  
+ 
   const [citizenId, setCitizenId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [status, setStatus] = useState('PENDING'); 
-  
+  const [status, setStatus] = useState('PENDING');
+ 
   const [isEditing, setIsEditing] = useState(false);
   const [genderLocked, setGenderLocked] = useState(false);
   const [originalData, setOriginalData] = useState({ gender: '' });
-
+ 
   const [form, setForm] = useState({
     name: '',
     dob: '',
@@ -34,14 +34,14 @@ export default function CitizenProfile() {
     contactInfo: '',
     address: ''
   });
-
+ 
   // Dynamic Date Calculation
   const today = new Date();
-  const maxDateStr = today.toISOString().split('T')[0]; 
+  const maxDateStr = today.toISOString().split('T')[0];
   const minDate = new Date();
-  minDate.setFullYear(today.getFullYear() - 170); 
+  minDate.setFullYear(today.getFullYear() - 170);
   const minDateStr = minDate.toISOString().split('T')[0];
-
+ 
   // Document states
   const [documents, setDocuments] = useState([]);
   const [uploadForm, setUploadForm] = useState({
@@ -50,7 +50,7 @@ export default function CitizenProfile() {
     file: null
   });
   const [uploading, setUploading] = useState(false);
-
+ 
   const formatBackendDate = (dateVal) => {
     if (!dateVal) return '';
     if (Array.isArray(dateVal)) {
@@ -59,7 +59,7 @@ export default function CitizenProfile() {
     }
     return dateVal;
   };
-
+ 
   useEffect(() => {
     const fetchProfileData = async () => {
       if (!user?.userId) return;
@@ -72,9 +72,9 @@ export default function CitizenProfile() {
         const formattedDob = formatBackendDate(data.dob);
         setForm({
           name: data.name || '',
-          dob: formattedDob, 
+          dob: formattedDob,
           gender: data.gender || '',
-          contactInfo: data.contactInfo || user.email || '', 
+          contactInfo: data.contactInfo || user.email || '',
           address: data.address || ''
         });
         setOriginalData({ gender: data.gender || '' });
@@ -92,12 +92,12 @@ export default function CitizenProfile() {
       }
     };
     fetchProfileData();
-  }, [user, navigate]); 
-
+  }, [user, navigate]);
+ 
   useEffect(() => {
     if (citizenId) fetchDocuments();
   }, [citizenId]);
-
+ 
   const fetchDocuments = async () => {
     try {
       const response = await API.get(`/document/${citizenId}`);
@@ -105,8 +105,8 @@ export default function CitizenProfile() {
     } catch (error) {
       toast.error('Failed to load documents.');
     }
-  }; 
-
+  };
+ 
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'gender' && genderLocked) {
@@ -115,7 +115,7 @@ export default function CitizenProfile() {
     }
     setForm({ ...form, [name]: value });
   };
-
+ 
   const handleSave = async () => {
     if (!citizenId) return;
     if (form.dob && new Date(form.dob) > new Date()) {
@@ -129,8 +129,8 @@ export default function CitizenProfile() {
         name: form.name,
         contactInfo: form.contactInfo,
         address: form.address,
-        dob: form.dob, 
-        gender: genderLocked ? originalData.gender : form.gender, 
+        dob: form.dob,
+        gender: genderLocked ? originalData.gender : form.gender,
       };
       await API.put(`/citizen/${citizenId}`, payload);
       toast.success("Profile updated!");
@@ -142,13 +142,13 @@ export default function CitizenProfile() {
       setSaving(false);
     }
   };
-
+ 
   const handleUploadChange = (e) => {
     const { name, value, files } = e.target;
     if (name === 'file') setUploadForm({ ...uploadForm, file: files[0] });
     else setUploadForm({ ...uploadForm, [name]: value });
   };
-
+ 
   const handleUpload = async (e) => {
     e.preventDefault();
     if (!citizenId || !uploadForm.file) return toast.error('Please select a file.');
@@ -171,7 +171,7 @@ export default function CitizenProfile() {
       setUploading(false);
     }
   };
-
+ 
   const handleDeleteDocument = async (id) => {
     if (!window.confirm('Delete this document?')) return;
     try {
@@ -182,16 +182,16 @@ export default function CitizenProfile() {
       toast.error('Delete failed.');
     }
   };
-
-  const getInputStyle = (isLockedField) => 
+ 
+  const getInputStyle = (isLockedField) =>
     `w-full border border-gray-300 rounded-lg p-3 text-gray-700 focus:ring-2 focus:ring-blue-500 transition-colors ${isLockedField ? 'bg-gray-100 cursor-not-allowed text-gray-500' : 'bg-white'}`;
-
+ 
   if (loading) return <div className="flex justify-center p-20 text-blue-600 font-bold tracking-widest">LOADING PROFILE...</div>;
-
+ 
   return (
     <div className="max-w-4xl mx-auto p-6 pb-20">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        
+       
         {/* PROFILE HEADER */}
         <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
           <h2 className="text-2xl font-bold text-gray-800">Citizen Profile</h2>
@@ -208,7 +208,7 @@ export default function CitizenProfile() {
             )}
           </div>
         </div>
-
+ 
         <div className="p-8 space-y-8">
           {/* STATUS */}
           <div className="bg-green-50 border border-green-100 rounded-xl p-5 flex justify-between items-center">
@@ -218,7 +218,7 @@ export default function CitizenProfile() {
             </div>
             <MdCheckCircle size={32} className="text-green-500" />
           </div>
-
+ 
           {/* FIELDS */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -247,11 +247,11 @@ export default function CitizenProfile() {
               <textarea name="address" value={form.address} onChange={handleChange} disabled={!isEditing} rows="3" className={getInputStyle(!isEditing)} />
             </div>
           </div>
-
+ 
           {/* DOCUMENTS SECTION */}
           <div className="border-t border-gray-200 pt-8">
             <h3 className="text-xl font-bold text-gray-800 mb-6">My Documents</h3>
-            
+           
             {/* Upload Form */}
             <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-100">
               <h4 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Upload New Document</h4>
@@ -268,7 +268,7 @@ export default function CitizenProfile() {
                 <button type="submit" disabled={uploading} className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold flex items-center gap-2 disabled:opacity-50"><MdUpload /> {uploading ? 'Uploading...' : 'Upload Now'}</button>
               </form>
             </div>
-
+ 
             {/* Documents List */}
             <div className="space-y-4">
               <h4 className="text-sm font-bold text-gray-500 uppercase tracking-widest">Verified Vault</h4>
@@ -293,9 +293,10 @@ export default function CitizenProfile() {
               )}
             </div>
           </div>
-
+ 
         </div>
       </div>
     </div>
   );
 }
+ 

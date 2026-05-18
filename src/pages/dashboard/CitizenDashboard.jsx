@@ -1,223 +1,254 @@
-import React, { use, useEffect, useState } from "react";
-import { useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { getPrograms } from "../../api/ProgramApi.js";
-import { createEnrollment, getEnrollments } from "../../api/enrollmentApi.js";
+import { getEnrollments } from "../../api/enrollmentApi.js";
 import { programEnrollment } from "../../api/citizenApi.js";
 import { toast } from "react-hot-toast";
-import { MdCalendarToday, MdPeople, MdCheckCircle, MdInfo, MdLocalHospital } from 'react-icons/md';
+import { MdCheckCircle } from "react-icons/md";
+import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext.jsx";
+
+/* ✅ SLIDES */
+const slides = [
+  {
+    title: "Welcome 👋",
+    desc: "Explore healthcare programs.",
+    img: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=800&q=60",
+  },
+  {
+    title: "Quick Enrollment ⚡",
+    desc: "Join with one click.",
+    img: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=60",
+  },
+  {
+    title: "Track Activity 📊",
+    desc: "Manage enrollments easily.",
+    img: "https://images.unsplash.com/photo-1581595219315-a187dd40c322?auto=format&fit=crop&w=800&q=60",
+  },
+];
+
 const CitizenDashboard = () => {
   const [programs, setPrograms] = useState([]);
   const [enrollments, setEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const location = useLocation();
+  const [slideIndex, setSlideIndex] = useState(0);
 
-  // ✅ Get citizen ID from token
+  const location = useLocation();
+  const { user } = useAuth();
+
+  /* ✅ AUTO SLIDE */
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSlideIndex((prev) => (prev + 1) % slides.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
+
   const getCitizenIdFromToken = () => {
     const token = localStorage.getItem("token");
     if (!token) return null;
 
     try {
       const decoded = JSON.parse(atob(token.split(".")[1]));
-      return decoded.userId || decoded.id || decoded.citizenId || decoded.citizenID;
+      return decoded.userId || decoded.id || decoded.citizenId || decoded.sub;
     } catch {
-      console.error("Invalid token");
       return null;
     }
   };
 
   const citizenId = getCitizenIdFromToken();
 
-  // ✅ Load programs and enrollments
   const loadData = async () => {
     try {
       setLoading(true);
 
       const progRes = await getPrograms();
-      console.log("📍 Programs:", progRes.data);
-
       const allPrograms = Array.isArray(progRes.data)
         ? progRes.data
         : progRes.data?.data || [];
-
       setPrograms(allPrograms);
 
       const enrollRes = await getEnrollments();
-      console.log("📍 Enrollments:", enrollRes.data);
-
       const allEnrollments = Array.isArray(enrollRes.data)
         ? enrollRes.data
         : enrollRes.data?.data || [];
 
-      const filteredEnrollments = citizenId
+      const filtered = citizenId
         ? allEnrollments.filter(
             (e) => Number(e.citizenId) === Number(citizenId)
           )
         : [];
 
-      setEnrollments(filteredEnrollments);
-
-    } catch (err) {
-      console.error(err);
+      setEnrollments(filtered);
+    } catch {
       toast.error("Failed to load data");
     } finally {
       setLoading(false);
     }
   };
 
-  const { user } = useAuth();
-  // ✅ ✅ FIXED ENROLL FUNCTION
+  const isEnrolled = (programId) =>
+    enrollments.some((e) => Number(e.programId) === Number(programId));
+
   const handleEnroll = async (programId) => {
-
-    if (!citizenId) {
-      toast.error("Login required");
-      return;
-    }
-
-    // ✅ Prevent duplicate enrollment
-    if (isEnrolled(programId)) {
-      toast("Already enrolled");
-      return;
-    }
+    if (!citizenId) return toast.error("Please login");
+    if (isEnrolled(programId)) return toast("Already enrolled");
 
     try {
-      const enrollmentData = {
+      await programEnrollment({
         citizenId: Number(citizenId),
         programId: Number(programId),
         date: new Date().toISOString(),
-        status:"ACTIVE"
-      };
+        status: "ACTIVE",
+      });
 
-      console.log("📤 Sending:", enrollmentData);
-
-      const response = await programEnrollment(enrollmentData);
-      console.log("📍 Enrollment response:", response.data);
-
-      if (response.status >= 200 && response.status < 300) {
-        toast.success("✅ Enrolled successfully!");
-        await loadData();
-      }
-
-    } catch (err) {
-      console.error(err);
-      toast.error(err.response?.data?.message || "Enrollment failed");
+      toast.success("Enrolled successfully!");
+      await loadData();
+    } catch {
+      toast.error("Enrollment failed");
     }
-  };
-
-  // ✅ ✅ FIXED type-safe check
-  const isEnrolled = (programId) => {
-    return enrollments.some(
-      (e) => Number(e.programId) === Number(programId)
-    );
   };
 
   useEffect(() => {
     loadData();
-    console.log("User Data",user.userId,user.name,user.email);
-    
-  }, [location.search]);
+  }, [location.search, citizenId]);
 
-  if (loading) {
+  if (loading)
     return (
       <div className="flex justify-center items-center h-64">
         Loading...
       </div>
     );
-  }
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <div className="grid grid-cols-12 gap-6 p-6 bg-gradient-to-br from-blue-50 via-white to-emerald-50 rounded-3xl">
 
-      <h1 className="text-3xl font-bold mb-6">
-        Citizen Dashboard
-      </h1>
+      {/* ✅ LEFT CAROUSEL */}
+      <div className="col-span-3">
+        <div className="relative h-[320px] rounded-2xl overflow-hidden shadow-lg">
 
-      {/* PROGRAMS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* ✅ IMAGE */}
+          <img
+            src={
+              slides[slideIndex].img ||
+              "https://via.placeholder.com/400x300"
+            }
+            className="w-full h-full object-cover"
+            alt="carousel"
+          />
 
-        {programs.map((program) => {
-          const programId = program.id || program.programId || program._id;
-          const enrolled = isEnrolled(programId);
+          {/* ✅ OVERLAY */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
 
-          return (
-            <ProgramCard
-              key={programId}
-              program={program}
-              enrolled={enrolled}
-              onEnroll={() => {
-                console.log("🟢 Clicked:", programId);
-                handleEnroll(programId);
-              }}
-            />
-          );
-        })}
-
-      </div>
-
-      {/* ENROLLMENTS */}
-      <div className="mt-10">
-
-        <h2 className="text-xl font-bold mb-4">
-          My Enrollments
-        </h2>
-
-        {enrollments.length === 0 ? (
-          <p>No enrollments yet</p>
-        ) : (
-          <div className="grid md:grid-cols-2 gap-4">
-            {enrollments.map((e) => (
-              <div key={e.enrollmentId} className="p-4 border rounded">
-                <h3 className="font-semibold">
-                  Program ID: {e.programId}
-                </h3>
-                <p>Status: {e.status}</p>
-                <p>Date: {e.date}</p>
-              </div>
-            ))}
+          {/* ✅ TEXT */}
+          <div className="absolute bottom-0 p-5 text-white">
+            <h2 className="text-xl font-bold">
+              {slides[slideIndex].title}
+            </h2>
+            <p className="text-sm">
+              {slides[slideIndex].desc}
+            </p>
           </div>
-        )}
 
+          {/* ✅ CONTROLS */}
+          <div className="absolute top-3 right-3 flex gap-2">
+            <button
+              onClick={() =>
+                setSlideIndex(
+                  (slideIndex - 1 + slides.length) % slides.length
+                )
+              }
+              className="p-2 bg-white/80 rounded-full"
+            >
+              <FiArrowLeft />
+            </button>
+
+            <button
+              onClick={() =>
+                setSlideIndex((slideIndex + 1) % slides.length)
+              }
+              className="p-2 bg-white/80 rounded-full"
+            >
+              <FiArrowRight />
+            </button>
+          </div>
+        </div>
       </div>
 
+      {/* ✅ RIGHT CONTENT */}
+      <div className="col-span-9">
+        <h1 className="text-3xl font-bold">
+          Welcome, {user?.name || "Citizen"} 👋
+        </h1>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6 items-stretch">
+          {programs.map((program) => {
+            const pId = program.id || program.programId;
+            return (
+              <ProgramCard
+                key={pId}
+                program={program}
+                enrolled={isEnrolled(pId)}
+                onEnroll={() => handleEnroll(pId)}
+              />
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };
 
-// ✅ PROGRAM CARD
+/* ✅ CARD */
 const ProgramCard = ({ program, enrolled, onEnroll }) => {
-  return (
-    <div className="bg-white p-6 rounded-xl shadow border">
+  const [expanded, setExpanded] = useState(false);
 
-      <span className={`text-xs px-2 py-1 rounded ${
-        enrolled ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-      }`}>
-        {enrolled ? "ENROLLED" : "AVAILABLE"}
+  return (
+    <div className="bg-white rounded-2xl p-5 shadow border flex flex-col h-[280px]">
+
+      <span
+        className={`text-xs px-3 py-1 rounded-full w-fit ${
+          enrolled
+            ? "bg-green-100 text-green-700"
+            : "bg-blue-100 text-blue-700"
+        }`}
+      >
+        {enrolled ? "Enrolled" : "Available"}
       </span>
 
-      <h3 className="font-bold text-lg mt-2">{program.title}</h3>
+      <h3 className="font-semibold mt-3 line-clamp-2">
+        {program.title}
+      </h3>
 
-      <p className="text-sm text-gray-600 mt-2">
-        {program.description}
-      </p>
+      <div className="mt-2 flex-grow">
+        <p className={`text-sm ${expanded ? "" : "line-clamp-3"}`}>
+          {program.description}
+        </p>
+
+        {program.description?.length > 100 && (
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="text-blue-600 text-xs mt-1"
+          >
+            {expanded ? "View Less" : "View More"}
+          </button>
+        )}
+      </div>
 
       <div className="mt-4">
         {enrolled ? (
-          <span className="text-green-600 flex items-center">
-            <MdCheckCircle className="mr-1" /> Enrolled
-          </span>
+          <div className="flex justify-center items-center gap-2 text-green-600 border rounded py-2 bg-green-50">
+            <MdCheckCircle /> Enrolled
+          </div>
         ) : (
           <button
-            onClick={() => {
-              console.log("🟢 Button clicked:", program.id);
-              onEnroll();
-            }}
-            className="bg-blue-600 text-white px-4 py-2 rounded mt-2"
+            onClick={onEnroll}
+            className="w-full bg-blue-600 text-white py-2 rounded"
           >
             Enroll Now
           </button>
         )}
       </div>
-
     </div>
   );
 };

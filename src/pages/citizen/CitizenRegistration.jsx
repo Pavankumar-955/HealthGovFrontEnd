@@ -4,30 +4,30 @@ import { useNavigate } from 'react-router-dom';
 import API from '../../api/axios';
 import toast from 'react-hot-toast';
 import { MdSave } from 'react-icons/md';
-
+ 
 const CitizenRegistration = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ name: '', dob: '', gender: '', address: '' });
-
+ 
   const handleRegister = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.dob || !formData.gender || !formData.address) {
       return toast.error("All fields are required!");
     }
-
+ 
     try {
       setLoading(true);
-      const payload = { 
-        ...formData, 
-        userId: user.userId, 
-        gender: formData.gender.toUpperCase(), 
-        contactInfo: user?.email 
+      const payload = {
+        ...formData,
+        userId: user.userId,
+        gender: formData.gender.toUpperCase(),
+        contactInfo: user?.email
       };
       await API.post('/citizen/register', payload);
       toast.success("Profile Created!");
-      
+     
       // REDIRECT TO PROFILE VIEW
       navigate('/citizen/profile');
     } catch (err) {
@@ -36,7 +36,7 @@ const CitizenRegistration = () => {
       setLoading(false);
     }
   };
-
+ 
   return (
     <div className="min-h-screen bg-[#f0fdf4] flex items-center justify-center p-6">
       <div className="max-w-4xl w-full bg-white rounded-3xl shadow-xl p-10 border border-emerald-100">
@@ -62,3 +62,4 @@ const CitizenRegistration = () => {
   );
 };
 export default CitizenRegistration;
+ 

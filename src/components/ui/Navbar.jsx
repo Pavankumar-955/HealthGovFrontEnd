@@ -133,7 +133,7 @@ export default function Navbar() {
               <Link
                 key={item.name}
                 to={item.to}
-                className="text-lg font-medium text-white hover:text-gray-200 transition"
+                className="relative text-lg font-medium text-white transition hover:text-gray-200 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0 after:bg-white after:transition-all after:duration-300 hover:after:w-full"
               >
                 {item.name}
               </Link>

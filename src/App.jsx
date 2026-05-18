@@ -70,6 +70,7 @@ import CitizenProfile from "./pages/citizen/CitizenProfile";
 import CitizenHealthRecords from "./pages/citizen/CitizenHealthRecords";
 import CitizenNotifications from "./pages/citizen/CitizenNotifications";
 import DocVerification from "./pages/provider/DocVerification";
+// import DemoManager from "./pages/manager/DemoManager";
 
 function App() {
   const { user } = useAuth();
@@ -123,8 +124,8 @@ function App() {
           }
         >
           <Route path="dashboard" element={<CitizenDashboard />} />
-          <Route path="register" element={<CitizenSetup />} />
           <Route path="profile" element={<CitizenProfile />} />
+          <Route path="register" element={<CitizenSetup />} />
           <Route path="health-records" element={<CitizenHealthRecords />} />
           <Route path="notifications" element={<CitizenNotifications />} />
         </Route>

@@ -17,7 +17,6 @@ const EnrollmentsDetails = ({ enrollment, onClose }) => {
           <p><b>Program:</b> {enrollment.programId}</p>
           <p><b>Date:</b> {enrollment.date}</p>
           <p><b>Status:</b> {enrollment.status}</p>
-
           <button
             onClick={onClose}
             className="mt-4 bg-gray-800 text-white px-4 py-2 rounded"
@@ -29,5 +28,4 @@ const EnrollmentsDetails = ({ enrollment, onClose }) => {
     </>
   );
 };
-
 export default EnrollmentsDetails;

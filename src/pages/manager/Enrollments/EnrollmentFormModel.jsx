@@ -9,7 +9,6 @@ const EnrollmentFormModel = ({ show, handleClose, handleSubmit, editData }) => {
     date: "",
     status: "ACTIVE",
   });
-
   useEffect(() => {
     if (editData) {
       setForm({
@@ -59,7 +58,6 @@ const EnrollmentFormModel = ({ show, handleClose, handleSubmit, editData }) => {
             className="border p-2 w-full mb-2 bg-gray-100"
           />
         )}
-
         <input
           name="citizenId"
           value={form.citizenId}
@@ -67,7 +65,6 @@ const EnrollmentFormModel = ({ show, handleClose, handleSubmit, editData }) => {
           placeholder="Citizen ID"
           className="border p-2 w-full mb-2"
         />
-
         <input
           name="programId"
           value={form.programId}
@@ -75,7 +72,6 @@ const EnrollmentFormModel = ({ show, handleClose, handleSubmit, editData }) => {
           placeholder="Program ID"
           className="border p-2 w-full mb-2"
         />
-
         <input
           type="date"
           name="date"
@@ -83,7 +79,6 @@ const EnrollmentFormModel = ({ show, handleClose, handleSubmit, editData }) => {
           onChange={handleChange}
           className="border p-2 w-full mb-2"
         />
-
         <select
           name="status"
           value={form.status}
@@ -104,10 +99,8 @@ const EnrollmentFormModel = ({ show, handleClose, handleSubmit, editData }) => {
             Save
           </button>
         </div>
-
       </div>
     </div>
   );
 };
-
 export default EnrollmentFormModel;

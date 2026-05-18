@@ -3,10 +3,10 @@ import { useAuth } from '../../context/AuthContext';
 import API from '../../api/axios';
 import toast from 'react-hot-toast';
 import { MdCloudUpload, MdVerified, MdPending, MdEdit, MdDelete, MdClose } from 'react-icons/md';
-
+ 
 const DOCUMENT_TYPES = ['ID_PROOF', 'HEALTH_CARD', 'PASSPORT', 'BIRTH_CERTIFICATE'];
 const emptyForm = { documentName: '', documentType: '', fileUrl: '' };
-
+ 
 const CitizenDocuments = () => {
   const { user } = useAuth();
   const [citizenId, setCitizenId] = useState(null);
@@ -17,7 +17,7 @@ const CitizenDocuments = () => {
   const [editId, setEditId] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(emptyForm);
-
+ 
   useEffect(() => {
     if (!user?.userId) return;
     API.get(`/citizen/user/${user.userId}`)
@@ -29,12 +29,12 @@ const CitizenDocuments = () => {
         else toast.error('Could not resolve citizen record');
       });
   }, [user]);
-
+ 
   useEffect(() => {
     if (!citizenId) return;
     fetchDocuments();
   }, [citizenId]);
-
+ 
   const fetchDocuments = async () => {
     try {
       const res = await API.get(`/document/${citizenId}`);
@@ -45,10 +45,10 @@ const CitizenDocuments = () => {
       setLoading(false);
     }
   };
-
+ 
   const openUpload = () => { setEditId(null); setForm(emptyForm); setShowForm(true); };
   const openEdit = (doc) => { setEditId(doc.documentId); setForm({ documentName: doc.documentName, documentType: doc.documentType, fileUrl: doc.fileUrl }); setShowForm(true); };
-
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!citizenId) return toast.error('Citizen record not found');
@@ -71,7 +71,7 @@ const CitizenDocuments = () => {
       setSaving(false);
     }
   };
-
+ 
   const handleDelete = async (documentId) => {
     if (!window.confirm('Remove this document?')) return;
     setDeletingId(documentId);
@@ -85,20 +85,20 @@ const CitizenDocuments = () => {
       setDeletingId(null);
     }
   };
-
+ 
   const set = (field) => (e) => setForm(f => ({ ...f, [field]: e.target.value }));
-
+ 
   const statusColor = (s) =>
     s === 'VERIFIED' ? 'bg-green-100 text-green-700' :
     s === 'REJECTED' ? 'bg-red-100 text-red-700' :
     'bg-amber-100 text-amber-700';
-
+ 
   if (loading) return <div className="p-10 text-center animate-pulse text-blue-600 font-bold">Loading Documents...</div>;
-
+ 
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-10">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
-
+ 
         {/* Header */}
         <div className="p-6 border-b flex justify-between items-center bg-gray-50 rounded-t-2xl">
           <div>
@@ -112,7 +112,7 @@ const CitizenDocuments = () => {
             <MdCloudUpload size={20} /> Upload New
           </button>
         </div>
-
+ 
         {/* Upload / Edit Form */}
         {showForm && (
           <div className="p-6 border-b bg-blue-50">
@@ -159,7 +159,7 @@ const CitizenDocuments = () => {
             </form>
           </div>
         )}
-
+ 
         {/* Document List */}
         <div className="p-6">
           {documents.length === 0 ? (
@@ -203,5 +203,7 @@ const CitizenDocuments = () => {
     </div>
   );
 };
-
+ 
 export default CitizenDocuments;
+ 
+ 

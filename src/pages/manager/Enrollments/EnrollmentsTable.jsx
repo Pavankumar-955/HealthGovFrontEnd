@@ -1,6 +1,5 @@
 import React from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
-
 const EnrollmentsTable = ({ enrollments, onEdit, onDelete, onView }) => {
   return (
     <table className="w-full">
@@ -14,7 +13,6 @@ const EnrollmentsTable = ({ enrollments, onEdit, onDelete, onView }) => {
           <th className="p-4 text-center">Action</th>
         </tr>
       </thead>
-
       <tbody>
         {enrollments.map((e) => (
           <tr
@@ -27,7 +25,6 @@ const EnrollmentsTable = ({ enrollments, onEdit, onDelete, onView }) => {
             <td className="p-4">{e.programId}</td>
             <td className="p-4">{e.date}</td>
             <td className="p-4">{e.status}</td>
-
             <td className="p-4">
               <div className="flex justify-center gap-3">
                 {/* EDIT */}
@@ -40,7 +37,6 @@ const EnrollmentsTable = ({ enrollments, onEdit, onDelete, onView }) => {
                 >
                   <FaEdit />
                 </button>
-
                 {/* DELETE */}
                 <button
                   onClick={(ev) => {
@@ -59,5 +55,4 @@ const EnrollmentsTable = ({ enrollments, onEdit, onDelete, onView }) => {
     </table>
   );
 };
-
 export default EnrollmentsTable;

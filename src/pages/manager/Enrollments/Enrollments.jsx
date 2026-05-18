@@ -20,7 +20,6 @@ const Enrollments = () => {
   const [editData, setEditData] = useState(null);
   const [selectedEnrollment, setSelectedEnrollment] = useState(null);
   const [searchId, setSearchId] = useState("");
-
   // ✅ FETCH
   const fetchEnrollments = async () => {
     try {
@@ -71,7 +70,6 @@ const Enrollments = () => {
       toast.error("Delete failed ❌");
     }
   };
-
   // ✅ SEARCH
   const handleSearch = async () => {
     try {
@@ -102,7 +100,6 @@ const Enrollments = () => {
             + New Enrollment
           </button>
         </div>
-
         {/* SEARCH */}
         <div className="max-w-7xl mx-auto flex gap-3 mb-4">
           <input
@@ -111,14 +108,12 @@ const Enrollments = () => {
             placeholder="Search by ID"
             className="border px-3 py-2 rounded"
           />
-
           <button
             onClick={handleSearch}
             className="bg-blue-100 px-3 py-2 rounded"
           >
             Search
           </button>
-
           <button
             onClick={fetchEnrollments}
             className="bg-gray-100 px-3 py-2 rounded"
@@ -126,7 +121,6 @@ const Enrollments = () => {
             Reset
           </button>
         </div>
-
         {/* TABLE */}
         <div className="max-w-7xl mx-auto bg-white rounded-xl shadow">
           <EnrollmentsTable
@@ -152,7 +146,6 @@ const Enrollments = () => {
         handleSubmit={handleSubmit}
         editData={editData}
       />
-
       {/* DETAILS */}
       {selectedEnrollment && (
         <EnrollmentsDetails
