@@ -5,7 +5,7 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
   const [form, setForm] = useState({});
   const [touched, setTouched] = useState({});
 
-  // ✅ Sync form
+  //  Sync form
   useEffect(() => {
     setForm(data || {});
     setTouched({});
@@ -13,7 +13,7 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
 
   if (!show || !form) return null;
 
-  // ✅ VALIDATION
+  //  VALIDATION
   const errors = {
     capacity:
       form.capacity === "" ||
@@ -26,7 +26,7 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
 
   const isInvalid = (field) => touched[field] && errors[field];
 
-  // ✅ SUBMIT
+  //  SUBMIT
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -48,13 +48,13 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
 
   return (
     <>
-      {/* ✅ BLUR BACKGROUND */}
+      {/*  BLUR BACKGROUND */}
       <div
         className="fixed inset-0 backdrop-blur-sm bg-black/10 z-[9998]"
         onClick={onClose}
       />
 
-      {/* ✅ MODAL */}
+      {/*  MODAL */}
       <div className="fixed inset-0 flex items-center justify-center z-[9999]">
 
         <div
@@ -62,7 +62,7 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
           onClick={(e) => e.stopPropagation()}
         >
 
-          {/* ✅ HEADER */}
+          {/*  HEADER */}
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-800">
               Edit Infrastructure
@@ -76,7 +76,7 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
             </button>
           </div>
 
-          {/* ✅ FORM */}
+          {/*  FORM */}
           <form onSubmit={handleSubmit} className="space-y-3">
 
             {/* TYPE (READ ONLY) */}
@@ -121,11 +121,10 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
                     setForm({ ...form, capacity: num });
                   }
                 }}
-                className={`w-full border p-2 rounded ${
-                  isInvalid("capacity")
+                className={`w-full border p-2 rounded ${isInvalid("capacity")
                     ? "border-red-400"
                     : "border-gray-200"
-                }`}
+                  }`}
               />
 
               {isInvalid("capacity") && (
@@ -144,11 +143,10 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
                   setTouched({ ...touched, status: true })}
                 onChange={(e) =>
                   setForm({ ...form, status: e.target.value })}
-                className={`w-full border p-2 rounded ${
-                  isInvalid("status")
+                className={`w-full border p-2 rounded ${isInvalid("status")
                     ? "border-red-400"
                     : "border-gray-200"
-                }`}
+                  }`}
               >
                 <option value="">Select Status</option>
                 <option value="OPERATIONAL">OPERATIONAL</option>
@@ -170,7 +168,7 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
               )}
             </div>
 
-            {/* ✅ UPDATE BUTTON */}
+            {/*  UPDATE BUTTON */}
             <button
               type="submit"
               className="w-full bg-indigo-100 text-indigo-700 py-2 rounded-lg hover:bg-indigo-200 cursor-pointer transition"

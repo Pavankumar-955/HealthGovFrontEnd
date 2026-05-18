@@ -3,7 +3,7 @@ import React from "react";
 const InfraTable = ({ data = [], onEdit, onDelete }) => {
   const safeData = Array.isArray(data) ? data : [];
 
-  // ✅ SOFT STATUS COLORS (MANAGER STYLE ✅)
+  //  SOFT STATUS COLORS (MANAGER STYLE )
   const getStatusStyle = (status) => {
     switch (status) {
       case "OPERATIONAL":
@@ -24,7 +24,7 @@ const InfraTable = ({ data = [], onEdit, onDelete }) => {
 
       <table className="w-full text-sm">
 
-        {/* ✅ HEADER */}
+        {/*  HEADER */}
         <thead className="bg-gray-100 sticky top-0 z-10">
           <tr>
             <th className="px-4 py-3 text-left w-[80px]">ID</th>
@@ -36,7 +36,7 @@ const InfraTable = ({ data = [], onEdit, onDelete }) => {
           </tr>
         </thead>
 
-        {/* ✅ BODY */}
+        {/*  BODY */}
         <tbody>
           {safeData.length === 0 ? (
             <tr>
@@ -63,50 +63,48 @@ const InfraTable = ({ data = [], onEdit, onDelete }) => {
                   <td className="px-4 py-3">{infra.location}</td>
                   <td className="px-4 py-3">{infra.capacity}</td>
 
-                  {/* ✅ STATUS */}
+                  {/*  STATUS */}
                   <td className="px-4 py-3">
                     <span className={getStatusStyle(infra.status)}>
                       {infra.status}
                     </span>
                   </td>
 
-                  {/* ✅ ACTION */}
+                  {/*  ACTION */}
                   <td className="px-4 py-3">
                     <div className="flex justify-center gap-2">
 
                       <div title={isEditDisabled ? "Cannot edit decommissioned infra" : "Edit"}>
-  <button
-    disabled={isEditDisabled}
-    onClick={() => !isEditDisabled && onEdit(infra)}
-    className={`px-3 py-1 rounded text-xs ${
-      isEditDisabled
-        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-        : "bg-blue-100 text-blue-700 hover:bg-blue-200 cursor-pointer"
-    }`}
-  >
-    Edit
-  </button>
-</div>
+                        <button
+                          disabled={isEditDisabled}
+                          onClick={() => !isEditDisabled && onEdit(infra)}
+                          className={`px-3 py-1 rounded text-xs ${isEditDisabled
+                              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                              : "bg-blue-100 text-blue-700 hover:bg-blue-200 cursor-pointer"
+                            }`}
+                        >
+                          Edit
+                        </button>
+                      </div>
 
                       <div title={
-  isDeleteBlocked
-    ? "Cannot delete operational or decommissioned infra"
-    : "Delete"
-}>
-  <button
-    disabled={isDeleteBlocked}
-    onClick={() =>
-      !isDeleteBlocked && onDelete(infra.infraId)
-    }
-    className={`px-3 py-1 rounded text-xs ${
-      isDeleteBlocked
-        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-        : "bg-red-100 text-red-700 hover:bg-red-200 cursor-pointer"
-    }`}
-  >
-    Delete
-  </button>
-</div>
+                        isDeleteBlocked
+                          ? "Cannot delete operational or decommissioned infra"
+                          : "Delete"
+                      }>
+                        <button
+                          disabled={isDeleteBlocked}
+                          onClick={() =>
+                            !isDeleteBlocked && onDelete(infra.infraId)
+                          }
+                          className={`px-3 py-1 rounded text-xs ${isDeleteBlocked
+                              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                              : "bg-red-100 text-red-700 hover:bg-red-200 cursor-pointer"
+                            }`}
+                        >
+                          Delete
+                        </button>
+                      </div>
 
 
                     </div>

@@ -19,3 +19,6 @@ export const updateProgram = (id, data) =>
 // ✅ ✅ FIXED DELETE
 export const deleteProgram = (id) =>
   API.delete(`${BASE_URL}/${id}`);
+
+export const checkProgramExists = (id) =>
+  API.get(`/api/programs/${id}/exists`);

@@ -22,19 +22,58 @@ const getStatusStyle = (status) => {
 const ProgramsPage = () => {
   const navigate = useNavigate();
   const [programs, setPrograms] = useState([]);
+const [loading, setLoading] = useState(true);   // ✅ ADD
+const [error, setError] = useState(false);      // ✅ ADD
 
-  useEffect(() => {
-    const loadPrograms = async () => {
-      try {
-        const res = await getPrograms();
-        setPrograms(res.data || []);
-      } catch {
-        toast.error("Failed to load programs ❌");
-      }
-    };
+useEffect(() => {
+  const loadPrograms = async () => {
+    try {
+      setLoading(true);     // ✅ START loading
+      setError(false);      // ✅ RESET error
 
-    loadPrograms();
-  }, []);
+      const res = await getPrograms();
+      setPrograms(res.data || []);
+    } catch {
+      setError(true);       // ✅ SET error
+      toast.error("Failed to load programs ❌");
+    } finally {
+      setLoading(false);    // ✅ STOP loading
+    }
+  };
+
+  loadPrograms();
+}, []);
+
+if (loading) {
+  return (
+    <div className="flex justify-center items-center h-screen">
+      <div className="animate-spin h-10 w-10 border-4 border-green-500 border-t-transparent rounded-full" />
+    </div>
+  );
+}
+if (error) {
+ 
+return (
+  <div className="flex flex-col justify-center items-center h-[60vh] text-center"> 
+      <h2 className="text-xl font-semibold text-red-600 mb-2">
+        Server Unavailable 🚫
+      </h2>
+
+      <p className="text-gray-500 mb-4">
+        Unable to fetch programs. Please try again later.
+      </p>
+
+      <button
+        onClick={() => window.location.reload()}
+        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 cursor-pointer transition"
+      >
+        Retry
+      </button>
+    </div>
+  );
+}
+
+
 
   return (
     <div className="flex flex-col h-screen">
@@ -89,7 +128,7 @@ const ProgramsPage = () => {
                           navigate(`/provider/programs/${p.programId}`, {
                             state: {
                               title: p.title,
-                              budget: p.budget, // ✅ PASS BUDGET
+                              // budget: p.budget, // ✅ PASS BUDGET
                             },
                           })
                         }
@@ -139,7 +178,7 @@ const ProgramsPage = () => {
                               navigate(`/provider/programs/${p.programId}`, {
                                 state: {
                                   title: p.title,
-                                  budget: p.budget, // ✅ PASS BUDGET
+                                  // budget: p.budget, // ✅ PASS BUDGET
                                 },
                               })
                             }

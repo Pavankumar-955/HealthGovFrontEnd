@@ -32,7 +32,7 @@ export const createInfra = (data) =>
   API.post(`${BASE_PATH}/save`, data).catch(handleError);
 
 export const updateInfra = (id, data) =>
-  API.put(`${BASE_PATH}/update/${id}`, data).catch(handleError);
+  API.patch(`${BASE_PATH}/update/${id}`, data).catch(handleError);
 
 export const deleteInfra = (id) =>
   API.delete(`${BASE_PATH}/delete/${id}`).catch(handleError);
