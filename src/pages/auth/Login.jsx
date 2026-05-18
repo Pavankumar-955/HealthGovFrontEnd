@@ -47,7 +47,7 @@ export default function Login() {
           navigate('/audit-dashboard');
         }
        else if (userRole === 'RESEARCHER') {
-        navigate('/researcher/projects'); // ✅ FIXED HERE
+        navigate('/researcher/dashboard'); 
       } else if (userRole === 'MANAGER') {
         navigate('/manager/dashboard');
       }  else if (userRole === 'PROVIDER') {

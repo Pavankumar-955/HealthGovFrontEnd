@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useAuth } from "../../../context/AuthContext";
 import { downloadOverallReportPDF } from "./reportGeneratorManager";
 import {
   getNotificationsByUser,
@@ -15,11 +16,15 @@ import DecisionModal from "./DecisionModal";
 import toast from "react-hot-toast";
 
 const ManagerApplications = () => {
+  const { user } = useAuth();
+  const userId = user?.userId;
+
   const [showProjectReport, setShowProjectReport] = useState(false);
 
   const [projects, setProjects] = useState([]);
   const [status, setStatus] = useState("");
   const [searchId, setSearchId] = useState("");
+  const [searchName, setSearchName] = useState("");
 
   const [selectedProject, setSelectedProject] = useState(null); // For details modal
   const [selectedForReview, setSelectedForReview] = useState(null); // For decision modal
@@ -30,22 +35,13 @@ const ManagerApplications = () => {
 
   const [lastUpdatedId, setLastUpdatedId] = useState(null);
 
-  const token = localStorage.getItem("token");
-  let userId = null;
 
-  // Decode token to get userId
-  if (token) {
-    try {
-      const decoded = JSON.parse(atob(token.split(".")[1]));
-      userId = decoded.userId;
-    } catch { }
-  }
 
   // RE-RUN when:status filter changes, decision made
   useEffect(() => {
     fetchProjects();
     if (userId) fetchNotifications();
-  }, [status, lastUpdatedId]);
+  }, [status, lastUpdatedId, userId]);
 
   const fetchProjects = async () => {
     try {
@@ -108,11 +104,20 @@ const ManagerApplications = () => {
       toast.error("Decision failed ❌");
     }
   };
+
   // Search filter
   const filteredProjects = projects.filter((p) => {
-    if (!searchId) return true;
-    return p.projectId.toString() === searchId;
+    const matchesId = searchId
+      ? p.projectId.toString() === searchId
+      : true;
+
+    const matchesName = searchName
+      ? p.title.toLowerCase().includes(searchName.toLowerCase())
+      : true;
+
+    return matchesId && matchesName;
   });
+
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#eef3f8]">
@@ -132,6 +137,14 @@ const ManagerApplications = () => {
                 placeholder="Search by ID"
                 value={searchId}
                 onChange={(e) => setSearchId(e.target.value)}
+                className="border px-3 py-2 rounded-lg w-40"
+              />
+
+              <input
+                type="text"
+                placeholder="Search by Name"
+                value={searchName}
+                onChange={(e) => setSearchName(e.target.value)}
                 className="border px-3 py-2 rounded-lg w-40"
               />
 
@@ -245,7 +258,6 @@ const ManagerApplications = () => {
 
               {/* BODY */}
               {(() => {
-                const user = JSON.parse(atob(localStorage.getItem("token").split(".")[1]));
 
                 const pending = projects.filter(p => p.status === "PENDING").length;
                 const approved = projects.filter(p => p.status === "APPROVED").length;
@@ -253,14 +265,23 @@ const ManagerApplications = () => {
 
                 return (
                   <div className="space-y-3 text-sm">
-                    <p><strong>ID:</strong> {user.userId}</p>
-                    <p><strong>Email:</strong> {user.sub}</p>
+                    <p><strong>ID:</strong> {user?.userId}</p>
+                    <p><strong>Email:</strong> {user?.email}</p>
 
                     <div className="border p-3 bg-gray-50 rounded-lg">
                       <p><strong>Total Applications:</strong> {projects.length}</p>
                       <p><strong>Pending:</strong> {pending}</p>
                       <p><strong>Approved:</strong> {approved}</p>
                       <p><strong>Rejected:</strong> {rejected}</p>
+                      <p>
+                        <strong>Total Grants:</strong> Rs {
+                          projects
+                            .filter(p => p.status === "APPROVED")
+                            .reduce((sum, p) => sum + (p.amount || 0), 0)
+                            .toLocaleString("en-IN")
+                        }
+                      </p>
+
                     </div>
                   </div>
                 );
@@ -278,15 +299,17 @@ const ManagerApplications = () => {
 
                 <button
                   onClick={() => {
-                    const user = JSON.parse(atob(localStorage.getItem("token").split(".")[1]));
-
+                    const totalGrants = projects
+                      .filter(p => p.status === "APPROVED")
+                      .reduce((sum, p) => sum + Number(p.amount || 0), 0);
                     const report = {
-                      managerId: user.userId,
-                      email: user.sub,
+                      managerId: user?.userId || "N/A",
+                      email: user?.email || "N/A",
                       total: projects.length,
                       pending: projects.filter(p => p.status === "PENDING").length,
                       approved: projects.filter(p => p.status === "APPROVED").length,
-                      rejected: projects.filter(p => p.status === "REJECTED").length
+                      rejected: projects.filter(p => p.status === "REJECTED").length,
+                      totalGrants
                     };
 
                     downloadOverallReportPDF(report);
@@ -304,7 +327,6 @@ const ManagerApplications = () => {
       )}
 
     </div>
-
 
   );
 

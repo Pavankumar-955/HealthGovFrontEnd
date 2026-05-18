@@ -42,7 +42,7 @@ export const downloadOverallReportPDF = (report) => {
   doc.setFontSize(11);
 
   // TOTAL
-  doc.rect(20, y - 5, 170, 45);
+  doc.rect(20, y - 5, 170, 48);
 
   // consistent offset
   const offset = 5;
@@ -78,6 +78,19 @@ export const downloadOverallReportPDF = (report) => {
   doc.setFont(undefined, "normal");
   doc.text(`${report.rejected ?? 0}`, 90, y + offset);
   doc.setTextColor(0, 0, 0);
+
+y += gap;
+
+doc.setFont(undefined, "bold");
+doc.text("Total Grants:", 25, y + offset);
+
+doc.setFont(undefined, "normal");
+doc.text(
+  `Rs ${Number(report.totalGrants ?? 0).toLocaleString("en-IN")}`,
+  90,
+  y + offset
+);
+
 
   doc.save("Manager_Report.pdf");
 };
@@ -192,7 +205,7 @@ export const downloadProjectReportPDF = (project) => {
   if (project?.status === "APPROVED") {
     doc.setTextColor(0, 128, 0);
     doc.text(
-      `Grant Amount: ₹${(project.amount ?? 0).toLocaleString("en-IN")}`,
+      `Grant Amount: Rs ${Number(project.amount ?? 0).toLocaleString("en-IN")}`,
       25,
       y + 15
     );

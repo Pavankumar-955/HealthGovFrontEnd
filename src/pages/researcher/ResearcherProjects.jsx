@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useAuth } from "../../context/AuthContext";
 import { downloadOverallReportPDF } from "./reportGenerator";
 import {
     getNotificationsByUser,
@@ -22,37 +23,30 @@ import ProjectDetailsModal from "./ProjectDetailsModal";
 import toast from "react-hot-toast";
 
 const ResearcherProjects = () => {
+    const { user } = useAuth(); // Get logged-in user info
+    const userId = user?.userId // Extract userId
 
     const [projects, setProjects] = useState([]);
     const [status, setStatus] = useState("");
     const [searchId, setSearchId] = useState("");
+    const [searchName, setSearchName] = useState("");
 
     const [show, setShow] = useState(false); // Open/close form
     const [editData, setEditData] = useState(null);
     const [selectedProject, setSelectedProject] = useState(null);
 
     const [notifications, setNotifications] = useState([]);
-    const [showNotifications, setShowNotifications] = useState(false);
-    const dropdownRef = useRef(null);
+    const [showNotifications, setShowNotifications] = useState(false); // Toggle notification dropdown
+    const dropdownRef = useRef(null); // Reference for click outside detection
 
-    const [showReportModal, setShowReportModal] = useState(false);
+    const [showReportModal, setShowReportModal] = useState(false); // Toggle report modal
     const [lastUpdatedId, setLastUpdatedId] = useState(null); // Track last updated/created project for sorting
 
-    const token = localStorage.getItem("token");
-    let userId = null;
-
-    // Decode JWT from localStorage to extract user details
-    if (token) {
-        try {
-            const decoded = JSON.parse(atob(token.split(".")[1]));
-            userId = decoded.userId;
-        } catch { }
-    }
-    // Data loading when page loads or status changes or a project is updated/created (to refresh list and resort)
+    // fetches projects & notification when status changes,project updated, user loads 
     useEffect(() => {
         fetchProjects();
         if (userId) fetchNotifications();
-    }, [status, lastUpdatedId]);
+    }, [status, lastUpdatedId, userId]);
 
     const openReport = () => setShowReportModal(true);
 
@@ -131,33 +125,37 @@ const ResearcherProjects = () => {
         }
     };
 
-    // Search by ID
-    const filteredProjects = projects.filter((p) =>
-        searchId ? p.projectId.toString() === searchId : true
-    );
+    // Search by ID or name
+    const filteredProjects = projects.filter((p) => {
+        const matchesId = searchId
+            ? p.projectId.toString() === searchId
+            : true;
+
+        const matchesName = searchName
+            ? p.title.toLowerCase().includes(searchName.toLowerCase())
+            : true;
+
+        return matchesId && matchesName;
+    });
 
     const handleOverallReport = () => {
         try {
-            const token = localStorage.getItem("token");
-            const user = JSON.parse(atob(token.split(".")[1]));
+            const userData = user;
 
             const approved = projects.filter(p => p.status === "APPROVED").length;
             const rejected = projects.filter(p => p.status === "REJECTED").length;
             const pending = projects.filter(p => p.status === "PENDING").length;
             const totalGrants = projects.reduce((sum, p) => sum + (p.amount || 0), 0);
 
-            const rawName = user.name || user.sub.split("@")[0];
-
-            // clean + formatted name
-            const formattedName = rawName
-                .replace(/[0-9]/g, "")          // remove numbers
-                .replace(/[_\.]/g, " ")         // replace . and _
-                .replace(/\b\w/g, c => c.toUpperCase()); // capitalize
+            const rawName =
+                userData?.name ||
+                userData?.email?.split("@")[0] ||
+                "Researcher";
 
             const report = {
-                researcherId: user.userId,
-                researcherName: formattedName,
-                email: user.sub,
+                researcherId: userData.userId,
+                researcherName: rawName,
+                email: userData.email,
                 totalProjects: projects.length,
                 pending,
                 approved,
@@ -203,6 +201,14 @@ const ResearcherProjects = () => {
                             placeholder="Search by ID"
                             value={searchId}
                             onChange={(e) => setSearchId(e.target.value)}
+                            className="border px-3 py-2 rounded"
+                        />
+
+                        <input
+                            type="text"
+                            placeholder="Search by Name"
+                            value={searchName}
+                            onChange={(e) => setSearchName(e.target.value)}
                             className="border px-3 py-2 rounded"
                         />
 
@@ -267,7 +273,6 @@ const ResearcherProjects = () => {
                                 </h3>
 
                                 {(() => {
-                                    const user = JSON.parse(atob(localStorage.getItem("token").split(".")[1]));
 
                                     const pending = projects.filter(p => p.status === "PENDING").length;
                                     const approved = projects.filter(p => p.status === "APPROVED").length;
@@ -276,8 +281,8 @@ const ResearcherProjects = () => {
 
                                     return (
                                         <div className="space-y-2 text-sm text-gray-700">
-                                            <p><strong>ID:</strong> {user.userId}</p>
-                                            <p><strong>Email:</strong> {user.sub}</p>
+                                            <p><strong>ID:</strong> {user?.userId}</p>
+                                            <p><strong>Email:</strong> {user?.email}</p>
 
                                             <hr className="my-2" />
 

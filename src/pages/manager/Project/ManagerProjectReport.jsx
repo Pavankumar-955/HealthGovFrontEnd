@@ -16,6 +16,10 @@ const ManagerProjectReport = () => {
     setProjects(res.data);
   };
 
+  const totalGrants = projects
+    .filter(p => p.status === "APPROVED")
+    .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+
   // Get user from token
   const handleDownload = () => {
     const token = localStorage.getItem("token");
@@ -27,7 +31,8 @@ const ManagerProjectReport = () => {
       total: projects.length,
       pending: projects.filter(p => p.status === "PENDING").length,
       approved: projects.filter(p => p.status === "APPROVED").length,
-      rejected: projects.filter(p => p.status === "REJECTED").length
+      rejected: projects.filter(p => p.status === "REJECTED").length,
+      totalGrants
     };
 
     downloadOverallReportPDF(report);
@@ -46,6 +51,7 @@ const ManagerProjectReport = () => {
         <p><strong>Pending:</strong> {projects.filter(p => p.status === "PENDING").length}</p>
         <p><strong>Approved:</strong> {projects.filter(p => p.status === "APPROVED").length}</p>
         <p><strong>Rejected:</strong> {projects.filter(p => p.status === "REJECTED").length}</p>
+        <p><strong>Total Grants:</strong> Rs {totalGrants.toLocaleString("en-IN")}</p>
 
         <button
           onClick={handleDownload}

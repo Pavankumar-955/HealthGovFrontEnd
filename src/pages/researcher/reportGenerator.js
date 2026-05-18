@@ -98,7 +98,7 @@ export const downloadOverallReportPDF = (report) => {
   doc.setFont(undefined, "normal");
   doc.setTextColor(0, 128, 0);
   doc.text(
-    `₹${(report.totalGrants ?? 0).toLocaleString("en-IN")}`,
+    `Rs ${Number(report.totalGrants ?? 0).toLocaleString("en-IN")}`,
     90,
     y + offset
   );
@@ -186,7 +186,7 @@ export const downloadProjectReportPDF = (project) => {
   if (project?.status === "APPROVED") {
     doc.setTextColor(0, 128, 0); // green
     doc.text(
-      `Grant Amount: ₹${(project.amount ?? 0).toLocaleString("en-IN")}`,
+      `Grant Amount: Rs ${Number(project.amount ?? 0).toLocaleString("en-IN")}`,
       25,
       y + 35
     );
