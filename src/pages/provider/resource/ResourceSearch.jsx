@@ -7,7 +7,7 @@ const ResourceSearch = ({ search, setSearch, onSearch, onClear }) => {
   return (
     <div className="flex flex-col gap-4">
 
-      {/* ✅ FILTER ROW */}
+      {/*  FILTER ROW */}
       <div className="flex flex-wrap items-center gap-3">
 
         {/* TYPE */}
@@ -40,7 +40,7 @@ const ResourceSearch = ({ search, setSearch, onSearch, onClear }) => {
           <option value="COMPLETED">COMPLETED</option>
         </select>
 
-        {/* ✅ SEARCH (match infra: always enabled) */}
+        {/*  SEARCH ( always enabled) */}
         <button
           onClick={onSearch}
           className="px-4 py-2 rounded-lg text-sm bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition cursor-pointer"
@@ -48,7 +48,7 @@ const ResourceSearch = ({ search, setSearch, onSearch, onClear }) => {
           Search
         </button>
 
-        {/* ✅ RESET (same infra behavior) */}
+        {/*  RESET */}
         <div title={isEmpty ? "No filters to reset" : "Reset filters"}>
           <button
             onClick={onClear}
@@ -65,7 +65,7 @@ const ResourceSearch = ({ search, setSearch, onSearch, onClear }) => {
 
       </div>
 
-      {/* ✅ FILTER TAGS (matched style) */}
+      {/*  FILTER TAGS (matched style) */}
       {!isEmpty && (
         <div className="flex flex-wrap gap-2 text-xs items-center">
 

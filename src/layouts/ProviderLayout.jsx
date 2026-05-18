@@ -83,7 +83,7 @@ const ProviderLayout = () => {
               })}
             </div>
  
-            {/* RIGHT: Profile Pill (Notifications Removed) */}
+            {/* RIGHT: Profile */}
             <div className="flex-shrink-0 w-auto md:w-48 flex items-center justify-end">
               <div className="relative">
                 <button

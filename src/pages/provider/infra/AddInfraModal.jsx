@@ -11,7 +11,7 @@ const AddInfraModal = ({ show, onClose, onCreate }) => {
 
   const [touched, setTouched] = useState({});
 
-  // ✅ RESET FORM
+  //  RESET FORM
   useEffect(() => {
     if (!show) {
       setForm({
@@ -26,7 +26,7 @@ const AddInfraModal = ({ show, onClose, onCreate }) => {
 
   if (!show) return null;
 
-  // ✅ VALIDATION
+  //  VALIDATION
   const errors = {
     type: form.type === "",
     location: form.location.trim() === "",
@@ -40,7 +40,7 @@ const AddInfraModal = ({ show, onClose, onCreate }) => {
 
   const isInvalid = (field) => touched[field] && errors[field];
 
-  // ✅ SUBMIT
+  //  SUBMIT
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -64,13 +64,13 @@ const AddInfraModal = ({ show, onClose, onCreate }) => {
 
   return (
     <>
-      {/* ✅ BLUR BACKGROUND */}
+      {/*  BLUR BACKGROUND */}
       <div
         className="fixed inset-0 backdrop-blur-sm bg-black/10 z-[9998]"
         onClick={onClose}
       />
 
-      {/* ✅ MODAL */}
+      {/*  MODAL */}
       <div className="fixed inset-0 flex items-center justify-center z-[9999]">
 
         <div
@@ -78,7 +78,7 @@ const AddInfraModal = ({ show, onClose, onCreate }) => {
           onClick={(e) => e.stopPropagation()}
         >
 
-          {/* ✅ HEADER */}
+          {/*  HEADER */}
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold">
               Add Infrastructure
@@ -92,7 +92,7 @@ const AddInfraModal = ({ show, onClose, onCreate }) => {
             </button>
           </div>
 
-          {/* ✅ FORM */}
+          {/*  FORM */}
           <form onSubmit={handleSubmit} className="space-y-3">
 
             {/* TYPE */}
@@ -104,9 +104,8 @@ const AddInfraModal = ({ show, onClose, onCreate }) => {
                   setForm({ ...form, type: e.target.value })}
                 onBlur={() =>
                   setTouched({ ...touched, type: true })}
-                className={`w-full border p-2 rounded ${
-                  isInvalid("type") ? "border-red-400" : "border-gray-200"
-                }`}
+                className={`w-full border p-2 rounded ${isInvalid("type") ? "border-red-400" : "border-gray-200"
+                  }`}
               >
                 <option value="">Select Type</option>
                 <option value="HOSPITAL">HOSPITAL</option>
@@ -129,18 +128,15 @@ const AddInfraModal = ({ show, onClose, onCreate }) => {
                   setForm({ ...form, location: e.target.value })}
                 onBlur={() =>
                   setTouched({ ...touched, location: true })}
-                className={`w-full border p-2 rounded ${
-                  isInvalid("location")
+                className={`w-full border p-2 rounded ${isInvalid("location")
                     ? "border-red-400"
                     : "border-gray-200"
-                }`}
+                  }`}
                 placeholder="Enter location"
               />
 
               {isInvalid("location") && (
-                <p className="text-red-500 text-xs">
-                  Location required
-                </p>
+                <p className="text-red-500 text-xs">Location required</p>
               )}
             </div>
 
@@ -163,18 +159,15 @@ const AddInfraModal = ({ show, onClose, onCreate }) => {
                 }}
                 onBlur={() =>
                   setTouched({ ...touched, capacity: true })}
-                className={`w-full border p-2 rounded ${
-                  isInvalid("capacity")
+                className={`w-full border p-2 rounded ${isInvalid("capacity")
                     ? "border-red-400"
                     : "border-gray-200"
-                }`}
+                  }`}
                 placeholder="Enter capacity"
               />
 
               {isInvalid("capacity") && (
-                <p className="text-red-500 text-xs">
-                  Capacity must be ≥ 0
-                </p>
+                <p className="text-red-500 text-xs">Capacity must be ≥ 0</p>
               )}
             </div>
 
@@ -187,23 +180,16 @@ const AddInfraModal = ({ show, onClose, onCreate }) => {
                   setForm({ ...form, status: e.target.value })}
                 onBlur={() =>
                   setTouched({ ...touched, status: true })}
-                className={`w-full border p-2 rounded ${
-                  isInvalid("status")
+                className={`w-full border p-2 rounded ${isInvalid("status")
                     ? "border-red-400"
                     : "border-gray-200"
-                }`}
+                  }`}
               >
                 <option value="">Select Status</option>
                 <option value="OPERATIONAL">OPERATIONAL</option>
-                <option value="UNDER_MAINTENANCE">
-                  UNDER_MAINTENANCE
-                </option>
-                <option value="TEMPORARILY_CLOSED">
-                  TEMPORARILY_CLOSED
-                </option>
-                <option value="DECOMMISSIONED">
-                  DECOMMISSIONED
-                </option>
+                <option value="UNDER_MAINTENANCE">UNDER_MAINTENANCE</option>
+                <option value="TEMPORARILY_CLOSED">TEMPORARILY_CLOSED</option>
+                <option value="DECOMMISSIONED">DECOMMISSIONED</option>
               </select>
 
               {isInvalid("status") && (
@@ -211,7 +197,7 @@ const AddInfraModal = ({ show, onClose, onCreate }) => {
               )}
             </div>
 
-            {/* ✅ BUTTON */}
+            {/*  BUTTON */}
             <button
               type="submit"
               className="w-full bg-indigo-100 text-indigo-700 py-2 rounded-lg hover:bg-indigo-200 cursor-pointer transition"
