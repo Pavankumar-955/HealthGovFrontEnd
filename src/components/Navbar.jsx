@@ -55,6 +55,11 @@ const roleUsers = {
   auditor: { name: "Government Auditor" },
 };
 
+const authNavigation = [
+  { name: "Login", to: "/login" },
+  { name: "Register", to: "/signup" },
+];
+
 /* -------------------- COMPONENT -------------------- */
 
 export default function Navbar() {
@@ -74,38 +79,38 @@ export default function Navbar() {
   useEffect(() => {
     if (!user?.userId) return;
     fetchNotifications();
-    
- const interval = setInterval(() => {
-    fetchNotifications(); // 🔁 refresh every 10 seconds
-  }, 5000); 
+
+    const interval = setInterval(() => {
+      fetchNotifications(); // 🔁 refresh every 10 seconds
+    }, 5000);
 
   }, [user?.userId]);
 
- const fetchNotifications = async () => {
-  try {
-    setNotifLoading(true);
-    const res = await getAllNotifications();
-    console.log("Fetched notifications:", res.data);
+  const fetchNotifications = async () => {
+    try {
+      setNotifLoading(true);
+      const res = await getAllNotifications();
+      console.log("Fetched notifications:", res.data);
 
-    const data = Array.isArray(res.data) ? res.data : [];
+      const data = Array.isArray(res.data) ? res.data : [];
 
-    // ✅ filter by logged-in user
-    let filtered = data.filter((n) => n.userId === user.userId);
+      // ✅ filter by logged-in user
+      let filtered = data.filter((n) => n.userId === user.userId);
 
-    // ✅ role-specific filter
-    if (userRole === "compliance") {
-      filtered = data.filter((n) => n.category === "COMPLIANCE");
+      // ✅ role-specific filter
+      if (userRole === "compliance") {
+        filtered = data.filter((n) => n.category === "COMPLIANCE");
+      }
+
+      setNotifications(filtered);
+
+    } catch (err) {
+      console.error("Notification fetch error:", err);
+      setNotifications([]);
+    } finally {
+      setNotifLoading(false);
     }
-
-    setNotifications(filtered);
-
-  } catch (err) {
-    console.error("Notification fetch error:", err);
-    setNotifications([]);
-  } finally {
-    setNotifLoading(false);
-  }
-};
+  };
 
   /* ================= MARK AS READ ================= */
 
@@ -184,6 +189,23 @@ export default function Navbar() {
 
             {/* ✅ RIGHT SIDE */}
             <div className="flex items-center gap-2 md:gap-4">
+
+              {!userRole && 
+                (
+                authNavigation.map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.to}
+                    className={`px-4 py-2 rounded-lg text-sm font-semibold ${
+                      item.name === "Register"
+                        ? "bg-white text-green-700"
+                        : "text-white hover:bg-white/10"
+                    }`}
+                  >
+                    {item.name}
+                  </Link>
+                ))
+              )}
 
               {/* 🔔 NOTIFICATION */}
               {userRole && userRole !== "auditor" && (

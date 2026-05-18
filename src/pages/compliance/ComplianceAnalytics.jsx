@@ -116,9 +116,9 @@ const ComplianceAnalytics = () => {
                       Compliance Status
                     </h2>
                   </div>
-                  <div className="rounded-full bg-orange-50 px-3 py-2 text-sm font-semibold text-orange-700">
+                  {/* <div className="rounded-full bg-orange-50 px-3 py-2 text-sm font-semibold text-orange-700">
                     Updated now
-                  </div>
+                  </div> */}
                 </div>
 
                 <div className="h-[360px]">
@@ -156,9 +156,9 @@ const ComplianceAnalytics = () => {
                       Record Type Trend
                     </h2>
                   </div>
-                  <div className="rounded-full bg-orange-50 px-3 py-2 text-sm font-semibold text-orange-700">
+                  {/* <div className="rounded-full bg-orange-50 px-3 py-2 text-sm font-semibold text-orange-700">
                     Trend view
-                  </div>
+                  </div> */}
                 </div>
 
                 <div className="h-[360px]">
