@@ -1,5 +1,5 @@
-const SummaryCards = ({ summary = { totalRecords: 0, byResult: {}, byType: {} }}) => {
-   return (
+const SummaryCards = ({ summary = { totalRecords: 0, byResult: {}, byType: {} } }) => {
+  return (
     <div className="flex gap-4 overflow-x-auto pb-2">
 
       {/* TOTAL */}
@@ -15,7 +15,7 @@ const SummaryCards = ({ summary = { totalRecords: 0, byResult: {}, byType: {} }}
       {/* COMPLIANT */}
       <div className="min-w-[200px] flex-1 bg-green-50 border border-green-200 rounded-xl p-5 shadow-sm">
         <p className="text-xs font-semibold tracking-wide text-green-700 uppercase">
-          Compliant
+          Compliance
         </p>
         <p className="text-3xl font-bold text-gray-900 mt-2">
           {summary.byResult.COMPLIANT || 0}
@@ -25,7 +25,7 @@ const SummaryCards = ({ summary = { totalRecords: 0, byResult: {}, byType: {} }}
       {/* PARTIALLY COMPLIANT */}
       <div className="min-w-[200px] flex-1 bg-blue-50 border border-blue-200 rounded-xl p-5 shadow-sm">
         <p className="text-xs font-semibold tracking-wide text-blue-700 uppercase">
-          Partially Compliant
+          Partially Compliance
         </p>
         <p className="text-3xl font-bold text-gray-900 mt-2">
           {summary.byResult.PARTIALLY_COMPLIANT || 0}
@@ -35,7 +35,7 @@ const SummaryCards = ({ summary = { totalRecords: 0, byResult: {}, byType: {} }}
       {/* NON COMPLIANT */}
       <div className="min-w-[200px] flex-1 bg-orange-50 border border-orange-200 rounded-xl p-5 shadow-sm">
         <p className="text-xs font-semibold tracking-wide text-orange-700 uppercase">
-          Non Compliant
+          Non Compliance
         </p>
         <p className="text-3xl font-bold text-gray-900 mt-2">
           {summary.byResult.NON_COMPLIANT || 0}

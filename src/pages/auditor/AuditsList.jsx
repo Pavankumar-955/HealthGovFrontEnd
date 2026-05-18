@@ -12,7 +12,7 @@ const AuditList = ({ audits = [], handleSelectAudit }) => {
       case 'FOLLOW_UP_REQUIRED':
         return 'bg-orange-100 text-orange-800';
       case 'CANCELLED':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-red-100 text-orange-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -50,7 +50,6 @@ const AuditList = ({ audits = [], handleSelectAudit }) => {
             <tr>
               <th className="px-6 py-3">Audit ID</th>
               <th className="px-6 py-3">Scope</th>
-              <th className="px-6 py-3">Officer</th>
               <th className="px-6 py-3">Status</th>
               <th className="px-6 py-3">Date</th>
               <th className="px-6 py-3">Actions</th>
@@ -77,11 +76,6 @@ const AuditList = ({ audits = [], handleSelectAudit }) => {
                     >
                       {audit.scope}
                     </span>
-                  </td>
-
-                  {/* ✅ Officer */}
-                  <td className="px-6 py-4 text-gray-700">
-                    {audit.officer?.name}
                   </td>
 
                   {/* ✅ Status */}
