@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DocumentArrowDownIcon } from '@heroicons/react/24/outline';
-import jsPDF from 'jspdf';
+import { generatePDFReport } from "../../services/pdfReportService.js";
 import { getAllComplianceRecords } from "../../api/complianceAPI.js";
 
 // ✅ Completion mapping
@@ -37,14 +37,51 @@ const ComplianceReports = () => {
       const res = await getAllComplianceRecords();
       console.log("Fetched compliance records from Compliance Report :", res.data);
 
-      const mappedData = res.data.map((item) => ({
-        id: item.complianceId,
-        name: item.entity?.title || `Entity ${item.entityId}`,
-        type: item.type,
-        status: item.result,
-        date: item.date,
-        completionRate: getCompletion(item.result),
-      }));
+      const mappedData = res.data.map((item) => {
+        const entity = item.entity || {};
+
+        const base = {
+          id: item.complianceId,
+          type: item.type,
+          status: item.result,
+          date: item.date,
+          notes: item.notes ?? "No notes available",
+
+          name: entity.title ?? "N/A",
+          description: entity.description ?? "No description available",
+
+          startDate: entity.startDate ?? "-",
+          endDate: entity.endDate ?? "-",
+        };
+
+        if (item.type === "PROGRAM") {
+          return {
+            ...base,
+            budget: entity.budget ?? "N/A",
+            managerId: entity.managerId ?? "-"
+          };
+        }
+
+        if (item.type === "PROJECT") {
+          return {
+            ...base,
+            researcherName: entity.researcherName ?? entity.researcher ?? "-",  // ✅ FIX
+            researcherId: entity.researcherId ?? "-",
+          };
+        }
+
+        if (item.type === "GRANT") {
+          return {
+            ...base,
+            amount: entity.amount ?? "0",
+            grantId: entity.grantId ?? "-",
+            projectId: entity.projectId ?? "-"
+          };
+        }
+
+        return base;
+      });
+
 
       setComplianceRecords(mappedData);
 
@@ -74,70 +111,45 @@ const ComplianceReports = () => {
   };
 
   // ✅ Generate PDF
-  const generatePDFReport = () => {
+  const handleGenerateReport = async () => {
     if (selectedRecords.length === 0) {
-      alert('Please select at least one compliance record');
+      alert("Select at least one record");
       return;
     }
 
     setIsGenerating(true);
 
     try {
-      const doc = new jsPDF();
-      const pageWidth = doc.internal.pageSize.getWidth();
-
-      // Title
-      doc.setFontSize(18);
-      doc.text('Compliance Report', pageWidth / 2, 20, { align: 'center' });
-
-      // Date
-      doc.setFontSize(10);
-      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 30);
-
-      // Filter selected records
       const selectedData = complianceRecords.filter(r =>
         selectedRecords.includes(r.id)
       );
 
-      // Summary
-      const summary = {
-        total: selectedData.length,
-        compliant: selectedData.filter(r => r.status === 'COMPLIANT').length,
-        underReview: selectedData.filter(r => r.status === 'UNDER_REVIEW').length,
-        partial: selectedData.filter(r => r.status === 'PARTIALLY_COMPLIANT').length,
-        nonCompliant: selectedData.filter(r => r.status === 'NON_COMPLIANT').length,
-      };
+      await generatePDFReport({
+        title: "Compliance Report",
+        data: selectedData,
 
-      doc.text(`Total Records: ${summary.total}`, 20, 40);
-      doc.text(`Compliant: ${summary.compliant}`, 20, 48);
-      doc.text(`Partially Compliant: ${summary.partial}`, 20, 56);
-      doc.text(`Under Review: ${summary.underReview}`, 20, 64);
-      doc.text(`Non-Compliant: ${summary.nonCompliant}`, 20, 72);
+        requiredFields: ["id", "type", "status"],
 
-      // Table
-      const tableData = selectedData.map(record => [
-        record.name,
-        record.type,
-        record.status.replaceAll("_", " "),
-        `${record.completionRate}%`,
-        record.date,
-      ]);
+        fields: [
+          { label: "Compliance ID", key: "id" },
+          { label: "Type", key: "type" },
+          { label: "Status", key: "status" },
+          { label: "Date", key: "date" },
+          { label: "Start Date", key: "startDate" },
+          { label: "End Date", key: "endDate" },
+        ],
 
-      doc.autoTable({
-        startY: 85,
-        head: [['Record Name', 'Type', 'Status', 'Completion', 'Date']],
-        body: tableData,
+        formatField: (value, key, record) => {
+          if (key === "status") return value?.replaceAll("_", " ");
+          return value ?? "-";
+        }
       });
-
-      doc.save(`compliance-report-${Date.now()}.pdf`);
-
-      alert("✅ Report generated successfully!");
 
       setSelectedRecords([]);
 
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      alert("Error generating report");
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Error generating PDF");
     } finally {
       setIsGenerating(false);
     }
@@ -183,11 +195,10 @@ const ComplianceReports = () => {
                   <div
                     key={record.id}
                     onClick={() => toggleRecordSelection(record.id)}
-                    className={`cursor-pointer rounded-2xl border-2 p-4 transition ${
-                      selectedRecords.includes(record.id)
+                    className={`cursor-pointer rounded-2xl border-2 p-4 transition ${selectedRecords.includes(record.id)
                         ? 'border-orange-600 bg-orange-50'
                         : 'border-orange-100 bg-white hover:border-orange-300'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-4">
 
@@ -209,15 +220,14 @@ const ComplianceReports = () => {
                           </span>
 
                           <span
-                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                              record.status === 'COMPLIANT'
+                            className={`rounded-full px-3 py-1 text-xs font-semibold ${record.status === 'COMPLIANT'
                                 ? 'bg-green-100 text-green-600'
                                 : record.status === 'UNDER_REVIEW'
-                                ? 'bg-amber-100 text-amber-600'
-                                : record.status === 'PARTIALLY_COMPLIANT'
-                                ? 'bg-blue-100 text-blue-600'
-                                : 'bg-red-100 text-red-600'
-                            }`}
+                                  ? 'bg-amber-100 text-amber-600'
+                                  : record.status === 'PARTIALLY_COMPLIANT'
+                                    ? 'bg-blue-100 text-blue-600'
+                                    : 'bg-red-100 text-red-600'
+                              }`}
                           >
                             {record.status.replaceAll("_", " ")}
                           </span>
@@ -228,11 +238,7 @@ const ComplianceReports = () => {
                         </div>
                       </div>
 
-                      <div className="text-right">
-                        <p className="text-2xl font-bold text-gray-800">
-                          {record.completionRate}%
-                        </p>
-                      </div>
+
                     </div>
                   </div>
                 ))
@@ -244,7 +250,7 @@ const ComplianceReports = () => {
           {/* ✅ Buttons */}
           <div className="flex gap-4">
             <button
-              onClick={generatePDFReport}
+              onClick={handleGenerateReport}
               disabled={isGenerating || selectedRecords.length === 0}
               className="flex items-center gap-2 rounded-3xl px-8 py-4 font-semibold text-white bg-orange-600 hover:bg-orange-700 transition disabled:opacity-50"
             >

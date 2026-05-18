@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Outlet, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import Footer from '../components/ui/Footer';
+import Footer from '../components/Footer';
 import {
   MdDashboard,
   MdFolder,

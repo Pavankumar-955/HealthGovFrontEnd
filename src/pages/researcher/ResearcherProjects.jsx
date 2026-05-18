@@ -14,7 +14,7 @@ import {
 } from "../../api/researchApi";
 
 import ResearcherNavbar from "./ResearcherNavbar";
-import Footer from "../../components/ui/Footer";
+import Footer from "../../components/Footer";
 
 import ProjectTable from "./ProjectTable";
 import ProjectFormModal from "./ProjectFormModal";

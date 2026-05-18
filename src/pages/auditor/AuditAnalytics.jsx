@@ -46,8 +46,8 @@ const AuditAnalytics = () => {
   // ✅ FORMAT TEXT
   const formatText = (key) =>
     key.replaceAll("_", " ")
-       .toLowerCase()
-       .replace(/\b\w/g, c => c.toUpperCase());
+      .toLowerCase()
+      .replace(/\b\w/g, c => c.toUpperCase());
 
   // ✅ DATA
   const statusData = Object.entries(summary.byStatus || {}).map(([k, v]) => ({
