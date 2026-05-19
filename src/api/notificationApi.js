@@ -9,3 +9,7 @@ export const getNotificationsByUser = (userId) => {
 export const markNotificationAsRead = (id) => {
   return API.put(`/api/notifications/${id}/read`);
 };
+
+export const getAllNotifications = () => {
+  return API.get(`/api/notifications/all`);
+};

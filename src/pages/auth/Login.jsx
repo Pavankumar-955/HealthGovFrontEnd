@@ -33,7 +33,7 @@ export default function Login() {
 
       // ✅ Decode token safely
       const decodedToken = jwtDecode(token);
-      const userRole = decodedToken.role;
+      const userRole = decodedToken.role?.toString()?.toUpperCase();
 
       // ✅ Role-based redirect
       if (userRole === 'ADMIN') {

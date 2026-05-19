@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import { Outlet, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import Navbar from '../components/ui/Navbar';
-import Footer from '../components/ui/Footer';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import {
   MdDashboard,
   MdPeople,

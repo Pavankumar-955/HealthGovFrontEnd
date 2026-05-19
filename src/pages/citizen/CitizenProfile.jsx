@@ -11,35 +11,22 @@ import {
   MdCancel, 
   MdUpload, 
   MdDelete, 
-  MdFilePresent,
-  MdCloudUpload,
-  MdVerified,
-  MdPending
-} from 'react-icons/md';// Fixed dynamic structural imports
+  MdFilePresent 
+} from 'react-icons/md';
 
-const CitizenProfile = () => {
+export default function CitizenProfile() {
   const { user } = useAuth();
   const navigate = useNavigate();
   
-  // Base State Configurations
   const [citizenId, setCitizenId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState('PENDING'); 
+  
   const [isEditing, setIsEditing] = useState(false);
   const [genderLocked, setGenderLocked] = useState(false);
   const [originalData, setOriginalData] = useState({ gender: '' });
 
-  // Document Management States (FIXED: Declared Missing Variables)
-  const [documents, setDocuments] = useState([]);
-  const [uploading, setUploading] = useState(false);
-  const [uploadForm, setUploadForm] = useState({
-    documentName: '',
-    documentType: '',
-    file: null
-  });
-
-  // Profile Form States
   const [form, setForm] = useState({
     name: '',
     dob: '',
@@ -48,20 +35,31 @@ const CitizenProfile = () => {
     address: ''
   });
 
-  // Dynamic Date Validation Calculations
+  // Dynamic Date Calculation
   const today = new Date();
   const maxDateStr = today.toISOString().split('T')[0]; 
   const minDate = new Date();
   minDate.setFullYear(today.getFullYear() - 170); 
   const minDateStr = minDate.toISOString().split('T')[0];
 
-  // Simple Inline Date Formatting Utility (FIXED: Prevents crash if missing)
-  const formatBackendDate = (rawDate) => {
-    if (!rawDate) return '';
-    return rawDate.split('T')[0]; 
+  // Document states
+  const [documents, setDocuments] = useState([]);
+  const [uploadForm, setUploadForm] = useState({
+    documentName: '',
+    documentType: '',
+    file: null
+  });
+  const [uploading, setUploading] = useState(false);
+
+  const formatBackendDate = (dateVal) => {
+    if (!dateVal) return '';
+    if (Array.isArray(dateVal)) {
+      const [year, month, day] = dateVal;
+      return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    }
+    return dateVal;
   };
 
-  // 1. Fetch Citizen Profile Core Meta Data
   useEffect(() => {
     const fetchProfileData = async () => {
       if (!user?.userId) return;
@@ -69,10 +67,8 @@ const CitizenProfile = () => {
         setLoading(true);
         const response = await API.get(`/citizen/user/${user.userId}`);
         const data = response.data;
-        
         setCitizenId(data.citizenId);
         setStatus(data.status);
-        
         const formattedDob = formatBackendDate(data.dob);
         setForm({
           name: data.name || '',
@@ -81,7 +77,6 @@ const CitizenProfile = () => {
           contactInfo: data.contactInfo || user.email || '', 
           address: data.address || ''
         });
-        
         setOriginalData({ gender: data.gender || '' });
         setGenderLocked(!!data.gender);
         setIsEditing(!data.name);
@@ -99,24 +94,19 @@ const CitizenProfile = () => {
     fetchProfileData();
   }, [user, navigate]); 
 
-  // 2. Fetch Vault Documents (FIXED: Renamed method to prevent duplicate identifier collisions)
-  const fetchVaultDocuments = async () => {
-    if (!citizenId) return;
+  useEffect(() => {
+    if (citizenId) fetchDocuments();
+  }, [citizenId]);
+
+  const fetchDocuments = async () => {
     try {
       const response = await API.get(`/document/${citizenId}`);
-      setDocuments(response.data || []);
+      setDocuments(response.data);
     } catch (error) {
       toast.error('Failed to load documents.');
     }
-  };
+  }; 
 
-  useEffect(() => {
-    if (citizenId) {
-      fetchVaultDocuments();
-    }
-  }, [citizenId]);
-
-  // Profile Form Inputs Change Handler
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'gender' && genderLocked) {
@@ -126,7 +116,6 @@ const CitizenProfile = () => {
     setForm({ ...form, [name]: value });
   };
 
-  // Update Profile Put Transaction
   const handleSave = async () => {
     if (!citizenId) return;
     if (form.dob && new Date(form.dob) > new Date()) {
@@ -154,38 +143,28 @@ const CitizenProfile = () => {
     }
   };
 
-  // Upload Input Field Change Handler
   const handleUploadChange = (e) => {
     const { name, value, files } = e.target;
-    if (name === 'file') {
-      setUploadForm({ ...uploadForm, file: files[0] });
-    } else {
-      setUploadForm({ ...uploadForm, [name]: value });
-    }
+    if (name === 'file') setUploadForm({ ...uploadForm, file: files[0] });
+    else setUploadForm({ ...uploadForm, [name]: value });
   };
 
-  // Multipart Form Data File Upload Execution
   const handleUpload = async (e) => {
     e.preventDefault();
     if (!citizenId || !uploadForm.file) return toast.error('Please select a file.');
     setUploading(true);
-    
-    const dataPayload = new FormData();
-    dataPayload.append('documentName', uploadForm.documentName);
-    dataPayload.append('documentType', uploadForm.documentType.trim().toUpperCase());
-    dataPayload.append('file', uploadForm.file);
-    
+    const formData = new FormData();
+    formData.append('documentName', uploadForm.documentName);
+    formData.append('documentType', uploadForm.documentType.trim().toUpperCase());
+    formData.append('file', uploadForm.file);
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${API.defaults.baseURL}/document/${citizenId}`, dataPayload, {
-        headers: { 
-          Authorization: token ? `Bearer ${token}` : undefined,
-          'Content-Type': 'multipart/form-data'
-        },
+      await axios.post(`${API.defaults.baseURL}/document/${citizenId}`, formData, {
+        headers: { Authorization: token ? `Bearer ${token}` : undefined },
       });
       toast.success('Document uploaded!');
       setUploadForm({ documentName: '', documentType: '', file: null });
-      fetchVaultDocuments();
+      fetchDocuments();
     } catch (error) {
       toast.error('Upload failed.');
     } finally {
@@ -193,26 +172,21 @@ const CitizenProfile = () => {
     }
   };
 
-  // Delete Document Handler
   const handleDeleteDocument = async (id) => {
     if (!window.confirm('Delete this document?')) return;
     try {
       await API.delete(`/document/${citizenId}/${id}`);
       toast.success('Deleted!');
-      fetchVaultDocuments();
+      fetchDocuments();
     } catch (error) {
       toast.error('Delete failed.');
     }
   };
 
   const getInputStyle = (isLockedField) => 
-    `w-full border border-gray-300 rounded-lg p-3 text-gray-700 focus:ring-2 focus:ring-blue-500 transition-colors ${
-      isLockedField ? 'bg-gray-100 cursor-not-allowed text-gray-500' : 'bg-white'
-    }`;
+    `w-full border border-gray-300 rounded-lg p-3 text-gray-700 focus:ring-2 focus:ring-blue-500 transition-colors ${isLockedField ? 'bg-gray-100 cursor-not-allowed text-gray-500' : 'bg-white'}`;
 
-  if (loading) {
-    return <div className="flex justify-center p-20 text-blue-600 font-bold tracking-widest">LOADING PROFILE...</div>;
-  }
+  if (loading) return <div className="flex justify-center p-20 text-blue-600 font-bold tracking-widest">LOADING PROFILE...</div>;
 
   return (
     <div className="max-w-4xl mx-auto p-6 pb-20">
@@ -283,8 +257,8 @@ const CitizenProfile = () => {
               <h4 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Upload New Document</h4>
               <form onSubmit={handleUpload} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <input type="text" name="documentName" placeholder="Document Name (e.g. Passport)" value={uploadForm.documentName} onChange={handleUploadChange} className="w-full border border-gray-300 rounded-lg p-3 bg-white" required />
-                  <select name="documentType" value={uploadForm.documentType} onChange={handleUploadChange} className="w-full border border-gray-300 rounded-lg p-3 bg-white" required>
+                  <input type="text" name="documentName" placeholder="Document Name (e.g. Passport)" value={uploadForm.documentName} onChange={handleUploadChange} className="w-full border border-gray-300 rounded-lg p-3" required />
+                  <select name="documentType" value={uploadForm.documentType} onChange={handleUploadChange} className="w-full border border-gray-300 rounded-lg p-3" required>
                     <option value="">Select Type</option>
                     <option value="ID_PROOF">ID Proof</option>
                     <option value="HEALTH_CARD">Health Card</option>
@@ -324,6 +298,4 @@ const CitizenProfile = () => {
       </div>
     </div>
   );
-};
-
-export default CitizenProfile;
+}

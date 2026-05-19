@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import  { useNavigate } from "react-router-dom";
-import { getPrograms } from "../../api/ProgramApi";
+import { getPrograms } from "../../api/ProgramApi.js";
 import toast from "react-hot-toast";
-import Footer from "../../components/ui/Footer";
+import Footer from "../../components/Footer";
 
 const getStatusStyle = (status) => {
   switch (status) {
