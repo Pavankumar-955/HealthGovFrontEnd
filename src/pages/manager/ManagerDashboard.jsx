@@ -125,7 +125,6 @@ const ManagerDashboard = () => {
                 <Legend />
               </PieChart>
             </div>
-
           </div>
         </main>
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { downloadOverallReportPDF } from "./reportGeneratorManager";
-import { getManagerProjects } from "../../../api/managerApi";
+import { getManagerProjects } from "../../api/managerApi";
 
 const ManagerProjectReport = () => {
 

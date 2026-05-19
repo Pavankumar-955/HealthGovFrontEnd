@@ -25,10 +25,9 @@ import ResearcherProjects from "../pages/researcher/ResearcherProjects";
 
 // Manager Pages
 import ManagerDashboard from "../pages/manager/ManagerDashboard";
-import ManagerApplications from "../pages/manager/Project/ManagerApplications";
-import HealthPrograms from "../pages/manager/HealthProgram/HealthPrograms";
-import ManagerProjectReport from "../pages/manager/Project/ManagerProjectReport";
-import Enrollments from "../pages/manager/Enrollments/Enrollments";
+import ManagerApplications from "../pages/manager/ManagerApplications";
+import ManagerProjectReport from "../pages/manager/ManagerProjectReport";
+
 
 // Layouts
 import CitizenLayout from "../layouts/CitizenLayout";
@@ -137,9 +136,7 @@ const { user } = useAuth();
         {/* MANAGER ROUTES */}
         <Route path="/manager/dashboard" element={<ProtectedRoute requiredRole="MANAGER"><ManagerDashboard /></ProtectedRoute>} />
         <Route path="/manager/applications" element={<ProtectedRoute requiredRole="MANAGER"><ManagerApplications /></ProtectedRoute>} />
-        <Route path="/manager/health-programs" element={<ProtectedRoute requiredRole="MANAGER"><HealthPrograms /></ProtectedRoute>} />
         <Route path="/manager/reports/project" element={<ProtectedRoute requiredRole="MANAGER"><ManagerProjectReport /></ProtectedRoute>} />
-        <Route path="/manager/enrollments" element={<ProtectedRoute requiredRole="MANAGER"><Enrollments /></ProtectedRoute>} />
 
         {/* PROVIDER ROUTES */}
         <Route path="/provider"

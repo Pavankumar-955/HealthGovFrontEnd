@@ -1,15 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useAuth } from "../../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import { downloadOverallReportPDF } from "./reportGeneratorManager";
 import {
   getNotificationsByUser,
   markNotificationAsRead,
-} from "../../../api/notificationApi";
+} from "../../api/notificationApi";
 
-import { getManagerProjects, decideProject } from "../../../api/managerApi";
+import { getManagerProjects, decideProject } from "../../api/managerApi";
 
-import ManagerNavbar from "../ManagerNavbar";
-import Footer from "../../../components/Footer";
+import ManagerNavbar from "./ManagerNavbar";
+import Footer from "../../components/Footer";
 import ProjectDetailsModal from "./ProjectDetailsModal";
 import DecisionModal from "./DecisionModal";
 

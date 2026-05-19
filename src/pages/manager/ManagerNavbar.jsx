@@ -109,27 +109,6 @@ export default function ManagerNavbar({ onOpenProjectReport }) {
               Applications
             </button>
 
-            <button
-              onClick={() => navigate("/manager/health-programs")}
-              className={`px-4 py-2 rounded-lg font-medium ${isPrograms
-                ? "bg-green-700 text-white"
-                : "text-white hover:bg-white/10"
-                }`}
-            >
-              Programs
-            </button>
-
-            <button
-              onClick={() => navigate("/manager/enrollments")}
-              className={`px-4 py-2 rounded-lg font-medium ${location.pathname.includes("/manager/enrollments")
-                  ? "bg-green-700 text-white"
-                  : "text-white hover:bg-white/10"
-                }`}
-            >
-              Enrollments
-            </button>
-
-
             <div className="relative">
               <button
                 onClick={() => {
