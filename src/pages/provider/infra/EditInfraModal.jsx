@@ -101,7 +101,7 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
 
             {/* CAPACITY */}
             <div>
-              <label className="text-sm text-gray-600">Capacity *</label>
+              <label className="text-sm text-gray-600">Capacity <span className="text-red-500">*</span></label>
               <input
                 type="number"
                 value={form.capacity ?? ""}
@@ -122,8 +122,8 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
                   }
                 }}
                 className={`w-full border p-2 rounded ${isInvalid("capacity")
-                    ? "border-red-400"
-                    : "border-gray-200"
+                  ? "border-red-400"
+                  : "border-gray-200"
                   }`}
               />
 
@@ -136,7 +136,7 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
 
             {/* STATUS */}
             <div>
-              <label className="text-sm text-gray-600">Status *</label>
+              <label className="text-sm text-gray-600">Status <span className="text-red-500">*</span></label>
               <select
                 value={form.status || ""}
                 onBlur={() =>
@@ -144,8 +144,8 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
                 onChange={(e) =>
                   setForm({ ...form, status: e.target.value })}
                 className={`w-full border p-2 rounded ${isInvalid("status")
-                    ? "border-red-400"
-                    : "border-gray-200"
+                  ? "border-red-400"
+                  : "border-gray-200"
                   }`}
               >
                 <option value="">Select Status</option>
@@ -175,7 +175,9 @@ const EditInfraModal = ({ show, data, onClose, onUpdate }) => {
             >
               Update
             </button>
-
+            <p className="text-sm text-gray-500 mt-2">
+              <span className="text-red-500">*</span> Required fields
+            </p>
           </form>
         </div>
       </div>

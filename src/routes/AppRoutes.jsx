@@ -112,6 +112,7 @@ const { user } = useAuth();
           <Route path="dashboard" element={<CitizenDashboard />} />
           <Route path="profile" element={<CitizenProfile />} />
           <Route path="health-records" element={<CitizenHealthRecords />} />
+          <Route path="setup" element={<CitizenSetup />} />
         </Route>
 
         {/*  ADMIN */}
@@ -157,7 +158,7 @@ const { user } = useAuth();
           {/*  Health Records */}
           {/* <Route path="HealthRecords" element={<ProviderHealthRecords />} /> */}
           <Route path="health-records" element={<ProviderHealthRecords />} />
-          {/* <Route path="doc-verification" element={<DocVerification />} /> */}
+          <Route path="doc-verification" element={<DocVerification />} />
         </Route>
 
         {/*  ROLE REDIRECT */}

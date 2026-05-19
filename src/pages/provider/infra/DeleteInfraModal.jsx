@@ -121,7 +121,7 @@ const DeleteInfraModal = ({ show, data, onConfirm, onCancel }) => {
             >
               Delete
             </button>
-
+                
           </div>
 
         </div>

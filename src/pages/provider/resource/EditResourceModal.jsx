@@ -139,7 +139,7 @@ const EditResourceModal = ({ show, data, onClose, onUpdate }) => {
 
             {/*  QUANTITY */}
             <div>
-              <label className="text-sm text-gray-600">Quantity *</label>
+              <label className="text-sm text-gray-600">Quantity <span className="text-red-500">*</span></label>
               <input
                 type="number"
                 value={form.quantity ?? ""}
@@ -159,11 +159,10 @@ const EditResourceModal = ({ show, data, onClose, onUpdate }) => {
                     setForm({ ...form, quantity: num });
                   }
                 }}
-                className={`w-full border p-2 rounded ${
-                  isInvalid("quantity")
+                className={`w-full border p-2 rounded ${isInvalid("quantity")
                     ? "border-red-400"
                     : "border-gray-200"
-                }`}
+                  }`}
               />
 
               {isInvalid("quantity") && (
@@ -175,7 +174,7 @@ const EditResourceModal = ({ show, data, onClose, onUpdate }) => {
 
             {/*  STATUS */}
             <div>
-              <label className="text-sm text-gray-600">Status *</label>
+              <label className="text-sm text-gray-600">Status <span className="text-red-500">*</span></label>
               <select
                 value={form.status || ""}
                 onBlur={() =>
@@ -183,11 +182,10 @@ const EditResourceModal = ({ show, data, onClose, onUpdate }) => {
                 }
                 onChange={(e) =>
                   setForm({ ...form, status: e.target.value })}
-                className={`w-full border p-2 rounded ${
-                  isInvalid("status")
+                className={`w-full border p-2 rounded ${isInvalid("status")
                     ? "border-red-400"
                     : "border-gray-200"
-                }`}
+                  }`}
               >
                 <option value="">Select Status</option>
 
@@ -229,7 +227,9 @@ const EditResourceModal = ({ show, data, onClose, onUpdate }) => {
             >
               Update
             </button>
-
+            <p className="text-sm text-gray-500 mt-2">
+              <span className="text-red-500">*</span> Required fields
+            </p>
           </form>
         </div>
       </div>
