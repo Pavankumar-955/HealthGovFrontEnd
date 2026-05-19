@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   getResourcesByProgram,
   searchResourcesByProgram,
@@ -7,7 +7,7 @@ import {
   deleteResource,
   createResource,
 } from "../../../api/resourceApi";
-
+import { checkProgramExists } from "../../../api/ProgramApi";
 import toast from "react-hot-toast";
 
 import ResourceSearch from "./ResourceSearch";
@@ -22,7 +22,6 @@ const ResourceTab = ({ programId: propProgramId }) => {
 
   const [resourceList, setResourceList] = useState([]);
   const [originalData, setOriginalData] = useState([]);
-  const [page, setPage] = useState(1);
 
   const [search, setSearch] = useState({
     type: "",
@@ -36,15 +35,41 @@ const ResourceTab = ({ programId: propProgramId }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteData, setDeleteData] = useState(null);
 
-  // ✅ LOAD DATA
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [programError, setProgramError] = useState(false);
+
+  const navigate = useNavigate();
+  //  LOAD DATA
   const loadResources = async () => {
     if (!programId) return;
     try {
+      setLoading(true);
+      setProgramError(false);
+      setError(false);
+
+      //  Step 1: Check program exists
+      const existsRes = await checkProgramExists(programId);
+
+      if (!existsRes.data) {
+        //  Program does NOT exist
+        setProgramError(true);
+        // toast.error("Program not available. Select from available list ❌");
+        return; // 🚫 STOP — do NOT load resources
+      }
+
+      //  Step 2: Load resources ONLY if program exists
       const res = await getResourcesByProgram(programId);
+
       setResourceList(res.data || []);
       setOriginalData(res.data || []);
+
     } catch (err) {
-      toast.error(err);
+      //  Server / network issue
+      setError(true);
+      // toast.error("Resources server unavailable ❌");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -52,7 +77,7 @@ const ResourceTab = ({ programId: propProgramId }) => {
     loadResources();
   }, [programId]);
 
-  // ✅ SEARCH
+  //  SEARCH
   const handleSearch = async () => {
     if (!search.type && !search.status) {
       setResourceList(originalData);
@@ -68,13 +93,12 @@ const ResourceTab = ({ programId: propProgramId }) => {
       );
 
       setResourceList(res.data || []);
-      setPage(1);
     } catch (err) {
       toast.error(err);
     }
   };
 
-  // ✅ CLEAR FILTERS
+  //  CLEAR FILTERS
   const handleClearFilters = () => {
     if (!search.type && !search.status) {
       toast("Already showing all ✅");
@@ -83,12 +107,10 @@ const ResourceTab = ({ programId: propProgramId }) => {
 
     setSearch({ type: "", status: "" });
     setResourceList(originalData);
-    setPage(1);
-
     toast.success("Filters cleared ✅");
   };
 
-  // ✅ DELETE
+  //  DELETE
   const handleDelete = (id) => {
     const fullResource = originalData.find(
       (item) => item.resourceId === id
@@ -109,81 +131,143 @@ const ResourceTab = ({ programId: propProgramId }) => {
     }
   };
 
-  // ✅ EDIT
+  //  EDIT
   const handleEdit = (resource) => {
     setEditData({ ...resource });
     setShowEditModal(true);
   };
 
-  // ✅ UPDATE
+  //  UPDATE
   const handleUpdate = async (data) => {
     if (data.quantity < 0) {
       toast.error("Quantity must be ≥ 0 ❌");
       return;
     }
 
+    const updatePayload = {
+      quantity: data.quantity,
+      status: data.status,
+    };
+
     try {
-      await updateResource(data.resourceId, data);
+      await updateResource(data.resourceId, updatePayload);
       toast.success("Updated ✅");
       setShowEditModal(false);
       loadResources();
     } catch (err) {
-      toast.error(err);
+      toast.error(mapBackendErrorForResource(err));
     }
   };
 
-const mapBackendErrorForResource = (err) => {
-  if (!err) return "Something went wrong";
+  const mapBackendErrorForResource = (err) => {
+    if (!err) return "Something went wrong";
 
-  const message = err.toString().toLowerCase();
+    const message = err.toString().toLowerCase();
+    if (message.includes("program") && message.includes("status")) {
+      return "Resources can be assigned only for active programs";
+    }
+    if (message.includes("program") && message.includes("not found")) {
+      return "Selected program does not exist";
+    }
 
-  if (message.includes("program") && message.includes("status")) {
-    return "Resources can be assigned only for active programs";
+
+    if (message.includes("available budget")) {
+
+      // Extract number using regex
+      const match = message.match(/available\s*budget:\s*(\d+(\.\d+)?)/i);
+
+      const available = match ? match[1] : "0";
+
+      return `Only ₹${available} available. Reduce quantity or change status to PENDING.`;
+    }
+
+
+    if (message.includes("quantity")) {
+      return "Resource quantity is invalid";
+    }
+    if (message.includes("funds") && message.includes("inactive")) {
+      return "Inactive funds cannot be allocated";
+    }
+    if (message.includes("completed")) {
+      return "Completed resources cannot be modified or reused";
+    }
+    return err; //  fallback (backend message)
+  };
+
+  //  CREATE RESOURCE (WITH CUSTOM ERROR HANDLING)
+  const handleCreate = async (data) => {
+    if (data.quantity < 0) {
+      toast.error("Quantity must be ≥ 0 ❌");
+      return;
+    }
+
+    try {
+      await createResource({ ...data, programId });
+      toast.success("Resource Assigned ✅");
+      setShowAddModal(false);
+      loadResources();
+    } catch (err) {
+      toast.error(mapBackendErrorForResource(err));
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64 pl-[50%]">
+        <div className="animate-spin h-10 w-10 border-4 border-green-500 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="flex flex-col justify-center items-center h-[60vh] text-center pl-[35%]">
+
+        <h2 className="text-lg font-semibold text-red-600 mb-2">
+          Resources Server Unavailable 🚫
+        </h2>
+
+        <p className="text-gray-500 mb-4">
+          Unable to load resources for this program.
+        </p>
+
+        <button
+          onClick={loadResources}  //  better retry
+          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700  cursor-pointer transition"
+        >
+          Retry
+        </button>
+
+      </div>
+    );
   }
 
-  if (message.includes("program") && message.includes("not found")) {
-    return "Selected program does not exist";
-  }
+  if (programError) {
+    return (
+      <div className="flex flex-col justify-center items-center h-[60vh] text-center pl-[35%]">
 
-  if (message.includes("quantity")) {
-    return "Resource quantity is invalid";
-  }
+        <h2 className="text-lg font-semibold text-red-600 mb-2">
+          Program not available 🚫
+        </h2>
 
-  if (message.includes("funds") && message.includes("inactive")) {
-    return "Inactive funds cannot be allocated";
-  }
+        <p className="text-gray-500 mb-4">
+          Please select a valid program from the list
+        </p>
 
-  if (message.includes("completed")) {
-    return "Completed resources cannot be modified or reused";
-  }
+        <button
+          onClick={() => navigate("/provider/programs")}
+          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 cursor-pointer transition"
+        >
+          Go to Programs
+        </button>
 
-  if (message.includes("duplicate")) {
-    return "This resource already exists for the program";
+      </div>
+    );
   }
-
-  return err; // ✅ fallback (backend message)
-};
- // ✅ CREATE RESOURCE (WITH CUSTOM ERROR HANDLING)
-const handleCreate = async (data) => {
-  if (data.quantity < 0) {
-    toast.error("Quantity must be ≥ 0 ❌");
-    return;
-  }
-
-  try {
-    await createResource({ ...data, programId });
-    toast.success("Resource Assigned ✅");
-    setShowAddModal(false);
-    loadResources();
-  } catch (err) {
-    toast.error(mapBackendErrorForResource(err));
-  }
-};
 
   return (
-    <div className="flex flex-col flex-1 min-h-0">
+    <div className="flex flex-col flex-1 min-h-0 ">
 
-      {/* ✅ HEADER (matched infra) */}
+      {/*  HEADER (matched infra) */}
       <div className="flex justify-between items-center mb-2 pl-6 pt-4 pr-6">
         <h2 className="text-lg font-semibold">
           Resources
@@ -197,7 +281,7 @@ const handleCreate = async (data) => {
         </button>
       </div>
 
-      {/* ✅ SEARCH */}
+      {/*  SEARCH */}
       <div className="bg-white p-4 rounded-xl shadow mb-3">
         <ResourceSearch
           search={search}
@@ -207,17 +291,18 @@ const handleCreate = async (data) => {
         />
       </div>
 
-      {/* ✅ TABLE (same scroll structure as infra) */}
+      {/*  TABLE (same scroll structure as infra) */}
       <div className="flex-1 min-h-0 flex flex-col">
 
-        <div className="flex-1 min-h-0 bg-white rounded-xl shadow overflow-hidden flex flex-col">
+        <div className="flex-1 min-h-0 bg-white rounded-xl shadow overflow-auto flex flex-col">
 
-          {/* ✅ ONLY THIS SCROLLS */}
-          <div className="flex-1 min-h-0 overflow-y-auto">
+          {/*  ONLY THIS SCROLLS */}
+          <div className="flex-1 min-h-0 overflow-auto">
+
             <ResourceTable
               data={resourceList}
-              page={page}
-              setPage={setPage}
+              // page={page}
+              // setPage={setPage}
               onEdit={handleEdit}
               onDelete={handleDelete}
             />
@@ -227,7 +312,7 @@ const handleCreate = async (data) => {
 
       </div>
 
-      {/* ✅ MODALS */}
+      {/*  MODALS */}
       <AddResourceModal
         show={showAddModal}
         onClose={() => setShowAddModal(false)}

@@ -58,6 +58,9 @@ const CitizenDashboard = () => {
 
   const citizenId = getCitizenIdFromToken();
 
+  const getProgramId = (program) =>
+    program?.id || program?.programId || program?._id;
+
   const loadData = async () => {
     try {
       setLoading(true);
@@ -89,6 +92,13 @@ const CitizenDashboard = () => {
 
   const isEnrolled = (programId) =>
     enrollments.some((e) => Number(e.programId) === Number(programId));
+
+  const enrolledPrograms = programs.filter((program) =>
+    isEnrolled(getProgramId(program))
+  );
+  const ongoingPrograms = programs.filter((program) =>
+    !isEnrolled(getProgramId(program))
+  );
 
   const handleEnroll = async (programId) => {
     if (!citizenId) return toast.error("Please login");
@@ -181,18 +191,70 @@ const CitizenDashboard = () => {
           Welcome, {user?.name || "Citizen"} 👋
         </h1>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6 items-stretch">
-          {programs.map((program) => {
-            const pId = program.id || program.programId;
-            return (
-              <ProgramCard
-                key={pId}
-                program={program}
-                enrolled={isEnrolled(pId)}
-                onEnroll={() => handleEnroll(pId)}
-              />
-            );
-          })}
+        <div className="space-y-10 mt-6">
+          {/* ONGOING PROGRAMS */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-2xl font-bold">Ongoing Programs</h2>
+                <p className="text-sm text-slate-500">
+                  {ongoingPrograms.length} program{ongoingPrograms.length !== 1 ? 's' : ''} available to enroll
+                </p>
+              </div>
+            </div>
+            {ongoingPrograms.length === 0 ? (
+              <div className="rounded-2xl border border-blue-100 bg-blue-50 p-8 text-center">
+                <p className="text-blue-700 font-semibold">No ongoing programs available right now.</p>
+                <p className="text-sm text-blue-600 mt-2">Check back later for new opportunities.</p>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {ongoingPrograms.map((program) => {
+                  const pId = getProgramId(program);
+                  return (
+                    <ProgramCard
+                      key={pId}
+                      program={program}
+                      enrolled={false}
+                      onEnroll={() => handleEnroll(pId)}
+                    />
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* ENROLLED PROGRAMS */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-2xl font-bold">Enrolled Programs</h2>
+                <p className="text-sm text-slate-500">
+                  {enrolledPrograms.length} program{enrolledPrograms.length !== 1 ? 's' : ''} you're enrolled in
+                </p>
+              </div>
+            </div>
+            {enrolledPrograms.length === 0 ? (
+              <div className="rounded-2xl border border-green-100 bg-green-50 p-8 text-center">
+                <p className="text-green-700 font-semibold">You haven't enrolled in any programs yet.</p>
+                <p className="text-sm text-green-600 mt-2">Choose an ongoing program above to get started.</p>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {enrolledPrograms.map((program) => {
+                  const pId = getProgramId(program);
+                  return (
+                    <ProgramCard
+                      key={pId}
+                      program={program}
+                      enrolled={true}
+                      onEnroll={() => {}}
+                    />
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

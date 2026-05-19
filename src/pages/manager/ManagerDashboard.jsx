@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 
 import ManagerNavbar from "./ManagerNavbar";
-import Footer from "../../components/ui/Footer";
+import Footer from "../../components/Footer";
 import { getManagerProjects } from "../../api/managerApi";
 import { getPrograms } from "../../api/ProgramApi"; // ✅ ADDED
 

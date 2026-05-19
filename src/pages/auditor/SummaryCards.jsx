@@ -5,7 +5,7 @@ const SummaryCards = ({
     <div className="flex gap-4 overflow-x-auto pb-3">
 
       {/* TOTAL */}
-      <div className="min-w-[180px] flex-1 bg-green-50 border border-green-200 rounded-2xl p-5 shadow-md">
+      <div className="min-w-[160px] flex-1 bg-green-50 border border-green-200 rounded-2xl p-5 shadow-md">
         <p className="text-xs font-semibold uppercase text-green-700">
           Total
         </p>
@@ -15,7 +15,7 @@ const SummaryCards = ({
       </div>
 
       {/* SCHEDULED */}
-      <div className="min-w-[180px] flex-1 bg-green-50 border border-green-200 rounded-2xl p-5 shadow-md">
+      <div className="min-w-[160px] flex-1 bg-green-50 border border-green-200 rounded-2xl p-5 shadow-md">
         <p className="text-xs font-semibold uppercase text-green-700">
           Scheduled
         </p>
@@ -25,7 +25,7 @@ const SummaryCards = ({
       </div>
 
       {/* IN REVIEW */}
-      <div className="min-w-[180px] flex-1 bg-blue-50 border border-blue-200 rounded-2xl p-5 shadow-md">
+      <div className="min-w-[160px] flex-1 bg-blue-50 border border-blue-200 rounded-2xl p-5 shadow-md">
         <p className="text-xs font-semibold uppercase text-blue-700">
           Review
         </p>
@@ -35,7 +35,7 @@ const SummaryCards = ({
       </div>
 
       {/* COMPLETED */}
-      <div className="min-w-[180px] flex-1 bg-orange-50 border border-orange-200 rounded-2xl p-5 shadow-md">
+      <div className="min-w-[160px] flex-1 bg-orange-50 border border-orange-200 rounded-2xl p-5 shadow-md">
         <p className="text-xs font-semibold uppercase text-orange-700">
           Completed
         </p>
@@ -45,7 +45,7 @@ const SummaryCards = ({
       </div>
 
       {/* FOLLOW UP */}
-      <div className="min-w-[180px] flex-1 bg-yellow-50 border border-yellow-200 rounded-2xl p-5 shadow-md">
+      <div className="min-w-[160px] flex-1 bg-yellow-50 border border-yellow-200 rounded-2xl p-5 shadow-md">
         <p className="text-xs font-semibold uppercase text-yellow-700">
           Follow Up
         </p>
@@ -55,7 +55,7 @@ const SummaryCards = ({
       </div>
 
       {/* CANCELLED ✅ RED */}
-      <div className="min-w-[180px] flex-1 bg-red-50 border border-red-200 rounded-2xl p-5 shadow-md">
+      <div className="min-w-[160px] flex-1 bg-red-50 border border-red-200 rounded-2xl p-5 shadow-md">
         <p className="text-xs font-semibold uppercase text-red-700">
           Cancelled
         </p>

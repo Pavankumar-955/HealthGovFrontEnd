@@ -39,7 +39,7 @@ export const createResource = (data) =>
 
 // ✅ UPDATE RESOURCE
 export const updateResource = (id, data) =>
-  API.put(`${BASE_PATH}/update/${id}`, data)
+  API.patch(`${BASE_PATH}/update/${id}`, data)
     .catch(handleError);
 
 

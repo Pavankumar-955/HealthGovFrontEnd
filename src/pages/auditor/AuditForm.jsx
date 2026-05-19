@@ -1,118 +1,101 @@
 import React, { useState } from "react";
-const AuditForm = ({ officers = [], onCreate }) => {
+import { useAuth } from "../../context/AuthContext"; // ✅ IMPORTANT
 
-  const [formData, setFormData] = useState({
-    officerId: "",
-    scopeType: "PROGRAM",
-    scopeId: "",
-    findings: "",
-    status: "SCHEDULED"
-  });
+const AuditForm = ({ compliances = [], onCreate }) => {
+  const { user } = useAuth(); // ✅ logged-in auditor
+  const officerId = user?.userId;
+
+  const [selectedCompliance, setSelectedCompliance] = useState(null);
+  const [findings, setFindings] = useState("");
+  const [status, setStatus] = useState("SCHEDULED");
 
   const handleSubmit = () => {
-    if (!formData.officerId || !formData.scopeId) {
-      alert("Please fill all required fields");
+    if (!officerId || !selectedCompliance) {
+      alert("Please select a compliance record");
       return;
     }
 
     const payload = {
-      officerId: formData.officerId,
-      scope: `${formData.scopeType}:${formData.scopeId}`,
-      findings: formData.findings,
-      status: formData.status,
+      officerId, // ✅ FROM AUTH CONTEXT
+      scope: `${selectedCompliance.type}:${selectedCompliance.entityId}`, // ✅ AUTO
+      findings,
+      status,
+      date: new Date().toISOString().split("T")[0], // ✅ TODAY
     };
 
     onCreate(payload);
 
-    // ✅ Reset form
-    setFormData({
-      officerId: "",
-      scopeType: "PROGRAM",
-      scopeId: "",
-      findings: "",
-      status: "SCHEDULED"
-    });
+    // reset
+    setSelectedCompliance(null);
+    setFindings("");
+    setStatus("SCHEDULED");
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-5 mt-6">
+    <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
 
-      <h3 className="text-lg font-semibold mb-4">
+      <h3 className="text-lg font-semibold mb-4 text-gray-800">
         Create Audit
       </h3>
 
-      <div className="grid grid-cols-3 gap-4">
+      {/* ✅ COMPLIANCE LIST */}
+      <select
+        value={selectedCompliance?.complianceId || ""}
+        onChange={(e) => {
+          const compliance = compliances.find(
+            (c) => c.complianceId.toString() === e.target.value
+          );
+          setSelectedCompliance(compliance);
+        }}
+        className="w-full border p-2 rounded-lg mb-3"
+      >
+        <option value="">Select Compliance Record</option>
+        {compliances.map((c) => (
+          <option key={c.complianceId} value={c.complianceId}>
+            {c.type} : {c.entityId} — {c.entity?.title}
+          </option>
+        ))}
+      </select>
 
-        {/* ✅ Officer */}
-        <select
-          value={formData.officerId}
-          onChange={(e) =>
-            setFormData({ ...formData, officerId: e.target.value })
-          }
-          className="border p-2 rounded-lg"
-        >
-          <option value="">Select Officer</option>
-          {officers.map((o) => (
-            <option key={o.userId} value={o.userId}>
-              {o.name}
-            </option>
-          ))}
-        </select>
-
-        {/* ✅ Scope Type */}
-        <select
-          value={formData.scopeType}
-          onChange={(e) =>
-            setFormData({ ...formData, scopeType: e.target.value })
-          }
-          className="border p-2 rounded-lg"
-        >
-          <option value="PROGRAM">Program</option>
-          <option value="PROJECT">Project</option>
-          <option value="GRANT">Grant</option>
-        </select>
-
-        {/* ✅ Scope ID */}
-        <input
-          type="number"
-          placeholder="Scope ID"
-          value={formData.scopeId}
-          onChange={(e) =>
-            setFormData({ ...formData, scopeId: e.target.value })
-          }
-          className="border p-2 rounded-lg"
-        />
-      </div>
-
-      {/* ✅ Findings */}
-      <textarea
-        placeholder="Enter findings..."
-        value={formData.findings}
-        onChange={(e) =>
-          setFormData({ ...formData, findings: e.target.value })
+      {/* ✅ AUTO GENERATED SCOPE */}
+      <input
+        type="text"
+        readOnly
+        value={
+          selectedCompliance
+            ? `${selectedCompliance.type}:${selectedCompliance.entityId}`
+            : ""
         }
-        className="w-full mt-4 border p-2 rounded-lg"
+        placeholder="Scope auto-generated"
+        className="w-full border p-2 rounded-lg bg-gray-100 text-gray-600 mb-4"
       />
 
-      {/* ✅ Status */}
+      {/* ✅ FINDINGS */}
+      <textarea
+        placeholder="Enter audit findings..."
+        value={findings}
+        onChange={(e) => setFindings(e.target.value)}
+        className="w-full border p-2 rounded-lg mb-4"
+        rows={3}
+      />
+
+      {/* ✅ STATUS */}
       <select
-        value={formData.status}
-        onChange={(e) =>
-          setFormData({ ...formData, status: e.target.value })
-        }
-        className="w-full mt-4 border p-2 rounded-lg"
+        value={status}
+        onChange={(e) => setStatus(e.target.value)}
+        className="w-full border p-2 rounded-lg mb-4"
       >
         <option value="SCHEDULED">Scheduled</option>
         <option value="IN_REVIEW">In Review</option>
         <option value="COMPLETED">Completed</option>
-        <option value="FOLLOW_UP_REQUIRED">Follow Up</option>
+        <option value="FOLLOW_UP_REQUIRED">Follow Up Required</option>
         <option value="CANCELLED">Cancelled</option>
       </select>
 
-      {/* ✅ Button */}
+      {/* ✅ CREATE */}
       <button
         onClick={handleSubmit}
-        className="mt-4 bg-green-600 text-white px-6 py-2 rounded-lg"
+        className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700"
       >
         Create Audit
       </button>

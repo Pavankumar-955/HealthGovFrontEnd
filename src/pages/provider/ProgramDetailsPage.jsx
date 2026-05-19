@@ -13,7 +13,7 @@ const ProgramDetailsPage = () => {
   const [activeTab, setActiveTab] = useState("infra");
   const [program, setProgram] = useState(null);
 
-  // ✅ TEMP (replace with API later)
+  //  TEMP (replace with API later)
   useEffect(() => {
     setProgram({
       programId: id,
@@ -26,10 +26,10 @@ const ProgramDetailsPage = () => {
 
       <main className="flex-1 overflow-hidden p-3 pb-10 flex flex-col gap-5">
 
-        {/* ✅ HEADER */}
+        {/*  HEADER */}
         <div className="flex items-center gap-4">
 
-          {/* ✅ BACK BUTTON (LIGHT ✅) */}
+          {/*  BACK BUTTON (LIGHT) */}
           <button
             onClick={() => navigate(-1)}
             className="bg-gray-100 text-gray-700 px-3 py-2 rounded hover:bg-gray-200 text-sm transition cursor-pointer"
@@ -37,14 +37,14 @@ const ProgramDetailsPage = () => {
             ← Back
           </button>
 
-          {/* ✅ TITLE */}
+          {/*  TITLE */}
           <h2 className="text-lg font-semibold text-gray-800">
             Program #{program?.programId} - {program?.title}
           </h2>
 
         </div>
 
-        {/* ✅ TABS */}
+        {/*  TABS */}
         <div className="flex gap-3">
 
           <button
@@ -71,7 +71,7 @@ const ProgramDetailsPage = () => {
 
         </div>
 
-        {/* ✅ CONTENT */}
+        {/*  CONTENT */}
         <div className="flex-1 bg-white rounded-xl shadow overflow-hidden min-h-0">
 
           {activeTab === "infra" && (

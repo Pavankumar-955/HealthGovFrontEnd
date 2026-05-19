@@ -8,7 +8,7 @@ import {
 import { getManagerProjects, decideProject } from "../../../api/managerApi";
 
 import ManagerNavbar from "../ManagerNavbar";
-import Footer from "../../../components/ui/Footer";
+import Footer from "../../../components/Footer";
 import ProjectDetailsModal from "./ProjectDetailsModal";
 import DecisionModal from "./DecisionModal";
 

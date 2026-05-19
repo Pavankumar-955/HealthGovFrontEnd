@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { DocumentArrowDownIcon } from '@heroicons/react/24/outline';
 import jsPDF from 'jspdf';
+import autoTable from "jspdf-autotable"
 import { getAllAudits } from "../../api/auditsAPI.js";
+import { generatePDFReport } from "../../services/pdfReportService";
 
 const getCompletion = (status) => {
   switch (status) {
@@ -21,7 +23,7 @@ const AuditReports = () => {
   const [audits, setAudits] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ FILTERS
+  // FILTERS
   const [officerFilter, setOfficerFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [filteredAudits, setFilteredAudits] = useState([]);
@@ -67,7 +69,6 @@ const AuditReports = () => {
     setFilteredAudits(data);
   }, [audits, officerFilter, statusFilter]);
 
-  const uniqueOfficers = [...new Set(audits.map(a => a.officer))];
 
   const toggleSelect = (id) => {
     setSelectedAudits(prev =>
@@ -85,8 +86,8 @@ const AuditReports = () => {
     }
   };
 
-  // ✅ PDF
-  const generatePDF = () => {
+  // PDF
+  const handleGenerateAuditReport = async () => {
     if (selectedAudits.length === 0) {
       alert("Select at least one audit");
       return;
@@ -95,38 +96,38 @@ const AuditReports = () => {
     setIsGenerating(true);
 
     try {
-      const doc = new jsPDF();
-
       const selectedData = filteredAudits.filter(a =>
         selectedAudits.includes(a.id)
       );
 
-      doc.setFontSize(18);
-      doc.text("Audit Report", 105, 20, { align: 'center' });
+      await generatePDFReport({
+        title: "Audit Report",
+        data: selectedData,
 
-      doc.setFontSize(10);
-      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 30);
+        requiredFields: ["id", "status"],
 
-      const tableData = selectedData.map(a => [
-        a.name,
-        a.scope,
-        a.officer,
-        a.status.replaceAll("_", " "),
-        `${a.completionRate}%`,
-        a.date
-      ]);
+        fields: [
+          { label: "Audit ID", key: "id" },
+          { label: "Findings", key: "name" },
+          { label: "Scope", key: "scope" },
+          { label: "Officer", key: "officer" },
+          { label: "Status", key: "status" },
+          { label: "Completion", key: "completionRate" },
+          { label: "Date", key: "date" },
+        ],
 
-      doc.autoTable({
-        startY: 40,
-        head: [['Name', 'Scope', 'Officer', 'Status', 'Completion', 'Date']],
-        body: tableData,
+        formatField: (value, key) => {
+          if (key === "status") return value?.replaceAll("_", " ");
+          if (key === "completionRate") return `${value}%`;
+          return value ?? "-";
+        }
       });
 
-      doc.save(`audit-report-${Date.now()}.pdf`);
       setSelectedAudits([]);
 
-    } catch {
-      alert("Error generating report");
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Error generating report");
     } finally {
       setIsGenerating(false);
     }
@@ -146,20 +147,16 @@ const AuditReports = () => {
           <div className="mb-6 flex gap-4 flex-wrap">
 
             <select
-              value={officerFilter}
-              onChange={(e) => setOfficerFilter(e.target.value)}
-              className="px-4 py-2 rounded-full border border-orange-200 bg-orange-50"
-            >
-              <option value="ALL">All Officers</option>
-              {uniqueOfficers.map((o,i)=>(
-                <option key={i} value={o}>{o}</option>
-              ))}
-            </select>
-
-            <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 rounded-full border border-orange-200 bg-orange-50"
+              className="
+    min-w-[160px] px-3 py-2 text-sm
+    border border-gray-300 rounded-lg
+    bg-gray-50
+    focus:outline-none
+    focus:border-blue-500
+    focus:ring-2 focus:ring-blue-200
+  "
             >
               <option value="ALL">All Status</option>
               <option value="SCHEDULED">Scheduled</option>
@@ -170,11 +167,11 @@ const AuditReports = () => {
             </select>
 
             <button
-              onClick={()=>{
+              onClick={() => {
                 setOfficerFilter("ALL");
                 setStatusFilter("ALL");
               }}
-              className="rounded-full bg-orange-100 px-4 py-2 text-orange-600 hover:bg-orange-200"
+              className="rounded-xl bg-orange-100 px-4 py-2 text-orange-600 hover:bg-orange-200"
             >
               Clear
             </button>
@@ -191,7 +188,7 @@ const AuditReports = () => {
 
               <button
                 onClick={toggleAll}
-                className="rounded-full bg-orange-100 px-4 py-2 text-sm text-orange-600"
+                className="rounded-full bg-green-200 px-4 py-2 text-sm text-black-600"
               >
                 {selectedAudits.length === filteredAudits.length
                   ? "Deselect All"
@@ -209,12 +206,11 @@ const AuditReports = () => {
                 filteredAudits.map(a => (
                   <div
                     key={a.id}
-                    onClick={()=>toggleSelect(a.id)}
-                    className={`cursor-pointer rounded-2xl border-2 p-4 transition ${
-                      selectedAudits.includes(a.id)
+                    onClick={() => toggleSelect(a.id)}
+                    className={`cursor-pointer rounded-2xl border-2 p-4 transition ${selectedAudits.includes(a.id)
                         ? "border-orange-600 bg-orange-50"
                         : "border-orange-100 hover:border-orange-300"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-4">
 
@@ -236,21 +232,11 @@ const AuditReports = () => {
                             {a.scope}
                           </span>
 
-                          <span className="bg-gray-100 px-3 py-1 rounded-full text-xs">
-                            {a.officer}
-                          </span>
-
                           <span className="bg-slate-200 px-3 py-1 rounded-full text-xs">
                             {a.status.replaceAll("_", " ")}
                           </span>
 
                         </div>
-                      </div>
-
-                      <div className="text-right">
-                        <p className="text-xl font-bold">
-                          {a.completionRate}%
-                        </p>
                       </div>
 
                     </div>
@@ -265,17 +251,17 @@ const AuditReports = () => {
           <div className="flex gap-4">
 
             <button
-              onClick={generatePDF}
+              onClick={handleGenerateAuditReport}
               disabled={isGenerating || selectedAudits.length === 0}
               className="flex items-center gap-2 rounded-3xl bg-orange-600 px-8 py-4 text-white hover:bg-orange-700 disabled:opacity-50"
             >
-              <DocumentArrowDownIcon className="h-6 w-6"/>
+              <DocumentArrowDownIcon className="h-6 w-6" />
               {isGenerating ? "Generating..." : "Generate & Download Report"}
             </button>
 
             <button
-              onClick={()=>setSelectedAudits([])}
-              className="rounded-3xl border-2 border-orange-300 px-8 py-4 text-orange-600"
+              onClick={() => setSelectedAudits([])}
+              className="rounded-xl border-2 border-orange-300 px-8 py-4 text-orange-600"
             >
               Reset
             </button>

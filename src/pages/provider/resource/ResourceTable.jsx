@@ -4,7 +4,7 @@ const ResourceTable = ({ data = [], onEdit, onDelete }) => {
 
   const safeData = Array.isArray(data) ? data : [];
 
-  // ✅ SOFT STATUS COLORS (match infra style)
+  //  STATUS COLORS
   const getStatusStyle = (status) => {
     switch (status) {
       case "ACTIVE":
@@ -22,7 +22,7 @@ const ResourceTable = ({ data = [], onEdit, onDelete }) => {
     }
   };
 
-  // ✅ DELETE MESSAGE
+  //  DELETE MESSAGE
   const getDeleteMessage = (status) => {
     switch (status) {
       case "COMPLETED":
@@ -36,7 +36,7 @@ const ResourceTable = ({ data = [], onEdit, onDelete }) => {
     }
   };
 
-  // ✅ EDIT MESSAGE
+  //  EDIT MESSAGE
   const getEditMessage = (status) => {
     if (status === "COMPLETED") {
       return "Completed resources cannot be edited";
@@ -47,9 +47,9 @@ const ResourceTable = ({ data = [], onEdit, onDelete }) => {
   return (
     <div className="h-full">
 
-      <table className="w-full text-sm">
+      <table className="w-full text-sm  table-auto overflow-x-auto min-w-[600px]">
 
-        {/* ✅ HEADER */}
+        {/*  HEADER */}
         <thead className="bg-gray-100 sticky top-0 z-10">
           <tr>
             <th className="px-4 py-3 text-left w-[100px]">ID</th>
@@ -60,7 +60,7 @@ const ResourceTable = ({ data = [], onEdit, onDelete }) => {
           </tr>
         </thead>
 
-        {/* ✅ BODY */}
+        {/*  BODY */}
         <tbody>
           {safeData.length === 0 ? (
             <tr>
@@ -93,14 +93,14 @@ const ResourceTable = ({ data = [], onEdit, onDelete }) => {
                     {resource.quantity}
                   </td>
 
-                  {/* ✅ STATUS */}
+                  {/*  STATUS */}
                   <td className="px-4 py-3">
                     <span className={getStatusStyle(resource.status)}>
                       {resource.status}
                     </span>
                   </td>
 
-                  {/* ✅ ACTIONS */}
+                  {/*  ACTIONS */}
                   <td className="px-4 py-3">
                     <div className="flex justify-center gap-2">
 
