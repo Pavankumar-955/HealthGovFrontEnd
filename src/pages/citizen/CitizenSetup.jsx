@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import API from '../../api/axios';
 import toast from 'react-hot-toast';
-
+ 
 const CitizenSetup = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -15,17 +15,17 @@ const CitizenSetup = () => {
     address: '',
     contactInfo: user?.email || ''
   });
-
+ 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+ 
     if (!user?.userId) {
       toast.error('User context missing. Please try logging in again.');
       return;
     }
-
+ 
     setLoading(true);
     try {
       const res = await API.post('/citizen/register', {
@@ -36,11 +36,11 @@ const CitizenSetup = () => {
         address: form.address,
         contactInfo: form.contactInfo
       });
-
+ 
       const newCitizenId = res.data.citizenId;
       await API.put(`/citizen/${newCitizenId}/approve?status=ACTIVE`);
       localStorage.setItem(`citizenId_${user.userId}`, newCitizenId);
-
+ 
       toast.success('Profile created successfully!');
       navigate('/citizen/profile');
     } catch (err) {
@@ -50,7 +50,7 @@ const CitizenSetup = () => {
       setLoading(false);
     }
   };
-
+ 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -58,7 +58,7 @@ const CitizenSetup = () => {
           <h2 className="text-2xl font-bold text-green-600">Welcome, {user?.name || user?.email || 'Citizen'}!</h2>
           <p className="text-gray-500 text-sm mt-1">Complete your HealthGov citizen profile</p>
         </div>
-
+ 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -73,7 +73,7 @@ const CitizenSetup = () => {
                 placeholder="e.g. John Doe"
               />
             </div>
-
+ 
             <div>
               <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Date of Birth</label>
               <input
@@ -85,7 +85,7 @@ const CitizenSetup = () => {
                 onChange={handleChange}
               />
             </div>
-
+ 
             <div>
               <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Gender</label>
               <select
@@ -101,7 +101,7 @@ const CitizenSetup = () => {
                 <option value="OTHER">Other</option>
               </select>
             </div>
-
+ 
             <div>
               <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Address</label>
               <textarea
@@ -114,7 +114,7 @@ const CitizenSetup = () => {
                 placeholder="House No, Street, City, ZIP"
               />
             </div>
-
+ 
             <div>
               <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Contact Info</label>
               <input
@@ -127,7 +127,7 @@ const CitizenSetup = () => {
                 placeholder="Email or phone"
               />
             </div>
-
+ 
             <button
               type="submit"
               disabled={loading}
@@ -141,5 +141,7 @@ const CitizenSetup = () => {
     </div>
   );
 };
-
+ 
 export default CitizenSetup;
+ 
+ 

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import documentApi from '../../api/documentApi';
-
+ 
 const DocVerification = () => {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
-
+ 
   const fetchDocuments = async () => {
     try {
       setLoading(true);
@@ -19,11 +19,11 @@ const DocVerification = () => {
       setLoading(false);
     }
   };
-
+ 
   useEffect(() => {
     fetchDocuments();
   }, []);
-
+ 
   const handleStatusChange = async (docId, status) => {
     try {
       await documentApi.verifyDocument(docId, status);
@@ -34,14 +34,14 @@ const DocVerification = () => {
       toast.error(err.response?.data?.message || "Failed to update status");
     }
   };
-
+ 
   // ✅ NEW FUNCTION: Handles opening the Base64 document
   const viewDocument = (fileUrl) => {
     if (!fileUrl) {
       toast.error("No file content found");
       return;
     }
-
+ 
     const newWindow = window.open();
     if (fileUrl.startsWith('data:image')) {
       // If it's an image, show it centered
@@ -55,11 +55,11 @@ const DocVerification = () => {
       newWindow.location.href = fileUrl;
     }
   };
-
+ 
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold text-[#011138] mb-8">Document Verification</h1>
-
+ 
       <div className="bg-white rounded-xl shadow-md border border-slate-100 overflow-hidden">
         <table className="w-full text-left">
           <thead>
@@ -91,13 +91,13 @@ const DocVerification = () => {
                   </td>
                   <td className="p-6 text-right space-x-4">
                     {/* ✅ UPDATED: Call viewDocument function */}
-                    <button 
-                      onClick={() => viewDocument(doc.fileUrl)} 
+                    <button
+                      onClick={() => viewDocument(doc.fileUrl)}
                       className="text-blue-600 hover:underline text-sm font-bold"
                     >
                       View
                     </button>
-
+ 
                     {doc.verificationStatus === 'PENDING' && (
                       <>
                         <button onClick={() => handleStatusChange(doc.documentId, 'VERIFIED')} className="text-emerald-600 hover:underline text-sm font-bold">Verify</button>
@@ -114,5 +114,6 @@ const DocVerification = () => {
     </div>
   );
 };
-
+ 
 export default DocVerification;
+ 

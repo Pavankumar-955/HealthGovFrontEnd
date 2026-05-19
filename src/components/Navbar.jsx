@@ -94,10 +94,10 @@ export default function Navbar() {
 
       const data = Array.isArray(res.data) ? res.data : [];
 
-      // ✅ filter by logged-in user
+      //filter by logged-in user
       let filtered = data.filter((n) => n.userId === user.userId);
 
-      // ✅ role-specific filter
+      //role-specific filter
       if (userRole === "compliance") {
         filtered = data.filter((n) => n.category === "COMPLIANCE");
       }

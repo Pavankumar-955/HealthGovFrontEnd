@@ -4,6 +4,7 @@ import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import ManagerNavbar from "./ManagerNavbar";
 import Footer from "../../components/Footer";
 import { getManagerProjects } from "../../api/managerApi";
+import { getPrograms } from "../../api/ProgramApi"; // ✅ ADDED
 
 const ManagerDashboard = () => {
 
@@ -15,9 +16,17 @@ const ManagerDashboard = () => {
     totalGrants: 0,
   });
 
+  // ✅ NEW STATE FOR PROGRAMS
+  const [programStats, setProgramStats] = useState({
+    total: 0,
+    active: 0,
+    inactive: 0,
+    completed: 0,
+  });
+
   const fetchStats = async () => {
     try {
-      const res = await getManagerProjects(); // Backend API call to fetch all projects
+      const res = await getManagerProjects();
       const data = res.data;
 
       let approved = 0;
@@ -45,15 +54,43 @@ const ManagerDashboard = () => {
       });
 
     } catch (err) {
-      console.error("Error fetching stats:", err);
+      console.error(err);
+    }
+  };
+
+  // ✅ FETCH PROGRAM DATA
+  const fetchProgramStats = async () => {
+    try {
+      const res = await getPrograms();
+      const data = res.data;
+
+      let active = 0;
+      let inactive = 0;
+      let completed = 0;
+
+      data.forEach((p) => {
+        if (p.status === "ACTIVE") active++;
+        else if (p.status === "INACTIVE") inactive++;
+        else if (p.status === "COMPLETED") completed++;
+      });
+
+      setProgramStats({
+        total: data.length,
+        active,
+        inactive,
+        completed,
+      });
+
+    } catch (err) {
+      console.error(err);
     }
   };
 
   useEffect(() => {
     fetchStats();
+    fetchProgramStats(); // ✅ ADDED
   }, []);
 
-  /* PIE DATA */
   const total = stats.total || 1;
 
   const pieData = [
@@ -62,25 +99,29 @@ const ManagerDashboard = () => {
     { name: "Pending", value: stats.pending },
   ];
 
+  const programPieData = [ // ✅ NEW
+    { name: "Active", value: programStats.active },
+    { name: "Inactive", value: programStats.inactive },
+    { name: "Completed", value: programStats.completed },
+  ];
+
   const COLORS = ["#16a34a", "#dc2626", "#facc15"];
+  const PROGRAM_COLORS = ["#16a34a", "#6b7280", "#2563eb"];
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#eef3f8]">
 
-      {/* SIDEBAR */}
       <ManagerNavbar />
 
-      {/* MAIN WRAPPER */}
       <div className="flex flex-col flex-1 pt-20">
 
-        {/* CONTENT AREA */}
         <main className="flex-1 overflow-y-auto p-6 pb-24">
 
           <h2 className="text-3xl font-semibold mb-6">
             📊 Manager Dashboard
           </h2>
 
-          {/* ROW 1: TOP CARDS */}
+          {/* EXISTING SECTION */}
           <div className="grid grid-cols-4 gap-6 mb-8">
             <Card title="Total Applications" value={stats.total} />
             <Card title="✅ Approved Applications" value={stats.approved} type="green" />
@@ -88,10 +129,7 @@ const ManagerDashboard = () => {
             <Card title="❌ Rejected Applications" value={stats.rejected} type="red" />
           </div>
 
-          {/* ROW 2: TOTAL GRANTS + PIE CHART (HORIZONTAL ✅) */}
           <div className="grid grid-cols-4 gap-6 items-start">
-
-            {/* TOTAL GRANTS — SAME SIZE AS PENDING */}
             <div className="col-span-1">
               <Card
                 title="💰 Total Grants Approved"
@@ -100,7 +138,6 @@ const ManagerDashboard = () => {
               />
             </div>
 
-            {/* PIE CHART — SAME ROW */}
             <div className="col-span-3 bg-white p-5 rounded-xl shadow border max-w-md">
               <h3 className="text-lg font-semibold mb-3">
                 📊 Application Status Distribution
@@ -109,8 +146,6 @@ const ManagerDashboard = () => {
               <PieChart width={260} height={240}>
                 <Pie
                   data={pieData}
-                  cx="50%"
-                  cy="50%"
                   outerRadius={80}
                   dataKey="value"
                   label={({ value }) =>
@@ -125,11 +160,52 @@ const ManagerDashboard = () => {
                 <Legend />
               </PieChart>
             </div>
+          </div>
+
+          {/* ✅ ✅ NEW HORIZONTAL LINE */}
+          <hr className="my-10 border-gray-300" />
+
+          {/* ✅ ✅ NEW PROGRAM SECTION */}
+          <h3 className="text-2xl font-semibold mb-6">
+            🏥 Program Overview
+          </h3>
+
+          {/* PROGRAM CARDS */}
+          <div className="grid grid-cols-4 gap-6 mb-8">
+            <Card title="Total Programs" value={programStats.total} />
+            <Card title="✅ Active" value={programStats.active} type="green" />
+            <Card title="⚪ Inactive" value={programStats.inactive} />
+            <Card title="🔵 Completed" value={programStats.completed} type="blue" />
+          </div>
+
+          {/* PROGRAM PIE */}
+          <div className="bg-white p-5 rounded-xl shadow border max-w-md">
+            <h3 className="text-lg font-semibold mb-3">
+              📊 Program Status Distribution
+            </h3>
+
+            <PieChart width={260} height={240}>
+              <Pie
+                data={programPieData}
+                outerRadius={80}
+                dataKey="value"
+                label={({ value }) => {
+                  const total = programStats.total || 1;
+                  return `${((value / total) * 100).toFixed(0)}%`;
+                }}
+              >
+                {programPieData.map((_, i) => (
+                  <Cell key={i} fill={PROGRAM_COLORS[i]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
 
           </div>
+
         </main>
 
-        {/* FOOTER */}
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t z-40">
           <Footer />
         </div>
@@ -142,7 +218,7 @@ const ManagerDashboard = () => {
 export default ManagerDashboard;
 
 
-/* CARD COMPONENT */
+/* CARD */
 const Card = ({ title, value, type }) => {
 
   let bg = "bg-white text-gray-800";

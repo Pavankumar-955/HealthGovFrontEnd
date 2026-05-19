@@ -1,79 +1,134 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import API from '../../api/axios';
-import { MdHealthAndSafety, MdWarning, MdInfo } from 'react-icons/md';
-
+import healthApi from '../../api/healthApi';
+import { MdHealthAndSafety, MdWarning, MdInfo, MdVerifiedUser } from 'react-icons/md';
+ 
 const CitizenHealthRecords = () => {
   const { user } = useAuth();
   const [healthData, setHealthData] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const [resolvedCitizenId, setResolvedCitizenId] = useState(null);
+ 
   useEffect(() => {
-    const fetchHealth = async () => {
+    const fetchFullProfile = async () => {
       try {
-        const res = await API.get(`/citizens/${user?.userId}/health-profile`);
+        setLoading(true);
+        const storageKey = `citizenId_${user.userId}`;
+        const storedCitizenId = localStorage.getItem(storageKey);
+        const tokenCitizenId = user?.citizenId;
+ 
+        let cId = tokenCitizenId || storedCitizenId;
+        if (!cId) {
+          const citizenRes = await API.get(`/citizen/user/${user.userId}`);
+          cId = citizenRes.data.citizenId;
+          if (cId) {
+            localStorage.setItem(storageKey, cId);
+          }
+        }
+ 
+        if (!cId) {
+          throw new Error('Unable to resolve citizen ID');
+        }
+ 
+        setResolvedCitizenId(cId);
+ 
+        // Fetch Health Profile
+        const res = await healthApi.getHealthProfile(cId);
         const data = res.data;
-        const history = typeof data.MedicalHistoryJSON === 'string' 
-          ? JSON.parse(data.MedicalHistoryJSON) 
-          : data.MedicalHistoryJSON;
-        
-        setHealthData({ ...data, history: history || [] });
-      } catch (err) {
-        // Fallback dummy data if API fails
         setHealthData({
-          Allergies: "None Reported",
-          Status: "ACTIVE",
-          history: []
+          allergies: data.allergies,
+          status: data.status,
+          medicalHistory: data.medicalHistoryJson || {}
+        });
+      } catch (err) {
+        console.error("Health Profile Fetch Error:", err);
+        setHealthData({
+          allergies: "None Reported",
+          status: "NO PROFILE",
+          medicalHistory: {}
         });
       } finally {
         setLoading(false);
       }
     };
-    fetchHealth();
+ 
+    if (user?.userId) fetchFullProfile();
   }, [user]);
-
-  if (loading) return <div className="p-10 text-center animate-pulse">Loading Health Profile...</div>;
-
+ 
+  if (loading) return (
+    <div className="flex h-64 items-center justify-center">
+      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-emerald-500"></div>
+    </div>
+  );
+ 
   return (
-    <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div className="space-y-4">
-        <div className="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-red-500">
-          <div className="flex items-center gap-2 text-red-600 mb-2 font-bold uppercase text-xs">
-            <MdWarning /> Allergies & Risks
+    <div className="max-w-6xl mx-auto space-y-8 p-6">
+     
+      {/* SIMPLIFIED HEADER */}
+      <div className="bg-[#f0fdf4] border border-emerald-100 p-6 rounded-3xl flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-5">
+          <div className="bg-[#10b981] p-3 rounded-2xl text-white shadow-lg shadow-emerald-100">
+            <MdVerifiedUser size={32} />
           </div>
-          <p className="text-gray-700 font-medium">{healthData?.Allergies}</p>
+          <div>
+            <h1 className="text-2xl font-bold text-emerald-900 leading-none">Health Profile</h1>
+          </div>
         </div>
-        <div className="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-green-500">
-          <p className="text-xs font-bold text-gray-400 uppercase">Health Status</p>
-          <p className="text-xl font-black text-green-600 uppercase">{healthData?.Status}</p>
+       
+        <div className={`px-5 py-1.5 rounded-full text-xs font-black uppercase tracking-widest shadow-sm ${
+          healthData?.status === 'ACTIVE'
+            ? 'bg-[#10b981] text-white'
+            : 'bg-slate-200 text-slate-500'
+        }`}>
+          {healthData?.status}
         </div>
       </div>
-
-      <div className="md:col-span-2 space-y-4">
-        <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-          <MdHealthAndSafety className="text-blue-600" /> Medical History
-        </h2>
-        {healthData?.history.length > 0 ? (
-          healthData.history.map((item, i) => (
-            <div key={i} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-              <div className="flex justify-between items-start">
-                <h3 className="font-bold text-gray-900">{item.Condition || item.type}</h3>
-                <span className="text-xs font-bold text-blue-500 bg-blue-50 px-2 py-1 rounded">{item.Date || item.date}</span>
-              </div>
-              <p className="text-sm text-gray-500 mt-1">Provider: {item.Provider || item.doctor}</p>
-              <p className="mt-3 text-gray-700 text-sm">{item.Notes || item.description}</p>
-            </div>
-          ))
-        ) : (
-          <div className="bg-white p-10 rounded-2xl text-center text-gray-400 border-2 border-dashed border-gray-100">
-            <MdInfo className="mx-auto text-3xl mb-2 text-gray-200" />
-            <p className="font-medium">No medical history entries found.</p>
-            <p className="text-xs">Your records will appear here once verified by a doctor.</p>
+ 
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Allergies Card */}
+        <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-50 transition-all hover:shadow-md">
+          <div className="flex items-center gap-2 text-red-500 mb-6 font-black uppercase text-[11px] tracking-[0.2em]">
+            <MdWarning className="text-lg" /> Critical Allergies
           </div>
-        )}
+          <p className="text-slate-800 font-black text-3xl leading-tight">
+            {healthData?.allergies || "None Reported"}
+          </p>
+        </div>
+ 
+        {/* History Section */}
+        <div className="md:col-span-2 space-y-5">
+          <h2 className="text-xl font-black text-slate-800 flex items-center gap-3 ml-2 mb-2">
+            <MdHealthAndSafety className="text-emerald-500 text-2xl" />
+            Medical History Log
+          </h2>
+ 
+          {Object.keys(healthData?.medicalHistory || {}).length > 0 ? (
+            Object.entries(healthData.medicalHistory).map(([key, value], i) => (
+              <div key={i} className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 transition-all group">
+                <div className="mb-2">
+                  <h3 className="font-black text-slate-400 uppercase text-[10px] tracking-[0.2em] group-hover:text-emerald-600 transition-colors">
+                    {key}
+                  </h3>
+                </div>
+                <p className="text-slate-700 font-bold text-lg">
+                  {typeof value === 'object' ? JSON.stringify(value, null, 2) : value}
+                </p>
+              </div>
+            ))
+          ) : (
+            <div className="bg-slate-50 p-16 rounded-[3rem] text-center border-2 border-dashed border-slate-200">
+              <MdInfo className="mx-auto text-5xl mb-4 text-slate-300" />
+              <p className="text-slate-500 font-bold text-lg tracking-tight">No records found.</p>
+              <p className="text-xs text-slate-400 mt-2">Data will appear once updated by your health provider.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 };
-
+ 
 export default CitizenHealthRecords;
+ 
+ 

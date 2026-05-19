@@ -71,6 +71,7 @@ export default function ManagerNavbar({ onOpenProjectReport }) {
   const isApplications = location.pathname.includes("/manager/applications");
   const isPrograms = location.pathname.includes("/manager/health-programs");
   const isEnrollments = location.pathname.includes("/manager/enrollments");
+  const isDemo = location.pathname.includes("/manager/demo"); 
 
 
   return (
@@ -99,6 +100,11 @@ export default function ManagerNavbar({ onOpenProjectReport }) {
               Dashboard
             </button>
 
+
+
+
+             
+
             <button
               onClick={() => navigate("/manager/applications")}
               className={`px-4 py-2 rounded-lg font-medium ${isApplications
@@ -121,14 +127,20 @@ export default function ManagerNavbar({ onOpenProjectReport }) {
 
             <button
               onClick={() => navigate("/manager/enrollments")}
-              className={`px-4 py-2 rounded-lg font-medium ${location.pathname.includes("/manager/enrollments")
-                  ? "bg-green-700 text-white"
-                  : "text-white hover:bg-white/10"
-                }`}
+              className={`px-4 py-2 rounded-lg font-medium ${
+              isEnrollments? "bg-green-700 text-white"
+              : "text-white hover:bg-white/10"
+              }`}
             >
               Enrollments
             </button>
 
+            {/* <button
+              onClick={() => navigate("/manager/demo")}
+              className={`px-4 py-2 rounded-lg font-medium `}
+            >
+              Demo
+            </button> */}
 
             <div className="relative">
               <button
