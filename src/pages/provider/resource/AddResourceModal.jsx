@@ -105,7 +105,7 @@ const AddResourceModal = ({ show, onClose, onCreate }) => {
 
             {/*  TYPE */}
             <div>
-              <label className="text-sm text-gray-600">Type *</label>
+              <label className="text-sm text-gray-600">Type  <span className="text-red-500">*</span></label>
               <select
                 value={form.type}
                 onBlur={() => setTouched({ ...touched, type: true })}
@@ -116,9 +116,8 @@ const AddResourceModal = ({ show, onClose, onCreate }) => {
                     status: "",
                   })
                 }
-                className={`w-full border p-2 rounded ${
-                  isInvalid("type") ? "border-red-400" : "border-gray-200"
-                }`}
+                className={`w-full border p-2 rounded ${isInvalid("type") ? "border-red-400" : "border-gray-200"
+                  }`}
               >
                 <option value="">Select Type</option>
                 <option value="FUNDS">FUNDS</option>
@@ -133,7 +132,7 @@ const AddResourceModal = ({ show, onClose, onCreate }) => {
 
             {/*  QUANTITY */}
             <div>
-              <label className="text-sm text-gray-600">Quantity *</label>
+              <label className="text-sm text-gray-600">Quantity  <span className="text-red-500">*</span></label>
               <input
                 type="number"
                 value={form.quantity}
@@ -154,11 +153,10 @@ const AddResourceModal = ({ show, onClose, onCreate }) => {
                     setForm({ ...form, quantity: num });
                   }
                 }}
-                className={`w-full border p-2 rounded ${
-                  isInvalid("quantity")
+                className={`w-full border p-2 rounded ${isInvalid("quantity")
                     ? "border-red-400"
                     : "border-gray-200"
-                }`}
+                  }`}
                 placeholder="Enter quantity"
               />
 
@@ -171,7 +169,7 @@ const AddResourceModal = ({ show, onClose, onCreate }) => {
 
             {/*  STATUS */}
             <div>
-              <label className="text-sm text-gray-600">Status *</label>
+              <label className="text-sm text-gray-600">Status  <span className="text-red-500">*</span></label>
               <select
                 value={form.status}
                 onBlur={() =>
@@ -179,11 +177,10 @@ const AddResourceModal = ({ show, onClose, onCreate }) => {
                 }
                 onChange={(e) =>
                   setForm({ ...form, status: e.target.value })}
-                className={`w-full border p-2 rounded ${
-                  isInvalid("status")
+                className={`w-full border p-2 rounded ${isInvalid("status")
                     ? "border-red-400"
                     : "border-gray-200"
-                }`}
+                  }`}
               >
                 <option value="">Select Status</option>
 
@@ -219,6 +216,10 @@ const AddResourceModal = ({ show, onClose, onCreate }) => {
             >
               Add
             </button>
+
+            <p className="text-sm text-gray-500 mt-2">
+              <span className="text-red-500">*</span> Required fields
+            </p>
 
           </form>
         </div>
