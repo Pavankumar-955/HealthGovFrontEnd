@@ -97,7 +97,7 @@ const AddInfraModal = ({ show, onClose, onCreate }) => {
 
             {/* TYPE */}
             <div>
-              <label className="text-sm text-gray-600">Type *</label>
+              <label className="text-sm text-gray-600">Type <span className="text-red-500">*</span></label>
               <select
                 value={form.type}
                 onChange={(e) =>
@@ -120,7 +120,7 @@ const AddInfraModal = ({ show, onClose, onCreate }) => {
 
             {/* LOCATION */}
             <div>
-              <label className="text-sm text-gray-600">Location *</label>
+              <label className="text-sm text-gray-600">Location <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 value={form.location}
@@ -129,8 +129,8 @@ const AddInfraModal = ({ show, onClose, onCreate }) => {
                 onBlur={() =>
                   setTouched({ ...touched, location: true })}
                 className={`w-full border p-2 rounded ${isInvalid("location")
-                    ? "border-red-400"
-                    : "border-gray-200"
+                  ? "border-red-400"
+                  : "border-gray-200"
                   }`}
                 placeholder="Enter location"
               />
@@ -142,7 +142,7 @@ const AddInfraModal = ({ show, onClose, onCreate }) => {
 
             {/* CAPACITY */}
             <div>
-              <label className="text-sm text-gray-600">Capacity *</label>
+              <label className="text-sm text-gray-600">Capacity <span className="text-red-500">*</span></label>
               <input
                 type="number"
                 value={form.capacity}
@@ -160,8 +160,8 @@ const AddInfraModal = ({ show, onClose, onCreate }) => {
                 onBlur={() =>
                   setTouched({ ...touched, capacity: true })}
                 className={`w-full border p-2 rounded ${isInvalid("capacity")
-                    ? "border-red-400"
-                    : "border-gray-200"
+                  ? "border-red-400"
+                  : "border-gray-200"
                   }`}
                 placeholder="Enter capacity"
               />
@@ -173,7 +173,7 @@ const AddInfraModal = ({ show, onClose, onCreate }) => {
 
             {/* STATUS */}
             <div>
-              <label className="text-sm text-gray-600">Status *</label>
+              <label className="text-sm text-gray-600">Status <span className="text-red-500">*</span></label>
               <select
                 value={form.status}
                 onChange={(e) =>
@@ -181,8 +181,8 @@ const AddInfraModal = ({ show, onClose, onCreate }) => {
                 onBlur={() =>
                   setTouched({ ...touched, status: true })}
                 className={`w-full border p-2 rounded ${isInvalid("status")
-                    ? "border-red-400"
-                    : "border-gray-200"
+                  ? "border-red-400"
+                  : "border-gray-200"
                   }`}
               >
                 <option value="">Select Status</option>
@@ -204,7 +204,9 @@ const AddInfraModal = ({ show, onClose, onCreate }) => {
             >
               Add
             </button>
-
+            <p className="text-sm text-gray-500 mt-2">
+              <span className="text-red-500">*</span> Required fields
+            </p>
           </form>
         </div>
       </div>
